@@ -1,0 +1,65 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xmlns:context="http://www.springframework.org/schema/context"
+  xmlns:sws="http://www.springframework.org/schema/web-services"
+  xmlns:p="http://www.springframework.org/schema/p"
+  xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-3.0.xsd
+  http://www.springframework.org/schema/web-services http://www.springframework.org/schema/web-services/web-services-2.0.xsd
+  http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context-3.0.xsd">
+
+	<sws:annotation-driven/>
+
+	<!-- Activates various annotations to be detected in bean classes -->
+	<context:annotation-config />
+    
+	<context:component-scan base-package="com.primus.pl"/>
+   
+	<sws:dynamic-wsdl id="prepaidLocal" portTypeName="PrepaidLocal" locationUri="/prepaidLocal/" targetNamespace="http://primus.com/prepaidLocal/definitions">                               
+		<sws:xsd location="/WEB-INF/prepaidLocal.xsd"/>                                                  
+	</sws:dynamic-wsdl>
+
+	<bean id="provisioningService" class="com.primus.pl.service.ProvisioningService">
+	</bean>
+
+  <sws:interceptors>
+       <bean id="validatingInterceptor"  class="org.springframework.ws.soap.server.endpoint.interceptor.PayloadValidatingInterceptor"
+            p:schema="/WEB-INF/prepaidLocal.xsd"
+            p:validateRequest="true"
+            p:validateResponse="true"/>
+ 
+      <bean id="loggingInterceptor" class="org.springframework.ws.server.endpoint.interceptor.PayloadLoggingInterceptor"/>
+  </sws:interceptors>
+  
+  
+	<bean id="castorMarshaller" class="org.springframework.oxm.castor.CastorMarshaller">
+		<property name="mappingLocation" value="/WEB-INF/castor-mapping.xml" /> 
+	</bean>
+  
+	<!-- Normally we use the GenericMarshallingMethodEndpointAdapter however if you read the Spring WS 2.0 API for this adapter:
+		"Deprecated. as of Spring Web Services 2.0, in favor of DefaultMethodEndpointAdapter and MarshallingPayloadMethodProcessor."
+		See http://static.springsource.org/spring-ws/sites/2.0/apidocs/org/springframework/ws/server/endpoint/adapter/GenericMarshallingMethodEndpointAdapter.html
+    
+		So we have to implement using the recommended implementation. The advantage of these two classes is that
+		we have a pluggable adapter. For more info, check the Spring WS 2.0 API and its source code.
+	-->
+	<bean id="marshallingPayloadMethodProcessor" class="org.springframework.ws.server.endpoint.adapter.method.MarshallingPayloadMethodProcessor">
+		<constructor-arg ref="castorMarshaller"/>
+		<constructor-arg ref="castorMarshaller"/>
+	</bean>
+  
+	<bean id="defaultMethodEndpointAdapter" class="org.springframework.ws.server.endpoint.adapter.DefaultMethodEndpointAdapter">
+		<property name="methodArgumentResolvers">
+			<list>
+				<ref bean="marshallingPayloadMethodProcessor"/>
+			</list>
+		</property>
+		<property name="methodReturnValueHandlers">
+			<list>
+				<ref bean="marshallingPayloadMethodProcessor"/>
+			</list>
+		</property>
+	</bean>  
+
+
+</beans>

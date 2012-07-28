@@ -1,0 +1,80 @@
+4100:	Goodbye.
+4101:	I'm sorry..
+4102:	I did not hear a response
+4103:	That is not a valid choice
+4104:	..press 1
+4105:	..press 2
+4106:	..press 3
+4107:	..press the pound key
+4008:	  press the star key
+4109:	..the telephone number that you are calling from is not a registered prepaid local telephone number.  
+4110:	To hear your current prepaid local account balance..
+4111:	To add money to your prepaid account..
+4112:	Your current prepaid balance is
+4113:	Please enter your 19 digit ukash voucher number now
+4114:	That is is not a valid ukash voucher number
+4115:	Please enter the amount of the voucher, followed by the pound key.  Enter digits for both the dollar and cents amount; for example, a voucher with a value of fifty dollars would be entered as '5 0 0 0'.  Please enter the voucher value now, followed by the pound key.
+4116:	That is not a valid voucher amount.
+4117:	You entered..
+4118:	Your new prepaid balance is..
+4119:	If that is correct..
+4120: Please hold while we transfer the voucher to your account
+4121:	The voucher transfer was successfully processed.
+4122:	The voucher transfer was denied.
+4123:	The payment gateway is currently unavailable.  Please try again later.
+4124:	To transfer another voucher..
+4125:	To repeat this menu..
+4126:	To hear this again..
+4127:	To listen to the authorization code for this transfer..
+4128:	..otherwise..
+4129:	..to exit..
+4130:	..underscore..
+
+
+4150:	A
+..
+4175:	Z
+
+
+
+1:zero
+2:one
+3:two
+4:three
+5:four
+6:five
+7:six
+8:seven
+9:eight
+10:nine
+11:ten
+12:eleven
+13:twelve
+14:thirteen
+15:fourteen
+16:fifteen
+17:sixteen
+18:seventeen
+19:eighteen
+20:nineteen
+21:twenty
+22:thirty
+23:forty
+24:fifty
+25:sixty
+26:seventy
+27:eighty
+28:ninety
+29:hundred
+30:thousand
+31:million
+32:billion
+33:trillion
+
+48:dollar
+49:dollars
+50:cent
+51:cents
+52:and
+
+

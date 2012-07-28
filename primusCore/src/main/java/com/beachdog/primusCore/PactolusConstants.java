@@ -1,0 +1,575 @@
+package com.beachdog.primusCore;
+
+public interface PactolusConstants {
+
+    int SUCCESS = 0;
+
+    // prepaid lot generation errors
+    int LOT_GEN_ERROR_REPORT = -2;
+    int LOT_GEN_ERROR_INVALID_RANGE = -3;
+    int LOT_GEN_ERROR_INVALID_BATCH = -4;
+
+    long LOT_SEQ_START_VALUE_0 = 10000000;
+    long LOT_SEQ_START_VALUE_1 = 10000001;
+    int LOT_SEQ_NUMBER_LENGTH = 8;
+    int LOT_MAX_QUERY_PIN_STATUS = 10000;
+    int LOT_MAX_ROWNUM_UPDATE = 10000;
+    int LOT_MAX_API_PIN_GENERATION = 10000;
+    int LOT_MAX_ACE_PIN_GENERATION = 1000;
+
+    //auth ani codes
+    String ANI_NOT_RECOGNIZED = "0";
+    String ANI_VALID = "1";
+    String ANI_VALID_PROMPT_PIN = "2";
+    String ANI_INACTIVE = "3";
+
+    int PROV_ERROR_INVALID_DATA = 99;
+
+    //CDR field lengths
+    int CDR_LENGTH_SIP_CALLID = 100;
+    int CDR_LENGTH_SIP_TOFROM = 256;
+    int CDR_LENGTH_INFO_DIGITS = 4;
+    int CDR_LENGTH_TRUNK_GROUP = 40;
+
+
+    int UNBILLED_REASON_NOT_CONNECTED = 1;
+    int UNBILLED_REASON_BELOW_MINIMUM_DURATION = 2;
+    int UNBILLED_REASON_OPERATOR_CALL = 3;
+    int UNBILLED_POPD_NO_RATING = 4;
+    int UNBILLED_CSR_TRANSFER = 5;
+
+
+    String SYSTEM_DB_NAME = "pcssystemdb";
+    String REPORTING_DB_NAME = "reportingdb";
+    String PROD_DB_NAME = "pactolusdb";
+
+    int DB_VENDOR_ORACLE = 1;
+    int DB_VENDOR_SYBASE = 2;
+    int DB_VENDOR_TIMES_TEN = 3;
+    int DB_VENDOR_MS_SQL_SERVER = 4;
+    int DB_VENDOR_MYSQL = 5;
+    int DB_VENDOR_POSTGRES = 6;
+
+    int PROC_DB = 1;
+    int SYS_DB = 2;
+    int REPORT_DB = 3;
+
+	String DB_TO_CHAR_FORMAT = "9999999999";
+
+    //Termination Reasons
+    int NO_CALL_TERM_RSN = 1; //A call was not placed for this session
+
+    //Service Element Types
+    int UNKNOWN_SERVICE = 0;
+    int PREPAID_CALLING_CARD_SERVICE = 1;
+    int POSTPAID_CONFERENCING_SERVICE = 2;
+    int POSTPAID_CALLING_SERVICE = 3;
+    int PERSONAL_TOLLFREE_SERVICE=4;
+    int PREPAID_CONFERENCING_SERVICE = 5;
+    int VOIP_CALLING_SERVICE = 6;
+    int VOICEMAIL_SERVICE = 7;
+    int PRPD_OR_POPD_SERVICE_TYPE = 8;
+    int EVENT_CONFERENCING_SERVICE_TYPE = 9;
+    int NON_EVENT_CONFERENCING_SERVICE_TYPE = 10;
+    int CONFERENCING_SERVICE = 99;  // Generic conferencing for call history
+
+
+    //
+    int MAX_PP_CALL_DURATION = 7200;//max allowed prepaid call, only used if no metered rates apply
+
+    // Number of Rates
+    int TOTAL_POPD_RATES = 12;   // Used when looping through all potential rates
+    int TOTAL_PRPD_RATES = 16;
+    int RATE_END_DATE_YEARS_OUT = 10;
+
+    // Maximum number of rates to bring back in a query or to update
+    int MAX_QUERY_RATES = 10000;
+    // Maximum number of rows to bring back for payphone numbers
+    int MAX_PAYPHONE_ROWS = 100;
+    // Maximum number of subscriber records to update at a given time
+    int MAX_SUBSCRIBER_UPDATES = 5000;
+
+    // Maximum types of rates allowed
+    int MAX_PAYPHONE_SURCHARGE_RATES = 2;
+    int MAX_ACCESS_NUMBER_RATES = 2;
+
+    // Rate Precision
+    int RATE_DIGIT_PRECISION = 6;
+
+    //Rate Types  
+    int PER_EVENT_RATE = 1;  //fixed (e.g. 5c per call)
+    int METERED_RATE = 2;    //cents per minute (e.g. 5c/min per call)
+    int FIXED_FEE = 3;
+    int VARIABLE_FEE = 4;
+
+    // Sub Rate Types
+    int LOCATION_BASED_RATE = 1;
+    int TIME_AND_DAY_OF_WEEK_RATE = 2;
+    int ACCESS_NUMBER_RATE = 3;
+    int DESTINATION_BASED_RATE = 4;
+    int ORIGINATION_BASED_RATE = 5;
+    int CALLING_REGION_RATE = 6;
+    int ON_NET_SUB_RATE = 7;
+    int BUCKET_SUB_RATE = 8;
+
+    //Rate Calculation Types
+    int USER_DEFINED_RATE_CALC = 0;
+    int DOM_ORIG_DEST_TDW_CALC = 1;
+    int DOM_DEST_CALC = 2;
+    int INTL_ORIG_CALC = 3;
+    int INTL_DEST_CALC = 4;
+    int DOM_ORIG_CALC = 5;
+    int PAYPHONE_SURCHARGE_RATE_CALC = 6;
+    int ACCESS_NUM_RATE_CALC = 7;
+    int MATRIX_RATE_CALC = 8;
+    int ON_NET_RATE_CALC = 9;
+    int GLOBAL_MATRIX_RATE_CALC = 10; 
+    int BUCKET_RATE_CALC = 11;
+    int ALL_CALC_TYPES = 999;  // for gui dropdown
+
+    //Subrate not found options
+    int NO_SUBRATE_USE_DEFAULT = 1;
+    int NO_SUBRATE_NO_RATE = 2;
+    int NO_SUBRATE_BLOCK_EVENT = 3;
+
+    //Subrate not found option descriptions - can't use code_reference table because of potential null values
+    String NO_SUBRATE_USE_DEFAULT_DESC = "Apply Default Rate";
+    String NO_SUBRATE_NO_RATE_DESC = "Apply No Rate";
+    String NO_SUBRATE_BLOCK_EVENT_DESC = "Block Event";
+
+    
+  //Subrate not found options for parent Bucket.
+
+    int NO_SUBRATE_USE_DEFAULT_FOR_PARENT = 1;
+    
+    int NO_SUBRATE_BLOCK_EVENT_FOR_PARENT = 3;
+    
+  //Subrate not found option descriptions - can't use code_reference table because of potential null values
+
+    String NO_SUBRATE_USE_DEFAULT_DESC_FOR_PARENT = "Use Parent Bucket";
+
+    String NO_SUBRATE_BLOCK_EVENT_DESC_FOR_PARENT = "Block Call";
+
+
+
+    
+
+
+
+    //Event Types
+    int PREPAID_CALL_EVENT = 1;
+    int OFFERING_SIGNUP_EVENT = 2;
+    int CREDIT_CARD_RECHARGE_EVENT = 3;
+    int MONTHLY_FEE_EVENT = 4;
+    int BALANCE_XFER_EVENT = 5;
+    int SUB_EXPIRATION_EVENT = 6;
+    int BAL_ADJUSTMENT_EVENT = 7;
+    int CONF_CALL_EVENT = 8;
+    int FIRST_USE_EVENT = 9;
+    int MAINT_FEE_EVENT = 10;
+    int SCHEDULE_CONF_CALL_EVENT = 11;
+    int BALANCE_SWEEP_EVENT = 12;
+    int POSTPAID_CALL_EVENT = 13;
+    int BAL_ADJUSTMENT_CREDIT_USED_EVENT = 14;
+    int POS_RECHARGE_EVENT = 15;
+	int POS_REFUND_EVENT = 16;
+	int BROADBAND_CALL_EVENT = 17;
+	int PREPAID_CALL_SESSION_EVENT = 18;
+	int EXTERNAL_PAYMENT_EVENT = 19;
+	int EXTERNAL_BALANCE_ADJ_EVENT = 20;
+	int BAL_ADJUSTMENT_CREDIT_LIMIT_EVENT = 21;
+	int BAL_ADJUSTMENT_MINUTES_BALANCE_EVENT = 23;
+	int BAL_ADJUSTMENT_MINUTES_USED_EVENT = 24;
+	int SUBSCRIPTION_FEE_EVENT = 25;
+	int ADD_ON_PURCHASE_EVENT = 26;
+	int RECURRING_ADD_ON_FEE_EVENT = 27;
+	int TELECOM_SERVICE_SURCHARGE = 28;
+	int POSTPAID_CONFERENCE_EVENT = 29;
+	int MAINT_FEE2_EVENT = 30;
+    int MAINT_FEE3_EVENT = 31;
+
+    //Batch Process Types 
+    //DON'T ADD A VALUE HERE UNLESS YOU ADD THE CORRESPONDING VALUE CODE_REFERENCE
+    //There are records in there that are not listed here because they are not used by the java.
+    //Code_reference should be the master list.
+    int RECURRING_RECHARGE_BATCH_TYPE = 1;
+    int SUB_EXPIRATION_BATCH_TYPE = 2;
+    int PIN_GEN_BATCH_TYPE = 3;
+    int MONTHLY_SURCHARGE_BATCH_TYPE = 4;
+    int MAINT_FEE_BATCH_TYPE = 34;
+    int UPDATE_NETXUSA_ORDER_STATUS_BATCH_TYPE = 43;
+    int MOVE_EXPIRED_RATES_BATCH_TYPE = 53;
+    int DB_PURGE_BATCH_TYPE = 57;
+    int COST_ROLLUP_TYPE = 63;
+    int POPD_CREDIT_RESET_BATCH_TYPE = 66;
+	int ACD_DATA_COLLECTION_TYPE = 67 ;
+	int UNUSED_PIN_EXP_BATCH_TYPE = 70;
+	int SUB_ADJUSTMENTS_BATCH_TYPE = 82;
+	int SP_CREDIT_USAGE_ROLLUP_BATCH_TYPE = 98;
+	int BILLING_CYCLE_MAINT_BATCH_TYPE = 99;
+	int RECURRING_BATCH_TYPE = 101;
+	
+	int VOIP_RELEASE_PHONE_NUMBERS_BATCH_TYPE = 105;
+	
+	int VOIP_EXPIRE_TEMPORARY_PHONE_NUMBERS_BATCH_TYPE = 110;
+	int VOIP_RELEASE_LOCKED_PHONE_NUMBERS_BATCH_TYPE = 115;
+
+	// bucket notification types
+	String BUCKET_NOTIFICATION_DAY = "DAY";
+	String BUCKET_NOTIFICATION_MONTH = "MONTH";
+	String BUCKET_NOTIFICATION_SUSPENDED = "S";
+	String BUCKET_NOTIFICATION_NOTSUSPENDED = "";
+	String BUCKET_NOTIFICATION_DAILY_USAGE = "0";
+	String BUCKET_NOTIFICATION_BUCKET_REFILL = "1";
+	String BUCKET_NOTIFICATION_BUCKET_EXHAUST = "2";
+	
+	String BUCKET_NOTIFICATION_BUCKET_UNREFILL = "3";
+	
+    //Session Types
+    int PLATFORM_SESSION = 1;
+    int WEB_SESSION = 2;
+    int BATCH_SESSION = 3;
+    int PROVISIONING_SESSION = 4;
+
+    // Web Session Types
+    int ADMIN_SESSION = 1;
+    int POPD_SESSION = 2;
+    int PRPD_SESSION = 3;
+    int ACD_SESSION = 4;
+    int API_SESSION = 5;
+    int BROADBAND_SESSION = 6;
+    int OFFICE_MANAGER_SESSION = 7;
+
+    //Domestic/International Flags
+    String INTL_FLAG = "I";
+    String DOM_FLAG = "D";
+    String DOM_INTL_FLAG = "U";
+
+    //Debit or Credit
+    String CC_DEBIT = "D";
+    String CC_CREDIT = "C";
+    String CC_AUTH = "A";
+
+    //Origination or Destination
+    String ORIGINATION = "O";
+    String DESTINATION = "D";
+
+
+    //The following are for disabled reason code for a subscriber
+    int DISABLED_FOR_FRAUD = 1;
+    int DISABLED_FOR_BAL_XFER = 2;
+    int DISABLED_EXPIRED = 3;
+    int DISABLED_EXCEED_MAX_BAL_XFER = 4;
+    int POPD_DISABLED_PENDING_AUTHORIZATION = 5;
+    int POPD_DISABLED_REJECTED_APPLICATION = 6;
+    int POPD_CANCELLED_ACCOUNT = 7;
+    int DISABLED_CANCELLED_LOT = 8;
+    int DISABLED_SUSPENDED_LOT = 9;
+    int DISABLED_PENDING_PAYMENT = 10;
+    int DISABLED_POS_REFUND = 11;
+    int DISABLED_BATCH_INTERFACE = 12;
+    int POPD_DISABLED_FRAUD_SUSPICION = 13;
+    int POPD_DISABLED_CREDIT_LIMIT_EXCEEDED = 14;
+    int SUSPENDED_SUBSCRIBER = 15;
+    int POPD_DISABLED_BUCKET_EXHAUSTED = 16;
+    int UNSPECIFIED_PIN_CANCELLATION = 17;
+    int POPD_DISABLED_BATCH_CREDIT_CARD_FAILURE = 18;
+    int DISABLED_FAILED_CREDIT_RISK_CHECK = 19;
+    int DISABLED_PENDING_E911_SETUP = 20;
+    int POPD_DISABLED_SUBSCRIPTION_FEE_FAILURE = 21;
+    int MANUAL_PIN_CANCELLATION = 22;
+
+    // Subscriber statuses
+    int SUB_ACTIVE_STATUS = 0;
+    int SUB_PENDING_STATUS = 1;
+
+    // General Statuses
+    int GEN_ACTIVE_STATUS = 0;
+    int GEN_INACTIVE_STATUS = 1;
+    
+    // General Statuses (code_reference)
+    int STATUS_ACTIVE 	= 0;
+    int STATUS_PENDING 	= 1;
+    int STATUS_INACTIVE = 2;
+    int STATUS_DISABLED = 3;
+
+    //Credit card recharge initiated types
+    int CC_INITIATED_SUBSCRIBER = 0;
+    int CC_INITIATED_ADMIN = 1;
+    int CC_INITIATED_AUTO = 2;
+    int CC_INITIATED_ACD = 3;
+    int CC_INITIATED_PORTAL = 4;
+    int CC_INITIATED_EXTERNAL = 5;
+
+    //Credit card fraud types
+    int CC_PER_MONTH_VIOLATION = -2;
+    int CC_PER_WEEK_VIOLATION = -3;
+    int SUB_PER_MONTH_VIOLATION = -4;
+    int SUB_PER_WEEK_VIOLATION = -5;
+
+    //default cc settings in case not set in product offering
+    float MIN_PP_BALANCE = (float) 0;
+    float MAX_PP_BALANCE = (float) 2000;
+    float MIN_CC_RECHARGE = (float) 1;
+    float MAX_CC_RECHARGE = (float) 500;
+    float CC_MAX_SUB_PER_WEEK = (float) 300;
+    float CC_MAX_SUB_PER_MONTH = (float) 500;
+    float CC_MAX_CARD_PER_WEEK = (float) 300;
+    float CC_MAX_CARD_PER_MONTH = (float) 500;
+    
+    // Credit Card Processor
+    int CC_PROCESSOR_CYBERSOURCE = 1;
+    int CC_PROCESSOR_AUTH_NET = 2;
+    int CC_PROCESSOR_GENERIC = 3;
+    int CC_PROCESSOR_PCI_COMPLIANT = 4;
+    
+    // Credit Card Encryption Types
+    int CC_ENCRYPTION_PACTOLUS = 1;
+    int CC_ENCRYPTION_PGP = 2;
+    
+    // Credit Card Types
+    int CC_TYPE_VISA = 1;
+    int CC_TYPE_MC = 2;
+    int CC_TYPE_AMEX = 3;
+    int CC_TYPE_DSC = 4;
+    int CC_TYPE_JCB = 5;
+    int CC_TYPE_DINERS = 6;
+
+    // Credit Card Number Prefixes
+    String[] CC_PREFIX_VISA = {"4"};    
+    String[] CC_PREFIX_MC = {"51","52","53","54","55"};
+    String[] CC_PREFIX_AMEX = {"34","37"};
+    String[] CC_PREFIX_DSC = {"6011"};
+    String[] CC_PREFIX_DINERS = {"36","38","300","301","302","303","304","305"};    
+    String[] CC_PREFIX_JCB_A = {"3"};
+    String[] CC_PREFIX_JCB_B = {"1800", "2131"};
+    
+    // Credit Card Number Lengths
+    int[] CC_LENGTH_VISA = {13,16};
+    int[] CC_LENGTH_MC = {16};
+    int[] CC_LENGTH_AMEX = {15};
+    int[] CC_LENGTH_DSC = {16};
+    int[] CC_LENGTH_DINERS = {14};	
+    int[] CC_LENGTH_JCB_A = {16};
+    int[] CC_LENGTH_JCB_B = {15};
+   
+    // Product Offering Billing Types
+    int PREPAID_PRODUCT_OFFERING = 1;
+    int POSTPAID_PRODUCT_OFFERING = 2;
+
+    //Admin Audit Types
+    int BAD_ANI_DELETE_AUDIT = 1;
+    int PIN_LOCK_DELETE_AUDIT = 2;
+    int SERVICE_PROVIDER_CREATE_AUDIT = 3;
+    int SERVICE_PROVIDER_MODIFY_AUDIT = 4;
+    int POPD_SUBSCRIBER_MODIFY_AUDIT = 5;
+    int PRPD_SUBSCRIBER_PHONE_CREATE_AUDIT = 6;
+    int PRPD_SUBSCRIBER_PHONE_MODIFY_AUDIT = 7;
+    int PRPD_SUBSCRIBER_PHONE_DELETE_AUDIT = 8;
+    int SUBSCRIBER_REVERSE_CC_AUDIT = 9;
+    int PRPD_SUBSCRIBER_REVERSE_CALL_AUDIT = 10;
+    int PRPD_SUBSCRIBER_CC_MODIFY_AUDIT = 11;
+    int SUBSCRIBER_RECHARGE_ONE_TIME_AUDIT = 12;
+    int SUBSCRIBER_RECHARGE_RECURRING_AUDIT = 13;
+    int SUBSCRIBER_RECHARGE_DELETE_AUDIT = 14;
+    int SERVICE_PROVIDER_PROMPT_CONFIG_AUDIT = 15;
+    int SERVICE_PROVIDER_PROMPT_INSERT_AUDIT = 16;
+    int SERVICE_PROVIDER_PROMPT_MODIFY_AUDIT = 17;
+    int SERVICE_PROVIDER_PROMPT_DELETE_AUDIT = 18;
+    int SVC_PRVDR_ACCESS_NBR_INSERT_AUDIT = 19;
+    int SVC_PRVDR_ACCESS_NBR_MODIFY_AUDIT = 20;
+    int SVC_PRVDR_LOT_CREATE_AUDIT = 21;
+    int SVC_PRVDR_LOT_MODIFY_AUDIT = 22;
+    int SVC_PRVDR_LOT_CANCEL_AUDIT = 23;
+    int SVC_PRVDR_LOT_ACTIVATE_AUDIT = 24;
+    int SVC_PRVDR_LOT_GENERATE_AUDIT = 25;
+    int SVC_PRVDR_X_PIN_RANGE_INSERT_AUDIT = 26;
+    int SVC_PRVDR_X_PIN_RANGE_MODIFY_AUDIT = 27;
+    int SVC_PRVDR_X_PIN_RANGE_DELETE_AUDIT = 28;
+    int SVC_THRESHOLD_PROMPTS_INSERT_AUDIT = 29;
+    int SVC_THRESHOLD_PROMPTS_MODIFY_AUDIT = 30;
+    int CALL_RESTRICTION_GROUP_INSERT_AUDIT = 31;
+    int CALL_RESTRICTION_GROUP_MODIFY_AUDIT = 32;
+    int CALL_RESTRICTION_GROUP_DELETE_AUDIT = 33;
+    int CALL_RESTRICTIONS_INSERT_AUDIT = 34;
+    int CALL_RESTRICTIONS_MODIFY_AUDIT = 35;
+    int CALL_RESTRICTIONS_DELETE_AUDIT = 36;
+    int CALL_RESTRICTION_SERVICE_CONFIG_AUDIT = 37;
+    int PRPD_SUBSCRIBER_TO_BALANCE_XFER_AUDIT = 38;
+    int PRPD_SUBSCRIBER_FROM_BALANCE_XFER_AUDIT = 39;
+    int ACCESS_NUMBER_SERVICE_CONFIG_AUDIT = 40;
+    int DAY_OF_WEEK_RATE_INSERT_AUDIT = 41;
+    int DAY_OF_WEEK_RATE_MODIFY_AUDIT = 42;
+    int DAY_OF_WEEK_RATE_DELETE_AUDIT = 43;
+    int LOCATION_BASED_RATE_INSERT_AUDIT = 44;
+    int LOCATION_BASED_RATE_MODIFY_AUDIT = 45;
+    int LOCATION_BASED_RATE_DELETE_AUDIT = 46;
+    int CURRENCY_SUPPORT_INSERT_AUDIT = 47;
+    int CURRENCY_SUPPORT_MODIFY_AUDIT = 48;
+    int CURRENCY_SUPPORT_DELETE_AUDIT = 49;
+    int LANGUAGE_SUPPORT_AUDIT = 50;
+    int PRPD_SUBSCRIBER_REVERSE_SIGNUP_FEE_AUDIT = 51;
+    int PRPD_SUBSCRIBER_REVERSE_MONTHLY_FEE_AUDIT = 52;
+    int RATE_INSERT_AUDIT = 53;
+    int RATE_MODIFY_AUDIT = 54;
+    int RATE_DELETE_AUDIT = 55;
+    int PRODUCT_OFFERING_INSERT_AUDIT = 56;
+    int PRODUCT_OFFERING_MODIFY_AUDIT = 57;
+    int SUB_RATE_EXPIRED_CREATED_AUDIT = 58;
+    int RATE_EXPIRED_CREATED_AUDIT = 59;
+    int BALANCE_ADJUSTMENT_AUDIT = 60;
+    int RATE_SHARE_AUDIT = 61;
+    int RATE_COPY_AUDIT = 62;
+    int ACCESS_NUMBER_RATE_INSERT_AUDIT = 63;
+    int ACCESS_NUMBER_RATE_MODIFY_AUDIT = 64;
+    int ACCESS_NUMBER_RATE_DELETE_AUDIT = 65;
+    int ACCEPT_PENDING_SUBSCRIBER_AUDIT = 66;
+    int REJECT_PENDING_SUBSCRIBER_AUDIT = 67;
+    int POPD_PIN_MODIFY_AUDIT = 68;
+    int POPD_SUBSCRIBER_INSERT_AUDIT = 69;
+    int CALLING_SVC_INSERT_POPD_AUDIT = 70;
+    int CALLING_SVC_MODIFY_POPD_AUDIT = 71;
+    int POPD_SUBSCRIBER_OFFERING_ASSOC_AUDIT = 72;
+    int PIN_INSERT_POPD_AUDIT = 73;
+    int POPD_SUB_CONFERENCE_INSERT_AUDIT = 74;
+    int POPD_SUB_CONFERENCE_MODIFY_AUDIT = 75;
+    int POPD_SUB_CONFERENCE_DELETE_AUDIT = 76;
+    int POPD_CORP_ACCOUNT_INSERT_AUDIT = 77;
+    int POPD_CORP_ACCOUNT_MODIFY_AUDIT = 78;
+    int POPD_CORP_ACCOUNT_CANCEL_AUDIT = 79;
+    int POPD_SUBSCRIBER_CANCEL_AUDIT = 80;
+    int MUSIC_ON_HOLD_SUPPORT_AUDIT = 81;
+    int OFFERING_EMAIL_CREATE_AUDIT = 82;
+    int OFFERING_EMAIL_MODIFY_AUDIT = 83;
+    int PRPD_SUBSCRIBER_INSERT_AUDIT = 84;
+    int PRPD_SUBSCRIBER_MODIFY_AUDIT = 85;
+    int CALLING_SVC_INSERT_PRPD_AUDIT = 86;
+    int CALLING_SVC_MODIFY_PRPD_AUDIT = 87;
+    int PRPD_SUB_OPTIONS_INSERT_AUDIT = 88;
+    int PRPD_SUB_OPTIONS_MODIFY_AUDIT = 89;
+    int SVC_PRVDR_LOT_SUSPEND_AUDIT = 90;
+    int SVC_PRVDR_LOT_UNSUSPEND_AUDIT = 91;
+    int SUBSCRIBER_REVERSE_MAINTENANCE_FEE_AUDIT = 92;
+    int SUBSCRIBER_REVERSE_BALANCE_SWEEP_AUDIT = 93;
+    int SUBSCRIBER_REVERSE_DEFAULT_AUDIT = 94;
+    int SERVICE_PROVIDER_DELETE_AUDIT = 95;
+    int CONF_SUB_ACCESS_NBR_CONFIG_AUDIT = 96;
+    int VOIP_CALLING_SVC_INSERT_AUDIT = 97;
+    int VOIP_CALLING_SVC_MODIFY_AUDIT = 98;
+    int VOICEMAIL_SVC_INSERT_AUDIT = 99;
+    int VOICEMAIL_SVC_MODIFY_AUDIT = 100;
+    int POPD_SUB_VOIP_ACCESS_LINE_INSERT_AUDIT = 101;
+    int POPD_SUB_VOIP_ACCESS_LINE_MODIFY_AUDIT = 102;
+    int POPD_SUB_VOIP_ACCESS_LINE_STATUS_AUDIT = 103;
+    int CALLING_REGION_INSERT_AUDIT = 104;
+    int CALLING_REGION_DELETE_AUDIT = 105;
+    int CALLING_REGION_UPDATE_AUDIT = 106;
+    int SUBSCRIBER_DISABLED_AUDIT = 107;
+    int SUBSCRIBER_ENABLED_AUDIT = 108;
+    int PRODUCT_OFFERING_DELETE_AUDIT = 109;
+    int CALLING_SVC_DELETE_AUDIT = 110;
+    int VOICEMAIL_SVC_DELETE_AUDIT = 111;
+    int VOIP_CALLING_SVC_DELETE_AUDIT = 112;
+    int CONFERENCE_SVC_INSERT_AUDIT = 113;
+    int CONFERENCE_SVC_MODIFY_AUDIT = 114;
+    int CONFERENCE_SVC_DELETE_AUDIT = 115;
+    int SVC_PRVDR_LOT_GROUP_SUSPEND_AUDIT = 116;
+    int SVC_PRVDR_LOT_GROUP_UNSUSPEND_AUDIT = 117;   
+    int SVC_PRVDR_LOT_GROUP_CANCEL_AUDIT = 118;
+    int SVC_PRVDR_LOT_GROUP_MODIFY_AUDIT = 119;
+    int SVC_PRVDR_LOT_GROUP_ACTIVATE_AUDIT = 120;
+    int SUBSCRIBER_CHANGE_PRIMARY_OFFERING_AUDIT = 121;
+    int SUBSCRIBER_REVERSE_VOIP_CALL_EVENT_AUDIT = 122;
+    int SUBSCRIBER_REVERSE_FIRST_USE_FEE_AUDIT = 123;
+    int SUBSCRIBER_REVERSE_SCHED_CONF_FEE_AUDIT = 124;
+    int SUBSCRIBER_REVERSE_CONF_CALL_AUDIT = 125;
+    int SUBSCRIBER_CREDIT_LIMIT_AUDIT = 126;
+    int SUBSCRIBER_CREDIT_USAGE_AUDIT = 127;
+    int SUBSCRIBER_EXTERNAL_PAYMENT_AUDIT = 128;
+	int SVC_PRVDR_LANGUAGE_MENU_INSERT_AUDIT = 129;
+	int SVC_PRVDR_LANGUAGE_MENU_MODIFY_AUDIT = 130;
+	int SVC_PRVDR_CREDIT_BAL_ADJUSTMENT = 131;
+	int CREATE_ACCOUNT_AUDIT = 132;
+	int UNKNOWN_FAILED_AUDIT = 133;
+	int AUTHORIZED_ANI_INSERT_AUDIT = 134;
+	int AUTHORIZED_ANI_DELETE_AUDIT = 135;
+	int AUTHORIZED_ANI_MODIFY_AUDIT = 136;
+	int AUTHORIZED_ANI_MODIFY_STATUS_AUDIT = 137;
+	int ACCOUNT_SUMMARY_AUDIT = 138;
+	int POPD_MINUTE_BALANCE_ADJUST_AUDIT = 139;
+	int POPD_MINUTE_USAGE_ADJUST_AUDIT = 140;
+	int CALL_DETAIL_AUDIT = 141;
+	int RATE_BUCKET_CYCLE_DATE_AUDIT = 142;
+	int UPDATE_ACCOUNT_STATUS_ENABLE_AUDIT = 143;
+	int UPDATE_ACCOUNT_STATUS_DISABLE_AUDIT = 144;
+	int UPDATE_ACCOUNT_STATUS_SUSPEND_AUDIT = 145;
+	int ADD_SPEED_DIAL_AUDIT = 146;
+	int REMOVE_SPEED_DIAL_AUDIT = 147;
+	int POPD_SUBSCRIBER_REVERSE_CALL_AUDIT = 148;
+	int SUBSCRIBER_BALANCE_THRESHOLD_MODIFY_AUDIT = 149;
+	int SUBSCRIBER_IVR_LANGUAGE_MODIFY_AUDIT = 150;
+	int PIN_RANGE_STATUS_MODIFY_AUDIT = 151;
+	int SUBSCRIBER_BALANCE_THRESHOLD_QUERY_AUDIT = 152;
+	int SUBSCRIBER_ACCOUNT_CREDIT_LIST_AUDIT = 153;
+	int SPEED_DIAL_QUERY_AUDIT = 154;
+	int SUBSCRIBER_SUBSCRIPTION_FEE_AUDIT = 155;
+	int REVERSE_SUBSCRIPTION_FEE_EVENT_AUDIT = 156;
+	int ADD_ON_PURCHASE_AUDIT = 157;
+	int REVERSE_ADD_ON_PURCHASE_AUDIT = 158;
+	int RECURRING_ADD_ON_FEE_AUDIT = 159;
+	int REVERSE_RECURRING_ADD_ON_FEE_AUDIT = 160;
+	int REVERSE_CREDIT_USAGE_AUDIT = 161;
+	int REVERSE_TELECOM_SERVICE_SURCHARGE_AUDIT = 162;
+	int SUBRATE_INSERT_INTO_STOREDBALANCE_AUDIT = 163;
+	int ACCOUNT_BALANCES_AUDIT = 164;
+	int CREATE_SUBSCRIBER_ACCOUNT_AUDIT = 165;
+	int UPDATE_ACCOUNT_AUDIT = 166;
+	int DELETE_ACCOUNT_AUDIT = 167;
+	int AUTHORIZED_PHONE_NUMBER_INSERT_AUDIT = 168;
+	int AUTHORIZED_PHONE_NUMBER_DELETE_AUDIT = 169;
+	int GET_VOICEMAIL_COUNTS_AUDIT = 170;
+	
+    //Used by Administrative Application Security
+    long PLATFORM_OWNER_SERVICE_PROVIDER_ID = 0;
+    long PLATFORM_OWNER_ADMIN_USER_ID = 0;
+    long PLATFORM_OWNER_ADMIN_ROLE_ID = 0;
+    long SERVICE_PROVIDER_ADMIN_USER_ID = 1;
+    long PROVISIONING_API_USER_ID = 3;
+    long BATCH_PROCESS_USER_ID = 4;
+
+     //Lot's Batch Status
+    int LOT_NEW = 1;  
+    int LOT_PROCESSED = 2; // the pins in the the lot have been generated
+    int LOT_ACTIVATED = 3;
+    int LOT_CANCELLED = 4; //do not use pins from this lot
+    int LOT_ERROR = 5;   //Error in processing the lot. Do not attempt further
+    //the minimum number of records required to be generated before issuing a commit.
+    // If the number of records generated is less than this number then the commit is
+    //issued before the process ends.
+    int LOT_SUSPENDED = 6;
+    int LOT_PROCESSING = 7;
+    int LOT_UNSUSPENDED = 8;
+    int LOT_GROUPS_ACTIVATED = 9;      // not in code_reference
+    int LOT_NO_PINS_AVAILABLE = 10;    // not in code reference
+    int LOT_EXPIRED = 11;
+    
+    //prepaid activation current status codes
+    int PINS_ACTIVATED = 1;
+    int PINS_SUSPENDED = 2;
+    int PINS_CANCELLED = 3;
+    int PINS_PURGED = 4;
+    int PINS_UNSUSPENDED = 15;  // only used for gui
+    
+    //prepaid activation log action codes
+    int GROUP_ACTIVATED = 1;
+    int GROUP_SUSPENDED = 2;
+    int GROUP_CANCELLED = 3;
+    int GROUP_PURGED = 4;
+    int GROUP_SETTINGS_MODIFIED = 5; 
+    int GROUP_UNSUSPENDED = 15;  // only used for gui
+    int PREACTIVATED_SETTINGS_SAVE =9;//only used for gui    
+    
+    
+
+
+}

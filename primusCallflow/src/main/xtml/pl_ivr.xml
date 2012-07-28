@@ -1,0 +1,894 @@
+<?xml version="1.0"?>
+<xtml version="1.0" xmlns="urn:www.pactolus.com:xtml" >
+  <version sce-version="1" prev-sce-version="1" last-mod-time="Friday, July 13, 2012 17:51:51"/>
+  <global-handlers >
+    <handler event="Pactolus.EveSessionTerminate.1" function="OnSipDialogTerminated" public="0" always-on="0"/>
+    <handler event="Standard.OnServiceLoad.1" function="OnServiceLoad" public="0" always-on="0"/>
+    <handler event="Pactolus.EveSessionRequest.1" function="OnSipDialogRequested" public="1" always-on="0"/>
+  </global-handlers>
+  <global-vars >
+    <var name="g_ep" type="MediaEndpoint" ></var>
+    <var name="g_dlg" type="SipDialog" ></var>
+    <var name="g_strLanguage" type="string" ></var>
+    <var name="g_fMaxRecharge" type="float" >0</var>
+    <var name="g_fMinRecharge" type="float" >0</var>
+    <var name="g_bPlayAsUnits" type="boolean" >0</var>
+    <var name="g_strSessionId" type="string" ></var>
+    <var name="g_strCallingNumber" type="string" ></var>
+    <var name="g_strCalledNumber" type="string" ></var>
+    <var name="g_lSubscriberId" type="i8" >0</var>
+    <var name="g_nSubscriberStatus" type="i4" >0</var>
+    <var name="g_fAccountBalance" type="float" >0</var>
+    <var name="g_fMaxRechargeAmount" type="float" >0</var>
+    <var name="g_fMinRechargeAmount" type="float" >0</var>
+    <var name="g_strBusinessUnit" type="string" ></var>
+  </global-vars>
+  <shared-vars >
+    <var name="s_SUCCESS" type="i4" >0</var>
+    <var name="s_strWSUserId" type="string" ></var>
+    <var name="s_strWSClientId" type="string" ></var>
+    <var name="ACCESS_NUM_BAD" type="i4" >-5</var>
+    <var name="AMBIGUOUS_SUB" type="i4" >-2</var>
+    <var name="CURRENCY_BAD" type="i4" >-7</var>
+    <var name="DB_ERROR" type="i4" >-99</var>
+    <var name="LANGUAGE_BAD" type="i4" >-6</var>
+    <var name="MISSING_BIZ_UNIT_NAME" type="i4" >-3</var>
+    <var name="s_nTIMEOUT" type="i4" >10</var>
+    <var name="STATUS_DISABLED" type="i4" >-2</var>
+    <var name="STATUS_DISABLED_SUB" type="i4" >-1</var>
+    <var name="SUCCESS" type="i4" >0</var>
+    <var name="s_strJavaClass" type="string" >com.beachdog.primusCallflow.XtmlApi</var>
+    <var name="s_IDX_GOODBYE" type="i4" >4100</var>
+    <var name="IDX_UNKNOWN_CALLER" type="i4" >4109</var>
+    <var name="ACTION_TOPLEVEL_IVR" type="i4" >1</var>
+    <var name="ACTION_UKASH_IVR" type="i4" >2</var>
+    <var name="strDigits" type="string" ></var>
+    <var name="IDX_PRESS_1" type="i4" >4104</var>
+    <var name="IDX_TO_RECHARGE" type="i4" >4111</var>
+    <var name="IDX_PRESS_2" type="i4" >4105</var>
+    <var name="IDX_NO_INPUT" type="i4" >4102</var>
+    <var name="IDX_INVALID_SELECTION" type="i4" >4103</var>
+    <var name="ACTION_PLAY_BALANCE" type="i4" >3</var>
+    <var name="IDX_YOUR_BALANCE_IS" type="i4" >4112</var>
+    <var name="IDX_ENTER_VOUCHER" type="i4" >4113</var>
+    <var name="IDX_ENTER_VOUCHER_VALUE" type="i4" >4115</var>
+    <var name="UNKNOWN_SUB" type="i4" >-1</var>
+    <var name="IDX_IM_SORRY" type="i4" >4101</var>
+    <var name="IDX_TO_HEAR_YOUR_BALANCE" type="i4" >4110</var>
+    <var name="IDX_INVALID_VOUCHER" type="i4" >4114</var>
+    <var name="IDX_TRY_LATER" type="i4" >4123</var>
+    <var name="IDX_VOUCHER_SUCCESS" type="i4" >4121</var>
+    <var name="IDX_NEW_BALANCE" type="i4" >4118</var>
+    <var name="IDX_VOUCHER_DENIED" type="i4" >4122</var>
+    <var name="WS_ERROR" type="i4" >-98</var>
+  </shared-vars>
+  <functions >
+    <function name="OnSipDialogRequested" start="2" event="SipDialogRequested" returns="void" >
+      <parameters >
+        <parameter name="oSipInviteMsg" type="SipMessage" pass="byref"/>
+      </parameters>
+      <local-vars >
+        <var name="nReturnCode" type="i4" >0</var>
+      </local-vars>
+      <actions >
+        <action id="2" plug-in="Pactolus.DialogResponse.1" ><?xtml-editor x=32 y=45 ?>
+          <session-response xmlns="www.pactolus.com:xtml:sip-dialog" session="g_dlg" sip-dialog-invite-msg="oSipInviteMsg" action="0" redirect-to-address="" response-sip-status="" proxy-destination="" cancel-timeout="" cancel="0" proxy-stateful="0" exit-timeout="" exit="0" b2bua-outbound-session="" b2bua-destination="" b2bua-calling-number="" b2bua-called-number="" final-response-message="" cca-id-action="&quot;Preserve&quot;" preferred-ip-version="0" cca-id="" b2bua-replace-from="0" b2bua-replace-to="0" b2bua-replace-calling-number="0" b2bua-replace-called-number="0" continue-without-rejecting="0" as-sip="0" media-endpoint="g_ep" media-server-type="&quot;PCS&quot;" media-endpoint-type="&quot;ivr&quot;" media-allocate-new-endpoint="1" codec="-1" telephone-events="0" media-status="" media-server-name="" send-183-provisional-response="0" send-180-ringing="0" continue-without-sending-200-ok="0" conference="" new-conference="0" persistent-conference="0" wideband="0" participant-mode="&quot;Full&quot;" coachee-endpoint="" max-parties="" dtmf-clamp-setting="0" max-talkers="" hysteresis="" time-constant="" active-speakers-to-report="" reporting-interval="" active-speaker-threshold="" media-sdp="" >
+            <sip-hdrs-A-leg/>
+            <sip-hdrs-B-leg/>
+            <session-timer-A >
+              <use-session-timer >0</use-session-timer>
+              <session-timer-interval ></session-timer-interval>
+              <session-timer-min-interval ></session-timer-min-interval>
+              <session-timer-refresher >"no preference"</session-timer-refresher>
+            </session-timer-A>
+            <session-timer-B >
+              <use-session-timer >0</use-session-timer>
+              <session-timer-interval ></session-timer-interval>
+              <session-timer-min-interval ></session-timer-min-interval>
+              <session-timer-refresher >"no preference"</session-timer-refresher>
+            </session-timer-B>
+          </session-response>
+          <results >
+            <result name="Default" link="3" stubbed="0"/>
+            <result name="Success" link="1" stubbed="0"/>
+            <result name="No response from far end"/>
+            <result name="Not completed in time"/>
+            <result name="Canceled by requestor"/>
+            <result name="Session not established"/>
+            <result name="Media Resource Failure"/>
+            <result name="Error"/>
+            <result name="Insufficient Priority"/>
+          </results>
+        </action>
+        <action id="1" plug-in="Pactolus.JavaStaticMethod.1" ><?xtml-editor x=264 y=146 ?>
+          <!--InitializeRechargeSession-->
+          <java xmlns="www.pactolus.com:xtml:application" class="s_strJavaClass" method="&quot;InitializeRechargeSession&quot;" timeout="10" return="" method-return-var="nReturnCode" method-return-type="0" >
+            <parameter type="in" var-type="string" >g_strSessionId</parameter>
+            <parameter type="in" var-type="string" >g_strCalledNumber</parameter>
+            <parameter type="in" var-type="string" >g_strCallingNumber</parameter>
+            <parameter type="inout" var-type="i8" >g_lSubscriberId</parameter>
+            <parameter type="inout" var-type="i4" >g_nSubscriberStatus</parameter>
+            <parameter type="inout" var-type="string" >g_strLanguage</parameter>
+            <parameter type="inout" var-type="float" >g_fAccountBalance</parameter>
+            <parameter type="inout" var-type="boolean" >g_bPlayAsUnits</parameter>
+            <parameter type="inout" var-type="float" >g_fMaxRechargeAmount</parameter>
+            <parameter type="inout" var-type="float" >g_fMinRechargeAmount</parameter>
+            <parameter type="inout" var-type="string" >g_strBusinessUnit</parameter>
+          </java>
+          <results >
+            <result name="Default" link="3" stubbed="0"/>
+            <result name="Success"/>
+            <result name="Error"/>
+            <result name="Timeout"/>
+            <result name="valid customer" link="4" stubbed="0" >nReturnCode == SUCCESS
+AND g_nSubscriberStatus == SUCCESS</result>
+            <result name="unregistered number" link="6" stubbed="0" >nReturnCode == UNKNOWN_SUB</result>
+          </results>
+          <scripts >
+            <script language="javascript" timing="first" ><![CDATA[Session.g_strSessionId = Session._sessionId ;
+
+if (0 < Session.oSipInviteMsg.hdr.p_asserted_identity.length) {
+	Server.logInfo("P-Asserted Identity is: " + Session.oSipInviteMsg.hdr.p_asserted_identity ) ;
+	var pai = new SipFrom( Session.oSipInviteMsg.hdr.p_asserted_identity ) ;
+	//var pai = new SipRequestUri(Session.oSipInviteMsg.hdr.p_asserted_identity);
+	Session.g_strCallingNumber = pai.url.user;
+	Server.logInfo("Taking CLI from P-Asserted-Identity header: " + Session.g_strCallingNumber ) ;
+}
+else {
+	var from = new SipFrom(Session.oSipInviteMsg.hdr.from);
+	Session.g_strCallingNumber = from.url.phoneNumber;
+	Server.logInfo("Taking CLI from P-Asserted-Identity header: " + Session.g_strCallingNumber ) ;
+}
+
+var dnis = new SipRequestUri( Session.oSipInviteMsg.request_uri ) ;
+Session.g_strCalledNumber = dnis.url.phoneNumber ;
+Server.logInfo("DNIS is: " + Session.g_strCalledNumber ) ;]]></script>
+            <script language="javascript" timing="last" ><![CDATA[if( Session.SUCCESS != Session.nReturnCode ) {
+	switch( Session.nReturnCode ) {
+	case Session.UNKNOWN_SUB:
+		Server.logError("No subscriber record found for calling number: " + Session.g_strCallingNumber ) ;
+		break ;
+		
+		case Session.AMBIGUOUS_SUB:
+		Server.logError("More than one subscriber record found for calling number: " + Session.g_strCallingNumber ) ;
+		break ;
+		
+		case Session.MISSING_BIZ_UNIT_NAME:
+		Server.logError("No business unit found for subscriber with calling number: " + Session.g_strCallingNumber ) ;
+		break ;
+		
+		case Session.ACCESS_NUM_BAD:
+		Server.logError("Access number not provisioned: " + Session.g_strCalledNumber ) ;
+		break ;
+		
+		case Session.LANGUAGE_BAD:
+		Server.logError("Language not provisioned for subscriber with calling number: " + Session.g_strCallingNumber ) ;
+		break ;
+		
+		case Session.CURRENCY_BAD:
+		Server.logError("Currency not provisioned for subscriber with calling number: " + Session.g_strCallingNumber ) ;
+		break ;
+		
+		case Session.DB_ERROR:
+		Server.logError("Database error calling InitializeRechargeSession") ;
+		break ;
+	}
+	return ;
+}
+
+if( Session.SUCCESS != Session.g_nSubscriberStatus ) {
+	switch( Session.g_nSubscriberStatus ) {
+	case Session.STATUS_DISABLED_SP:
+		Server.logError("Service provider is disabled for subscriber with calling number: " + Session.g_strCallingNumber ) ;
+		break ;
+		
+		case Session.STATUS_DISABLED_SUB:
+		Server.logError("Subscriber is disabled with calling number: " + Session.g_strCallingNumber ) ;
+		break ;
+	}
+	return ;
+	
+}
+
+Server.logInfo("Return values from InitializeRechargeSession for calling number " + Session.g_strCallingNumber ) ;
+Server.logInfo("subscriber id: " + Session.g_lSubscriberId ) ;
+Server.logInfo("language: " + Session.g_strLanguage ) ;
+Server.logInfo("account balance: " + Session.g_fAccountBalance ) ;
+Server.logInfo("units card?: " + Session.g_bPlayAsUnits ) ;
+Server.logInfo("max recharge: " + Session.g_fMaxRechargeAmount ) ;
+Server.logInfo("min recharge: " + Session.g_fMinRechargeAmount ) ;
+Server.logInfo("business unit: " + Session.g_strBusinessUnit ) ;
+
+]]></script>
+          </scripts>
+        </action>
+        <action id="3" plug-in="Standard.EndSession.1" ><?xtml-editor x=428 y=42 ?></action>
+        <action id="4" plug-in="Standard.FunctionCall.1" ><?xtml-editor x=615 y=186 ?>
+          <!--ACTION_TOPLEVEL_IVR-->
+          <function xmlns="www.pactolus.com:xtml:application" name="&quot;MainMenu&quot;" return="" external-function="0" library="" >
+            <parameter >ACTION_TOPLEVEL_IVR</parameter>
+          </function>
+          <results >
+            <result name="Default" link="3" stubbed="0"/>
+          </results>
+        </action>
+        <action id="6" plug-in="Standard.FunctionCall.1" ><?xtml-editor x=646 y=328 ?>
+          <!--PlayErrorMsg-->
+          <function xmlns="www.pactolus.com:xtml:application" name="&quot;PlayErrorMsg&quot;" return="" external-function="0" library="" >
+            <parameter >IDX_UNKNOWN_CALLER</parameter>
+            <parameter >true</parameter>
+            <parameter >true</parameter>
+          </function>
+          <results >
+            <result name="Default" link="3" stubbed="1"/>
+          </results>
+        </action>
+      </actions>
+    </function>
+    <function name="OnSipDialogTerminated" start="1" event="SipDialogTerminated" returns="void" >
+      <parameters >
+        <parameter name="oSipByeMsg" type="SipMessage" pass="byref"/>
+        <parameter name="nTerminationReason" type="i4" pass="byref"/>
+      </parameters>
+      <actions >
+        <action id="1" plug-in="Standard.EndSession.1" ><?xtml-editor x=81 y=58 ?></action>
+      </actions>
+    </function>
+    <function name="PlayErrorMsg" start="1" event="" returns="void" >
+      <parameters >
+        <parameter name="nPrompt" type="i4" pass="byref"/>
+        <parameter name="bWithGoodbye" type="boolean" pass="byref"/>
+        <parameter name="bAndTerminate" type="boolean" pass="byref"/>
+      </parameters>
+      <actions >
+        <action id="1" plug-in="Pactolus.Branch.1" ><?xtml-editor x=20 y=21 ?>
+          <results >
+            <result name="Default" link="4" stubbed="0"/>
+            <result name="has prompt" link="2" stubbed="0" >nPrompt &gt; 0</result>
+            <result name="goodbye" link="3" stubbed="1" >bWithGoodbye == true</result>
+          </results>
+        </action>
+        <action id="2" plug-in="Pactolus.Play.2" ><?xtml-editor x=256 y=71 ?>
+          <!--error msg-->
+          <collect-play xmlns="www.pactolus.com:xtml:media" play-on-endpoint="1" media-endpoint="g_ep" conference="" timeout="" played-length="" digits="" terminating-char="" rc="" returns="" start-play="1" return-immediate="0" play-offset="" language="g_strLanguage" retry-count="1" time-to-play="" interrupt="0" repeat="0" clear-digits="0" digit-map="" fdt="" idt="" ict="" terminating-digit="" >
+            <audio type="index" >IDX_IM_SORRY</audio>
+            <audio type="index" >nPrompt</audio>
+          </collect-play>
+          <results >
+            <result name="Default" link="4" stubbed="0"/>
+            <result name="Success"/>
+            <result name="Error"/>
+            <result name="Timeout"/>
+            <result name="No/Impossible Match"/>
+            <result name="First Digit Timeout"/>
+            <result name="play goodbye?" link="3" stubbed="0" >bWithGoodbye == true</result>
+          </results>
+        </action>
+        <action id="3" plug-in="Pactolus.Play.2" ><?xtml-editor x=470 y=192 ?>
+          <!--goodbye-->
+          <collect-play xmlns="www.pactolus.com:xtml:media" play-on-endpoint="1" media-endpoint="g_ep" conference="" timeout="" played-length="" digits="" terminating-char="" rc="" returns="" start-play="1" return-immediate="0" play-offset="" language="g_strLanguage" retry-count="1" time-to-play="" interrupt="0" repeat="0" clear-digits="0" digit-map="" fdt="" idt="" ict="" terminating-digit="" >
+            <audio type="index" >s_IDX_GOODBYE</audio>
+            <audio type="silence" >1</audio>
+          </collect-play>
+          <results >
+            <result name="Default" link="4" stubbed="0"/>
+            <result name="Success"/>
+            <result name="Error"/>
+            <result name="Timeout"/>
+            <result name="No/Impossible Match"/>
+            <result name="First Digit Timeout"/>
+          </results>
+        </action>
+        <action id="4" plug-in="Pactolus.Branch.1" ><?xtml-editor x=592 y=60 ?>
+          <results >
+            <result name="Default" link="6" stubbed="0"/>
+            <result name="end call?" link="5" stubbed="0" >bAndTerminate == true</result>
+          </results>
+        </action>
+        <action id="5" plug-in="Standard.EndSession.1" ><?xtml-editor x=877 y=143 ?></action>
+        <action id="6" plug-in="Standard.FunctionReturn.1" ><?xtml-editor x=820 y=37 ?>
+          <return xmlns="www.pactolus.com:xtml:application" value=""/>
+        </action>
+      </actions>
+    </function>
+    <function name="MainMenu" start="1" event="" returns="void" >
+      <parameters >
+        <parameter name="nAction" type="i4"/>
+      </parameters>
+      <actions >
+        <action id="1" plug-in="Pactolus.Branch.1" ><?xtml-editor x=59 y=52 ?>
+          <results >
+            <result name="Default" link="3" stubbed="0"/>
+            <result name="top-level IVR" link="9" stubbed="0" >nAction == ACTION_TOPLEVEL_IVR</result>
+            <result name="play balance" link="10" stubbed="0" >nAction == ACTION_PLAY_BALANCE</result>
+            <result name="ukash IVR" link="11" stubbed="0" >nAction == ACTION_UKASH_IVR</result>
+          </results>
+          <scripts >
+            <script language="javascript" timing="first" ><![CDATA[Server.logInfo("Action is: " + Session.nAction ) ;]]></script>
+          </scripts>
+        </action>
+        <action id="3" plug-in="Standard.EndSession.1" ><?xtml-editor x=312 y=56 ?>
+          <scripts >
+            <script language="javascript" timing="first" ><![CDATA[Server.logError("Uknown action: " + Session.nAction ) ;]]></script>
+          </scripts>
+        </action>
+        <action id="9" plug-in="Standard.FunctionCall.1" ><?xtml-editor x=376 y=146 ?>
+          <!--RunToplevelIvr-->
+          <function xmlns="www.pactolus.com:xtml:application" name="&quot;RunToplevelIvr&quot;" return="nAction" external-function="0" library=""/>
+          <results >
+            <result name="Default" link="1" stubbed="1"/>
+          </results>
+        </action>
+        <action id="10" plug-in="Standard.FunctionCall.1" ><?xtml-editor x=386 y=244 ?>
+          <!--PlayBalance-->
+          <function xmlns="www.pactolus.com:xtml:application" name="&quot;PlayBalance&quot;" return="nAction" external-function="0" library=""/>
+          <results >
+            <result name="Default" link="1" stubbed="1"/>
+          </results>
+        </action>
+        <action id="11" plug-in="Standard.FunctionCall.1" ><?xtml-editor x=383 y=332 ?>
+          <!--RunUkashIvr-->
+          <function xmlns="www.pactolus.com:xtml:application" name="&quot;RunUkashIvr&quot;" return="nAction" external-function="0" library=""/>
+          <results >
+            <result name="Default" link="1" stubbed="1"/>
+          </results>
+        </action>
+      </actions>
+    </function>
+    <function name="OnServiceLoad" start="1" event="ServiceLoad" returns="void" >
+      <parameters >
+        <parameter name="strAppName" type="string" pass="byref"/>
+        <parameter name="nSessionCount" type="i2" pass="byref"/>
+        <parameter name="nMaxIterations" type="i2" pass="byref"/>
+        <parameter name="nServerId" type="i2" pass="byref"/>
+      </parameters>
+      <actions >
+        <action id="1" plug-in="Pactolus.JavaStaticMethod.1" ><?xtml-editor x=20 y=20 ?>
+          <!--Init-->
+          <java xmlns="www.pactolus.com:xtml:application" class="s_strJavaClass" method="&quot;Init&quot;" timeout="10" return="" method-return-var="" method-return-type="0"/>
+          <results >
+            <result name="Default" link="2" stubbed="0"/>
+            <result name="Success"/>
+            <result name="Error"/>
+            <result name="Timeout"/>
+          </results>
+        </action>
+        <action id="2" plug-in="Pactolus.UserFunction.1" ><?xtml-editor x=278 y=62 ?>
+          <!--get app properties-->
+          <user-function xmlns="www.pactolus.com:xtml:application" process="&quot;PACTOLUS_ps_c_adaptor&quot;" function="&quot;get_property&quot;" timeout="s_nTIMEOUT" return="" async="0" >
+            <parameter >"ws-user-id"</parameter>
+            <parameter >s_strWSUserId</parameter>
+            <parameter >"ws-client-id"</parameter>
+            <parameter >s_strWSClientId</parameter>
+          </user-function>
+          <results >
+            <result name="Default" link="3" stubbed="0"/>
+            <result name="Success"/>
+            <result name="Error"/>
+            <result name="Timeout"/>
+          </results>
+          <scripts >
+            <script language="javascript" timing="last" ><![CDATA[Server.logInfo("Client Id for web service will be: " + Session.s_strWSClientId ) ;
+Server.logInfo("User Id for web service will be: " + Session.s_strWSUserID ) ;
+]]></script>
+          </scripts>
+        </action>
+        <action id="3" plug-in="Standard.FunctionReturn.1" ><?xtml-editor x=517 y=142 ?>
+          <return xmlns="www.pactolus.com:xtml:application" value=""/>
+        </action>
+      </actions>
+    </function>
+    <function name="RunToplevelIvr" start="1" event="" returns="i4" >
+      <local-vars >
+        <var name="nRetries" type="i4" >0</var>
+        <var name="nAction" type="i4" >0</var>
+      </local-vars>
+      <actions >
+        <action id="1" plug-in="Pactolus.Play.2" ><?xtml-editor x=69 y=83 ?>
+          <!--Press 1 for account balance, 2 for recharge...-->
+          <collect-play xmlns="www.pactolus.com:xtml:media" play-on-endpoint="1" media-endpoint="g_ep" conference="" timeout="" played-length="" digits="strDigits" terminating-char="" rc="" returns="" start-play="1" return-immediate="0" play-offset="" language="g_strLanguage" retry-count="1" time-to-play="" interrupt="1" repeat="0" clear-digits="1" digit-map="&quot;(1|2)&quot;" fdt="" idt="" ict="" terminating-digit="&quot;T&quot;" >
+            <audio type="index" >IDX_TO_HEAR_YOUR_BALANCE</audio>
+            <audio type="index" >IDX_PRESS_1</audio>
+            <audio type="index" >IDX_TO_RECHARGE</audio>
+            <audio type="index" >IDX_PRESS_2</audio>
+          </collect-play>
+          <results >
+            <result name="Default" link="7" stubbed="0"/>
+            <result name="Success"/>
+            <result name="Error" ><?xtml-editor visible=no?></result>
+            <result name="Timeout" ><?xtml-editor visible=no?></result>
+            <result name="No/Impossible Match" link="6" stubbed="0"/>
+            <result name="First Digit Timeout" link="2" stubbed="0"/>
+          </results>
+          <scripts >
+            <script language="javascript" timing="first" ><![CDATA[Session.strDigits = "" ;]]></script>
+          </scripts>
+        </action>
+        <action id="2" plug-in="Standard.FunctionCall.1" ><?xtml-editor x=330 y=277 ?>
+          <!--I did not hear...-->
+          <function xmlns="www.pactolus.com:xtml:application" name="&quot;PlayErrorMsg&quot;" return="" external-function="0" library="" >
+            <parameter >IDX_NO_INPUT</parameter>
+            <parameter >false</parameter>
+            <parameter >false</parameter>
+          </function>
+          <results >
+            <result name="Default" link="3" stubbed="0"/>
+          </results>
+        </action>
+        <action id="3" plug-in="Pactolus.Branch.1" ><?xtml-editor x=673 y=57 ?>
+          <results >
+            <result name="Default" link="1" stubbed="0"/>
+            <result name="retries exceeded" link="4" stubbed="0" >nRetries &gt;= 3</result>
+          </results>
+          <scripts >
+            <script language="javascript" timing="first" ><![CDATA[Session.nRetries++;]]></script>
+          </scripts>
+        </action>
+        <action id="4" plug-in="Standard.FunctionCall.1" ><?xtml-editor x=931 y=61 ?>
+          <!--Goodbye..-->
+          <function xmlns="www.pactolus.com:xtml:application" name="&quot;PlayErrorMsg&quot;" return="" external-function="0" library="" >
+            <parameter >0</parameter>
+            <parameter >true</parameter>
+            <parameter >true</parameter>
+          </function>
+          <results >
+            <result name="Default" link="5" stubbed="0"/>
+          </results>
+        </action>
+        <action id="5" plug-in="Standard.EndSession.1" ><?xtml-editor x=1186 y=35 ?></action>
+        <action id="6" plug-in="Standard.FunctionCall.1" ><?xtml-editor x=322 y=180 ?>
+          <!--That is an invalid selection..-->
+          <function xmlns="www.pactolus.com:xtml:application" name="&quot;PlayErrorMsg&quot;" return="" external-function="0" library="" >
+            <parameter >IDX_INVALID_SELECTION</parameter>
+            <parameter >false</parameter>
+            <parameter >false</parameter>
+          </function>
+          <results >
+            <result name="Default" link="3" stubbed="0"/>
+          </results>
+        </action>
+        <action id="7" plug-in="Standard.FunctionReturn.1" ><?xtml-editor x=317 y=91 ?>
+          <return xmlns="www.pactolus.com:xtml:application" value="nAction"/>
+          <scripts >
+            <script language="javascript" timing="first" ><![CDATA[if( Session.strDigits == "1" ) {
+	Session.nAction = Session.ACTION_PLAY_BALANCE ;
+}
+else if( Session.strDigits == "2" ) {
+	Session.nAction = Session.ACTION_UKASH_IVR ;
+}
+Server.logInfo("Digits collected from toplevel IVR: " + Session.strDigits + " next action: " + Session.nAction ) ;
+]]></script>
+          </scripts>
+        </action>
+      </actions>
+    </function>
+    <function name="PlayBalance" start="1" event="" returns="i4" >
+      <actions >
+        <action id="1" plug-in="Pactolus.Play.2" ><?xtml-editor x=71 y=40 ?>
+          <!--Press 1 for account balance, 2 for recharge...-->
+          <collect-play xmlns="www.pactolus.com:xtml:media" play-on-endpoint="1" media-endpoint="g_ep" conference="" timeout="" played-length="" digits="" terminating-char="" rc="" returns="" start-play="1" return-immediate="0" play-offset="" language="g_strLanguage" retry-count="1" time-to-play="" interrupt="0" repeat="0" clear-digits="0" digit-map="" fdt="" idt="" ict="" terminating-digit="" >
+            <audio type="index" >IDX_YOUR_BALANCE_IS</audio>
+            <audio type="currency" unit="default" >g_fAccountBalance</audio>
+          </collect-play>
+          <results >
+            <result name="Default" link="2" stubbed="0"/>
+            <result name="Success" ><?xtml-editor visible=no?></result>
+            <result name="Error" ><?xtml-editor visible=no?></result>
+            <result name="Timeout" ><?xtml-editor visible=no?></result>
+            <result name="No/Impossible Match" ><?xtml-editor visible=no?></result>
+            <result name="First Digit Timeout" ><?xtml-editor visible=no?></result>
+          </results>
+          <scripts >
+            <script language="javascript" timing="first" ><![CDATA[Session.strDigits = "" ;]]></script>
+          </scripts>
+        </action>
+        <action id="2" plug-in="Standard.FunctionReturn.1" ><?xtml-editor x=361 y=81 ?>
+          <return xmlns="www.pactolus.com:xtml:application" value="ACTION_TOPLEVEL_IVR"/>
+        </action>
+      </actions>
+    </function>
+    <function name="RunUkashIvr" start="2" event="" returns="i4" >
+      <local-vars >
+        <var name="nAction" type="i4" >0</var>
+        <var name="nVoucherNumber" type="i4" >0</var>
+        <var name="strVoucherNumber" type="string" ></var>
+        <var name="strVoucherValue" type="string" ></var>
+        <var name="fVoucherValue" type="float" >0</var>
+        <var name="bValidVoucher" type="boolean" >0</var>
+        <var name="nRetries" type="i4" >0</var>
+        <var name="bValidVoucherValue" type="boolean" >0</var>
+        <var name="strTransactionId" type="string" ></var>
+        <var name="strTransactionCode" type="string" ></var>
+        <var name="fSettlementAmount" type="float" >0</var>
+        <var name="nErrorCode" type="i4" >0</var>
+        <var name="strErrorDesc" type="string" ></var>
+        <var name="strUkashTransactionId" type="string" ></var>
+        <var name="strTransactionDesc" type="string" ></var>
+        <var name="nReturnCode" type="i4" >-99</var>
+      </local-vars>
+      <actions >
+        <action id="2" plug-in="Pactolus.Play.2" ><?xtml-editor x=78 y=37 ?>
+          <!--Enter voucher number..-->
+          <collect-play xmlns="www.pactolus.com:xtml:media" play-on-endpoint="1" media-endpoint="g_ep" conference="" timeout="" played-length="" digits="strVoucherNumber" terminating-char="" rc="" returns="" start-play="1" return-immediate="0" play-offset="" language="g_strLanguage" retry-count="1" time-to-play="" interrupt="1" repeat="0" clear-digits="1" digit-map="&quot;(x.T|xxxxxxxxxxxxxxxxxxx)&quot;" fdt="" idt="" ict="" terminating-digit="&quot;#T&quot;" >
+            <audio type="index" >IDX_ENTER_VOUCHER</audio>
+          </collect-play>
+          <results >
+            <result name="Default" link="4" stubbed="0"/>
+            <result name="Success" ><?xtml-editor visible=no?></result>
+            <result name="Error" ><?xtml-editor visible=no?></result>
+            <result name="Timeout" ><?xtml-editor visible=no?></result>
+            <result name="No/Impossible Match" ><?xtml-editor visible=no?></result>
+            <result name="First Digit Timeout" link="3" stubbed="0"/>
+            <result name="valid voucher" link="9" stubbed="0" >bValidVoucher == true</result>
+          </results>
+          <scripts >
+            <script language="javascript" timing="first" ><![CDATA[Session.strVoucherNumber = "" ;
+Session.bValidVoucher = false ;]]></script>
+            <script language="javascript" timing="middle" ><![CDATA[if( 19 == Session.strVoucherNumber.length ) Session.bValidVoucher = true ;]]></script>
+          </scripts>
+        </action>
+        <action id="3" plug-in="Standard.FunctionCall.1" ><?xtml-editor x=358 y=140 ?>
+          <!--I did not hear...-->
+          <function xmlns="www.pactolus.com:xtml:application" name="&quot;PlayErrorMsg&quot;" return="" external-function="0" library="" >
+            <parameter >IDX_NO_INPUT</parameter>
+            <parameter >false</parameter>
+            <parameter >false</parameter>
+          </function>
+          <results >
+            <result name="Default" link="7" stubbed="0"/>
+          </results>
+        </action>
+        <action id="4" plug-in="Standard.FunctionCall.1" ><?xtml-editor x=376 y=49 ?>
+          <!--That is an invalid selection..-->
+          <function xmlns="www.pactolus.com:xtml:application" name="&quot;PlayErrorMsg&quot;" return="" external-function="0" library="" >
+            <parameter >IDX_INVALID_VOUCHER</parameter>
+            <parameter >false</parameter>
+            <parameter >false</parameter>
+          </function>
+          <results >
+            <result name="Default" link="7" stubbed="0"/>
+          </results>
+        </action>
+        <action id="5" plug-in="Standard.FunctionCall.1" ><?xtml-editor x=872 y=58 ?>
+          <!--Goodbye..-->
+          <function xmlns="www.pactolus.com:xtml:application" name="&quot;PlayErrorMsg&quot;" return="" external-function="0" library="" >
+            <parameter >0</parameter>
+            <parameter >true</parameter>
+            <parameter >true</parameter>
+          </function>
+          <results >
+            <result name="Default" link="6" stubbed="0"/>
+          </results>
+        </action>
+        <action id="6" plug-in="Standard.EndSession.1" ><?xtml-editor x=1127 y=32 ?></action>
+        <action id="7" plug-in="Pactolus.Branch.1" ><?xtml-editor x=614 y=54 ?>
+          <results >
+            <result name="Default" link="2" stubbed="0"/>
+            <result name="retries exceeded" link="5" stubbed="0" >nRetries &gt;= 3</result>
+          </results>
+          <scripts >
+            <script language="javascript" timing="first" ><![CDATA[Session.nRetries++;]]></script>
+          </scripts>
+        </action>
+        <action id="8" plug-in="Pactolus.Play.2" ><?xtml-editor x=54 y=326 ?>
+          <!--Enter voucher value-->
+          <collect-play xmlns="www.pactolus.com:xtml:media" play-on-endpoint="1" media-endpoint="g_ep" conference="" timeout="" played-length="" digits="strVoucherValue" terminating-char="" rc="" returns="" start-play="1" return-immediate="0" play-offset="" language="g_strLanguage" retry-count="1" time-to-play="" interrupt="1" repeat="0" clear-digits="1" digit-map="&quot;(x.T)&quot;" fdt="" idt="" ict="" terminating-digit="&quot;#&quot;" >
+            <audio type="index" >IDX_ENTER_VOUCHER_VALUE</audio>
+          </collect-play>
+          <results >
+            <result name="Default" link="13" stubbed="0"/>
+            <result name="Success" ><?xtml-editor visible=no?></result>
+            <result name="Error" ><?xtml-editor visible=no?></result>
+            <result name="Timeout" ><?xtml-editor visible=no?></result>
+            <result name="No/Impossible Match" ><?xtml-editor visible=no?></result>
+            <result name="First Digit Timeout" link="12" stubbed="0"/>
+            <result name="valid voucher value" link="10" stubbed="0" >bValidVoucherValue == true</result>
+          </results>
+          <scripts >
+            <script language="javascript" timing="first" ><![CDATA[Session.strVoucherValue = "" ;
+Session.bValidVoucherValue = false ;]]></script>
+            <script language="javascript" timing="middle" ><![CDATA[var len = Session.strVoucherValue.length  ;
+if( len >= 3 ) {
+	var s = new String( Session.strVoucherValue );
+	if( -1 != s.indexOf("T") || -1 != s.indexOf("t") || -1 != s.indexOf("#") ) {
+		s = s.substr(0, len - 1) ;
+	}
+	var dollars = s.substr( 0, len - 2 ) ;
+	var cents = s.substr( len - 2) ;
+	Server.logInfo("dollars: " + dollars + " cents: " + cents ) ;
+	Session.strVoucherValue = dollars + "." + cents ;
+	Session.bValidVoucherValue = true ;
+}]]></script>
+          </scripts>
+        </action>
+        <action id="9" plug-in="Pactolus.Branch.1" ><?xtml-editor x=48 y=213 ?>
+          <results >
+            <result name="Default" link="8" stubbed="0"/>
+          </results>
+          <scripts >
+            <script language="javascript" timing="first" ><![CDATA[Session.nRetries = 0 ;]]></script>
+          </scripts>
+        </action>
+        <action id="10" plug-in="Pactolus.JavaStaticMethod.1" ><?xtml-editor x=48 y=522 ?>
+          <!--ProcessRechargeUkash-->
+          <java xmlns="www.pactolus.com:xtml:application" class="s_strJavaClass" method="&quot;ProcessRechargeUkash&quot;" timeout="20" return="" method-return-var="nReturnCode" method-return-type="0" >
+            <parameter type="in" var-type="string" >g_strSessionId</parameter>
+            <parameter type="in" var-type="i8" >g_lSubscriberId</parameter>
+            <parameter type="in" var-type="string" >g_strCallingNumber</parameter>
+            <parameter type="in" var-type="string" >s_strWSUserId</parameter>
+            <parameter type="in" var-type="string" >s_strWSClientId</parameter>
+            <parameter type="in" var-type="string" >g_strBusinessUnit</parameter>
+            <parameter type="in" var-type="string" >strVoucherNumber</parameter>
+            <parameter type="in" var-type="string" >strVoucherValue</parameter>
+            <parameter type="in" var-type="string" >strTransactionId</parameter>
+            <parameter type="inout" var-type="string" >strTransactionCode</parameter>
+            <parameter type="inout" var-type="string" >strTransactionDesc</parameter>
+            <parameter type="inout" var-type="float" >fSettlementAmount</parameter>
+            <parameter type="inout" var-type="i4" >nErrorCode</parameter>
+            <parameter type="inout" var-type="string" >strErrorDesc</parameter>
+            <parameter type="inout" var-type="string" >strUkashTransactionId</parameter>
+          </java>
+          <results >
+            <result name="Default" link="20" stubbed="0"/>
+            <result name="Success"/>
+            <result name="Error" link="15" stubbed="0"/>
+            <result name="Timeout" link="15" stubbed="0"/>
+            <result name="recharge accepted" link="17" stubbed="0" >nReturnCode == SUCCESS</result>
+            <result name="invalid voucher number" link="21" stubbed="0" >nErrorCode == 219</result>
+            <result name="web service error" link="15" stubbed="0" >nReturnCode == WS_ERROR</result>
+          </results>
+          <scripts >
+            <script language="javascript" timing="first" ><![CDATA[Session.strTransactionId = makeTransactionId() ;
+Session.nReturnCode = Session.DB_ERROR ;]]></script>
+            <script language="javascript" timing="middle" ><![CDATA[if( 2 == Result.id ) {
+	Server.logInfo("transaction code: " + Session.strTransactionCode ) ;
+	Server.logInfo("transaction desc: " + Session.strTransactionDesc ) ;
+	Server.logInfo("error code:       " + Session.nErrorCode ) ;
+	Server.logInfo("error desc:       " + Session.strErrorDesc ) ;
+	Server.logInfo("settlement amount: " + Session.fSettlementAmount ) ;
+	Server.logInfo("Ukash txn id:     " + Session.strUkashTransactionId ) ;
+	Server.logInfo("return code:      " + Session.nReturnCode ) ;
+	
+}]]></script>
+          </scripts>
+        </action>
+        <action id="11" plug-in="Standard.EndSession.1" ><?xtml-editor x=1028 y=593 ?></action>
+        <action id="12" plug-in="Standard.FunctionCall.1" ><?xtml-editor x=363 y=447 ?>
+          <!--I did not hear...-->
+          <function xmlns="www.pactolus.com:xtml:application" name="&quot;PlayErrorMsg&quot;" return="" external-function="0" library="" >
+            <parameter >IDX_NO_INPUT</parameter>
+            <parameter >false</parameter>
+            <parameter >false</parameter>
+          </function>
+          <results >
+            <result name="Default" link="14" stubbed="0"/>
+          </results>
+        </action>
+        <action id="13" plug-in="Standard.FunctionCall.1" ><?xtml-editor x=365 y=345 ?>
+          <!--That is an invalid selection..-->
+          <function xmlns="www.pactolus.com:xtml:application" name="&quot;PlayErrorMsg&quot;" return="" external-function="0" library="" >
+            <parameter >IDX_INVALID_SELECTION</parameter>
+            <parameter >false</parameter>
+            <parameter >false</parameter>
+          </function>
+          <results >
+            <result name="Default" link="14" stubbed="0"/>
+          </results>
+        </action>
+        <action id="14" plug-in="Pactolus.Branch.1" ><?xtml-editor x=648 y=385 ?>
+          <results >
+            <result name="Default" link="8" stubbed="0"/>
+            <result name="retries exceeded" link="5" stubbed="0" >nRetries &gt;= 3</result>
+          </results>
+          <scripts >
+            <script language="javascript" timing="first" ><![CDATA[Session.nRetries++;]]></script>
+          </scripts>
+        </action>
+        <action id="15" plug-in="Standard.FunctionCall.1" ><?xtml-editor x=447 y=622 ?>
+          <!--try later...-->
+          <function xmlns="www.pactolus.com:xtml:application" name="&quot;PlayErrorMsg&quot;" return="" external-function="0" library="" >
+            <parameter >IDX_TRY_LATER</parameter>
+            <parameter >true</parameter>
+            <parameter >true</parameter>
+          </function>
+          <results >
+            <result name="Default" link="11" stubbed="0"/>
+          </results>
+        </action>
+        <action id="17" plug-in="Pactolus.JavaStaticMethod.1" ><?xtml-editor x=324 y=756 ?>
+          <!--InitializeRechargeSession-->
+          <java xmlns="www.pactolus.com:xtml:application" class="s_strJavaClass" method="&quot;InitializeRechargeSession&quot;" timeout="10" return="" method-return-var="nReturnCode" method-return-type="0" >
+            <parameter type="in" var-type="string" >g_strSessionId</parameter>
+            <parameter type="in" var-type="string" >g_strCalledNumber</parameter>
+            <parameter type="in" var-type="string" >g_strCallingNumber</parameter>
+            <parameter type="inout" var-type="i8" >g_lSubscriberId</parameter>
+            <parameter type="inout" var-type="i4" >g_nSubscriberStatus</parameter>
+            <parameter type="inout" var-type="string" >g_strLanguage</parameter>
+            <parameter type="inout" var-type="float" >g_fAccountBalance</parameter>
+            <parameter type="inout" var-type="boolean" >g_bPlayAsUnits</parameter>
+            <parameter type="inout" var-type="float" >g_fMaxRechargeAmount</parameter>
+            <parameter type="inout" var-type="float" >g_fMinRechargeAmount</parameter>
+            <parameter type="inout" var-type="string" >g_strBusinessUnit</parameter>
+          </java>
+          <results >
+            <result name="Default" link="19" stubbed="0"/>
+            <result name="Success"/>
+            <result name="Error"/>
+            <result name="Timeout"/>
+            <result name="valid customer" link="22" stubbed="0" >nReturnCode == SUCCESS
+AND g_nSubscriberStatus == SUCCESS</result>
+            <result name="unregistered number" >nReturnCode == UNKNOWN_SUB</result>
+          </results>
+          <scripts >
+            <script language="javascript" timing="first" ><![CDATA[Session.nReturnCode = Session.DB_ERROR ;]]></script>
+            <script language="javascript" timing="last" ><![CDATA[if( Session.SUCCESS != Session.nReturnCode ) {
+	switch( Session.nReturnCode ) {
+	case Session.UNKNOWN_SUB:
+		Server.logError("No subscriber record found for calling number: " + Session.g_strCallingNumber ) ;
+		break ;
+		
+		case Session.AMBIGUOUS_SUB:
+		Server.logError("More than one subscriber record found for calling number: " + Session.g_strCallingNumber ) ;
+		break ;
+		
+		case Session.MISSING_BIZ_UNIT_NAME:
+		Server.logError("No business unit found for subscriber with calling number: " + Session.g_strCallingNumber ) ;
+		break ;
+		
+		case Session.ACCESS_NUM_BAD:
+		Server.logError("Access number not provisioned: " + Session.g_strCalledNumber ) ;
+		break ;
+		
+		case Session.LANGUAGE_BAD:
+		Server.logError("Language not provisioned for subscriber with calling number: " + Session.g_strCallingNumber ) ;
+		break ;
+		
+		case Session.CURRENCY_BAD:
+		Server.logError("Currency not provisioned for subscriber with calling number: " + Session.g_strCallingNumber ) ;
+		break ;
+		
+		case Session.DB_ERROR:
+		Server.logError("Database error calling InitializeRechargeSession") ;
+		break ;
+	}
+	return ;
+}
+
+if( Session.SUCCESS != Session.g_nSubscriberStatus ) {
+	switch( Session.g_nSubscriberStatus ) {
+	case Session.STATUS_DISABLED_SP:
+		Server.logError("Service provider is disabled for subscriber with calling number: " + Session.g_strCallingNumber ) ;
+		break ;
+		
+		case Session.STATUS_DISABLED_SUB:
+		Server.logError("Subscriber is disabled with calling number: " + Session.g_strCallingNumber ) ;
+		break ;
+	}
+	return ;
+	
+}
+
+Server.logInfo("Return values from InitializeRechargeSession for calling number " + Session.g_strCallingNumber ) ;
+Server.logInfo("subscriber id: " + Session.g_lSubscriberId ) ;
+Server.logInfo("language: " + Session.g_strLanguage ) ;
+Server.logInfo("account balance: " + Session.g_fAccountBalance ) ;
+Server.logInfo("units card?: " + Session.g_bPlayAsUnits ) ;
+Server.logInfo("max recharge: " + Session.g_fMaxRechargeAmount ) ;
+Server.logInfo("min recharge: " + Session.g_fMinRechargeAmount ) ;
+Server.logInfo("business unit: " + Session.g_strBusinessUnit ) ;
+
+]]></script>
+          </scripts>
+        </action>
+        <action id="18" plug-in="Standard.FunctionReturn.1" ><?xtml-editor x=942 y=844 ?>
+          <!--toplevel IVR-->
+          <return xmlns="www.pactolus.com:xtml:application" value="ACTION_TOPLEVEL_IVR"/>
+        </action>
+        <action id="19" plug-in="Standard.FunctionCall.1" ><?xtml-editor x=649 y=728 ?>
+          <!--transfer was successful..-->
+          <function xmlns="www.pactolus.com:xtml:application" name="&quot;PlayErrorMsg&quot;" return="" external-function="0" library="" >
+            <parameter >IDX_VOUCHER_SUCCESS</parameter>
+            <parameter >true</parameter>
+            <parameter >true</parameter>
+          </function>
+          <results >
+            <result name="Default" link="11" stubbed="0"/>
+          </results>
+        </action>
+        <action id="20" plug-in="Standard.FunctionCall.1" ><?xtml-editor x=402 y=530 ?>
+          <!--transfer denied-->
+          <function xmlns="www.pactolus.com:xtml:application" name="&quot;PlayErrorMsg&quot;" return="" external-function="0" library="" >
+            <parameter >IDX_VOUCHER_DENIED</parameter>
+            <parameter >false</parameter>
+            <parameter >false</parameter>
+          </function>
+          <results >
+            <result name="Default" link="18" stubbed="0"/>
+          </results>
+        </action>
+        <action id="21" plug-in="Pactolus.Play.2" ><?xtml-editor x=66 y=794 ?>
+          <!--invalid voucher number-->
+          <collect-play xmlns="www.pactolus.com:xtml:media" play-on-endpoint="1" media-endpoint="g_ep" conference="" timeout="" played-length="" digits="strVoucherValue" terminating-char="" rc="" returns="" start-play="1" return-immediate="0" play-offset="" language="g_strLanguage" retry-count="1" time-to-play="" interrupt="0" repeat="0" clear-digits="0" digit-map="" fdt="" idt="" ict="" terminating-digit="" >
+            <audio type="index" >IDX_VOUCHER_DENIED</audio>
+            <audio type="index" >IDX_INVALID_VOUCHER</audio>
+          </collect-play>
+          <results >
+            <result name="Default" link="2" stubbed="1"/>
+            <result name="Success" ><?xtml-editor visible=no?></result>
+            <result name="Error" ><?xtml-editor visible=no?></result>
+            <result name="Timeout" ><?xtml-editor visible=no?></result>
+            <result name="No/Impossible Match" ><?xtml-editor visible=no?></result>
+            <result name="First Digit Timeout" ><?xtml-editor visible=no?></result>
+          </results>
+        </action>
+        <action id="22" plug-in="Pactolus.Play.2" ><?xtml-editor x=657 y=829 ?>
+          <!--new balance is..-->
+          <collect-play xmlns="www.pactolus.com:xtml:media" play-on-endpoint="1" media-endpoint="g_ep" conference="" timeout="" played-length="" digits="strVoucherValue" terminating-char="" rc="" returns="" start-play="1" return-immediate="0" play-offset="" language="g_strLanguage" retry-count="1" time-to-play="" interrupt="0" repeat="0" clear-digits="0" digit-map="" fdt="" idt="" ict="" terminating-digit="" >
+            <audio type="index" >IDX_VOUCHER_SUCCESS</audio>
+            <audio type="index" >IDX_NEW_BALANCE</audio>
+            <audio type="currency" unit="default" >g_fAccountBalance</audio>
+          </collect-play>
+          <results >
+            <result name="Default" link="18" stubbed="0"/>
+            <result name="Success" ><?xtml-editor visible=no?></result>
+            <result name="Error" ><?xtml-editor visible=no?></result>
+            <result name="Timeout" ><?xtml-editor visible=no?></result>
+            <result name="No/Impossible Match" ><?xtml-editor visible=no?></result>
+            <result name="First Digit Timeout" ><?xtml-editor visible=no?></result>
+          </results>
+        </action>
+      </actions>
+    </function>
+  </functions>
+  <script language="javascript" ><![CDATA[var formatDate = function (formatDate, formatString) {
+	if(formatDate instanceof Date) {
+		var months = new Array("Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec");
+		var yyyy = formatDate.getFullYear();
+		var yy = yyyy.toString().substring(2);
+		var m = formatDate.getMonth();
+		var mm = m < 10 ? "0" + m : m;
+		var mmm = months[m];
+		var d = formatDate.getDate();
+		var dd = d < 10 ? "0" + d : d;
+		
+		var h = formatDate.getHours();
+		var hh = h < 10 ? "0" + h : h;
+		var n = formatDate.getMinutes();
+		var nn = n < 10 ? "0" + n : n;
+		var s = formatDate.getSeconds();
+		var ss = s < 10 ? "0" + s : s;
+
+		formatString = formatString.replace(/yyyy/i, yyyy);
+		formatString = formatString.replace(/yy/i, yy);
+		formatString = formatString.replace(/mmm/i, mmm);
+		formatString = formatString.replace(/mm/i, mm);
+		formatString = formatString.replace(/m/i, m);
+		formatString = formatString.replace(/dd/i, dd);
+		formatString = formatString.replace(/d/i, d);
+		formatString = formatString.replace(/hh/i, hh);
+		formatString = formatString.replace(/h/i, h);
+		formatString = formatString.replace(/nn/i, nn);
+		formatString = formatString.replace(/n/i, n);
+		formatString = formatString.replace(/ss/i, ss);
+		formatString = formatString.replace(/s/i, s);
+
+		return formatString;
+	} else {
+		return "";
+	}
+}
+
+function makeTransactionId() {
+	Server.logInfo( "Cisco h323 conf id: " + Server.generateCiscoH323ConfId() ) ;
+
+	var dt = new Date() ;
+	return formatDate( dt, "yyyymmdd-hhnnss" ) ;
+	
+}]]></script>
+  <properties >
+    <property key="disable-logging" value=""/>
+    <property key="js-include-path" value=""/>
+    <property key="library-modules" value=""/>
+    <property key="library-path" value=""/>
+  </properties>
+</xtml>

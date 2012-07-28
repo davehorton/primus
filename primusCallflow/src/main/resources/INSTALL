@@ -1,0 +1,37 @@
+The following jar files must be in the classpath:
+
+rw-r--r--  1 pcs dev   19654 Mar  1 12:13 java_framework-1.0.jar
+-rw-r--r--  1 pcs dev 1977267 Mar  1 13:37 Oracle-11.1.0.6.jar
+-rw-r--r--  1 pcs dev  121757 Mar  1 13:37 commons-dbcp-1.2.2.jar
+-rw-r--r--  1 pcs dev    8812 Mar  1 13:37 jta-1.0.1B.jar
+-rw-r--r--  1 pcs dev 2274768 Mar  1 13:37 hibernate-3.2.6.ga.jar
+-rw-r--r--  1 pcs dev 2949500 Mar  1 14:03 spring-2.5.6.jar
+-rw-r--r--  1 pcs dev  232019 Mar  1 14:03 commons-beanutils-1.8.3.jar
+-rw-r--r--  1 pcs dev   96221 Mar  1 14:10 commons-pool-1.5.4.jar
+-rw-r--r--  1 pcs dev  313898 Mar  1 14:13 dom4j-1.6.1.jar
+-rw-r--r--  1 pcs dev  124280 Mar  1 14:21 primusCore-1.0.jar
+-rw-r--r--  1 pcs dev   43398 Mar  1 14:58 asm-3.2.jar
+-rw-r--r--  1 pcs dev  278682 Mar  1 14:58 cglib-2.2.jar
+-rw-r--r--  1 pcs dev  275755 Mar  1 14:58 saaj-impl-2.1.1.jar
+-rw-r--r--  1 pcs dev   16019 Mar  1 14:58 primusCallflow-1.0.jar
+-rw-r--r--  1 pcs dev  481535 Mar  1 14:58 log4j-1.2.16.jar
+-rw-r--r--  1 pcs dev  159930 Mar  1 14:58 xmldsig-1.0.jar
+-rw-r--r--  1 pcs dev 2437612 Mar  1 14:58 xws-security-3.0.jar
+
+additionally, pcs_release.jar
+
+
+ALSO, I had conflicts with some of the jars already in the jarfile directory, had to move jaxrpc-api-1.1.jar out of the way.....
+
+then got
+
+Exception in thread "2.0.prepaid_recharge.102@10.201.170.95" java.lang.NoClassDefFoundError: Could not initialize class com.sun.xml.internal.ws.spi.ProviderImpl
+        at java.lang.Class.forName0(Native Method)
+        at java.lang.Class.forName(Class.java:169)
+        at javax.xml.ws.spi.FactoryFinder.newInstance(FactoryFinder.java:32)
+        at javax.xml.ws.spi.FactoryFinder.find(FactoryFinder.java:133)
+        at javax.xml.ws.spi.Provider.provider(Provider.java:83)
+        at javax.xml.ws.Service.<init>(Service.java:56)
+        at com.soaplite.namespaces.perl.ECare.<init>(ECare.java:45)
+        at com.beachdog.primusCore.PrimusWS.prepaidUkashPayment(PrimusWS.java:131)
+        at com.beachdog.primusCallflow.XtmlApi.ProcessRechargeUkash(XtmlApi.java:319)

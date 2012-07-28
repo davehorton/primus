@@ -1,0 +1,38 @@
+<?xml version="1.0"?>
+<!DOCTYPE hibernate-mapping PUBLIC "-//Hibernate/Hibernate Mapping DTD 3.0//EN"
+"http://hibernate.sourceforge.net/hibernate-mapping-3.0.dtd">
+<!-- Generated Jul 22, 2012 6:38:03 PM by Hibernate Tools 3.4.0.CR1 -->
+<hibernate-mapping>
+    <class name="com.beachdog.primusCore.model.RatedEvent" table="RATED_EVENT" schema="PCSPROD">
+        <id name="ratedEventId" type="big_decimal">
+            <column name="RATED_EVENT_ID" precision="22" scale="0" />
+            <generator class="assigned" />
+        </id>
+        <many-to-one name="rate" class="com.beachdog.primusCore.model.Rate" fetch="select">
+            <column name="RATE_ID" precision="22" scale="0" not-null="true" />
+        </many-to-one>
+        <property name="serviceProviderId" type="big_decimal">
+            <column name="SERVICE_PROVIDER_ID" precision="22" scale="0" not-null="true" />
+        </property>
+        <property name="eventTypeId" type="big_decimal">
+            <column name="EVENT_TYPE_ID" precision="22" scale="0">
+                <comment>1 - This Event is fired when a user places aprepaid call 2 - This event is fired when a a subscriber signs up for a product offering 3 - This Event is
+                fired when a user issues a credit card recharge</comment>
+            </column>
+        </property>
+        <property name="serviceId" type="big_decimal">
+            <column name="SERVICE_ID" precision="22" scale="0" />
+        </property>
+        <property name="productOfferingId" type="big_decimal">
+            <column name="PRODUCT_OFFERING_ID" precision="22" scale="0" />
+        </property>
+        <property name="accessNumberId" type="big_decimal">
+            <column name="ACCESS_NUMBER_ID" precision="22" scale="0">
+                <comment>Object ID</comment>
+            </column>
+        </property>
+        <property name="ratePlanId" type="big_decimal">
+            <column name="RATE_PLAN_ID" precision="22" scale="0" />
+        </property>
+    </class>
+</hibernate-mapping>

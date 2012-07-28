@@ -1,0 +1,76 @@
+<?xml version="1.0"?>
+<!DOCTYPE hibernate-mapping PUBLIC "-//Hibernate/Hibernate Mapping DTD 3.0//EN"
+"http://hibernate.sourceforge.net/hibernate-mapping-3.0.dtd">
+<!-- Generated Mar 1, 2012 2:19:03 PM by Hibernate Tools 3.4.0.CR1 -->
+<hibernate-mapping>
+    <class name="com.beachdog.primusCore.model.PsAudit" table="PS_AUDIT" schema="PCSPROD">
+        <comment>a record in this table maps to an event that was triggered by an admin or CSR that must be captured</comment>
+        <id name="auditId" type="big_decimal">
+            <column name="AUDIT_ID" precision="22" scale="0" />
+            <generator class="assigned" />
+        </id>
+        <property name="timestamp" type="date">
+            <column name="TIMESTAMP" length="7">
+                <comment>the time and date this record was logged</comment>
+            </column>
+        </property>
+        <property name="auditEventId" type="big_decimal">
+            <column name="AUDIT_EVENT_ID" precision="22" scale="0" not-null="true">
+                <comment>the audit event type. Foreign key to audit_event</comment>
+            </column>
+        </property>
+        <property name="userId" type="big_decimal">
+            <column name="USER_ID" precision="22" scale="0" not-null="true" />
+        </property>
+        <property name="acdUserFlag" type="char">
+            <column name="ACD_USER_FLAG" length="1" not-null="true">
+                <comment>If T, acd user.</comment>
+            </column>
+        </property>
+        <property name="subscriberId" type="big_decimal">
+            <column name="SUBSCRIBER_ID" precision="22" scale="0">
+                <comment>The subscriber ID that was affected by the event that is being audited. Optional.</comment>
+            </column>
+        </property>
+        <property name="serviceProviderId" type="big_decimal">
+            <column name="SERVICE_PROVIDER_ID" precision="22" scale="0">
+                <comment>The service provider this audit record belongs to. Denormalized as service provider could also be found via subscriber or gui_user_id.</comment>
+            </column>
+        </property>
+        <property name="errorCode" type="string">
+            <column name="ERROR_CODE" length="10">
+                <comment>Contains the error code for a failed transaction.</comment>
+            </column>
+        </property>
+        <property name="errorDescription" type="string">
+            <column name="ERROR_DESCRIPTION" length="200">
+                <comment>Contains the error description for a failed transaction.</comment>
+            </column>
+        </property>
+        <property name="dataCol1" type="string">
+            <column name="DATA_COL_1" length="200">
+                <comment>the data in this column is defined by the audit_event_type</comment>
+            </column>
+        </property>
+        <property name="dataCol2" type="string">
+            <column name="DATA_COL_2" length="200">
+                <comment>the data in this column is defined by the audit_event_type</comment>
+            </column>
+        </property>
+        <property name="dataCol3" type="string">
+            <column name="DATA_COL_3" length="200">
+                <comment>the data in this column is defined by the audit_event_type</comment>
+            </column>
+        </property>
+        <property name="dataCol4" type="string">
+            <column name="DATA_COL_4" length="200">
+                <comment>A fourth column containing the audit information.</comment>
+            </column>
+        </property>
+        <property name="dataCol5" type="string">
+            <column name="DATA_COL_5" length="200">
+                <comment>A fifth column containing the audit information.</comment>
+            </column>
+        </property>
+    </class>
+</hibernate-mapping>

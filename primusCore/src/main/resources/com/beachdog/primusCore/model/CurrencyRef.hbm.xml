@@ -1,0 +1,39 @@
+<?xml version="1.0"?>
+<!DOCTYPE hibernate-mapping PUBLIC "-//Hibernate/Hibernate Mapping DTD 3.0//EN"
+"http://hibernate.sourceforge.net/hibernate-mapping-3.0.dtd">
+<!-- Generated Mar 1, 2012 2:19:03 PM by Hibernate Tools 3.4.0.CR1 -->
+<hibernate-mapping>
+    <class name="com.beachdog.primusCore.model.CurrencyRef" table="CURRENCY_REF" schema="PCSPROD">
+        <id name="currencyId" type="big_decimal">
+            <column name="CURRENCY_ID" precision="22" scale="0" />
+            <generator class="assigned" />
+        </id>
+        <property name="name" type="string">
+            <column name="NAME" length="80" />
+        </property>
+        <property name="decimalPrecision" type="big_decimal">
+            <column name="DECIMAL_PRECISION" precision="22" scale="0" />
+        </property>
+        <property name="isoCurrencyCode" type="string">
+            <column name="ISO_CURRENCY_CODE" length="3" />
+        </property>
+        <property name="isoCountryCode" type="string">
+            <column name="ISO_COUNTRY_CODE" length="2" />
+        </property>
+        <property name="isoLanguageCode" type="string">
+            <column name="ISO_LANGUAGE_CODE" length="2" />
+        </property>
+        <set name="evtRechargeTransactions" table="EVT_RECHARGE_TRANSACTION" inverse="true" lazy="true" fetch="select">
+            <key>
+                <column name="CURRENCY_ID" precision="22" scale="0" not-null="true" />
+            </key>
+            <one-to-many class="com.beachdog.primusCore.model.EvtRechargeTransaction" />
+        </set>
+        <set name="evtPointOfSales" table="EVT_POINT_OF_SALE" inverse="true" lazy="true" fetch="select">
+            <key>
+                <column name="CURRENCY_ID" precision="22" scale="0" />
+            </key>
+            <one-to-many class="com.beachdog.primusCore.model.EvtPointOfSale" />
+        </set>
+    </class>
+</hibernate-mapping>

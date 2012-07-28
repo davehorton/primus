@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE hibernate-reverse-engineering PUBLIC "-//Hibernate/Hibernate Reverse Engineering DTD 3.0//EN" "http://hibernate.sourceforge.net/hibernate-reverse-engineering-3.0.dtd" >
+
+<hibernate-reverse-engineering>
+	<table-filter match-schema="PCSPROD" match-name="ACCOUNT_ACTIVITY" />
+	<table-filter match-schema="PCSPROD" match-name="AUDIT_EVENT" />
+	<table-filter match-schema="PCSPROD" match-name="EVT_POINT_OF_SALE" />
+	<table-filter match-schema="PCSPROD" match-name="EVT_PREPAID_ACTIVATION" />
+	<table-filter match-schema="PCSPROD" match-name="EVT_PREPAID_ACTIVATION_LOG" />
+	<table-filter match-schema="PCSPROD" match-name="EVT_RECHARGE_TRANSACTION" />
+	<table-filter match-schema="PCSPROD" match-name="EVT_REVERSAL" />
+	<table-filter match-schema="PCSPROD" match-name="LOT" />
+	<table-filter match-schema="PCSPROD" match-name="PRE_ACTIVATED_SUBSCRIBERS" />
+	<table-filter match-schema="PCSPROD" match-name="SUBSCRIBER" />
+	<table-filter match-schema="PCSPROD" match-name="SUB_AUTH_ANI" />
+	<table-filter match-schema="PCSPROD" match-name="PRODUCT_OFFERING"/>
+	<table-filter match-schema="PCSPROD" match-name="SVC_PREPAID_CALLING"/>
+	<table-filter match-schema="PCSPROD" match-name="LANGUAGE_REF"/>
+	<table-filter match-schema="PCSPROD" match-name="CURRENCY_REF"/>
+	<table-filter match-schema="PCSPROD" match-name="ACCESS_NUMBER"/>
+	<table-filter match-schema="PCSPROD" match-name="SERVICE_PROVIDER"/>
+	<table-filter match-schema="PCSPROD" match-name="SERVICE_PROVIDER_SETTINGS"/>
+</hibernate-reverse-engineering>

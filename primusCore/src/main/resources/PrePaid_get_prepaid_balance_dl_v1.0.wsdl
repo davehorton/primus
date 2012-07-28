@@ -1,0 +1,61 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- edited with XMLSpy v2006 sp2 U (http://www.altova.com) by Authorized User (Primus Canada) -->
+<WSDL:definitions xmlns="http://schemas.xmlsoap.org/wsdl/" xmlns:SOAP="http://schemas.xmlsoap.org/wsdl/soap/" xmlns:WSDL="http://schemas.xmlsoap.org/wsdl/" xmlns:tns="http://namespaces.soaplite.com/perl" xmlns:SOAP-ENV="http://schemas.xmlsoap.org/soap/envelope/" xmlns:SOAP-ENC="http://schemas.xmlsoap.org/soap/encoding/" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:ns1="uri:ECare" targetNamespace="http://namespaces.soaplite.com/perl" name="ECare">
+	<WSDL:types>
+		<xsi:schema xmlns:SOAP-ENV="http://schemas.xmlsoap.org/soap/envelope/" xmlns:SOAP-ENC="http://schemas.xmlsoap.org/soap/encoding/" xmlns:xsi="http://www.w3.org/2001/XMLSchema" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:ns1="uri:ECare" xmlns="http://www.w3.org/2001/XMLSchema" targetNamespace="uri:ECare" elementFormDefault="unqualified" attributeFormDefault="unqualified">
+			<xsi:element name="get_prepaid_balance_dl">
+				<xsi:complexType>
+					<xsi:sequence>
+						<xsi:element name="phone_no" type="xsd:string"/>
+					</xsi:sequence>
+				</xsi:complexType>
+			</xsi:element>
+			<xsi:element name="get_prepaid_balance_dlResponse">
+				<xsi:complexType>
+					<xsi:sequence>
+						<xsi:element name="ECare__PrepaidBalanceResponse">
+							<xsi:complexType>
+								<xsi:sequence>
+									<xsi:element name="balance" type="xsi:float"/>
+									<xsi:element name="status" type="xsi:string"/>
+									<xsi:element name="statuscode" type="xsi:int"/>
+									<xsi:element name="message" type="xsi:string"/>
+								</xsi:sequence>
+							</xsi:complexType>
+						</xsi:element>
+					</xsi:sequence>
+				</xsi:complexType>
+			</xsi:element>
+		</xsi:schema>
+	</WSDL:types>
+	<WSDL:message name="prepaid_balanceRequest">
+		<WSDL:part name="parameters" element="ns1:get_prepaid_balance_dl"/>
+	</WSDL:message>
+	<WSDL:message name="prepaid_balanceResponse">
+		<WSDL:part name="parameters" element="ns1:get_prepaid_balance_dlResponse"/>
+	</WSDL:message>
+	<portType name="ECarePortType">
+		<WSDL:operation name="get_prepaid_balance_dl">
+			<WSDL:input message="tns:prepaid_balanceRequest"/>
+			<WSDL:output message="tns:prepaid_balanceResponse"/>
+		</WSDL:operation>
+	</portType>
+	<binding name="ECareBinding" type="tns:ECarePortType">
+		<SOAP:binding style="document" transport="http://schemas.xmlsoap.org/soap/http"/>
+		<WSDL:operation name="get_prepaid_balance_dl">
+			<SOAP:operation soapAction="urn:ECare::Prepaid"/>
+			<input>
+				<SOAP:body use="literal"/>
+			</input>
+			<output>
+				<SOAP:body use="literal"/>
+			</output>
+		</WSDL:operation>
+	</binding>
+	<service name="ECare">
+		<documentation>gSOAP 2.3.8 generated service definition</documentation>
+		<port name="ECare" binding="tns:ECareBinding">
+			<SOAP:address location="http://saturn.ca.primus/ECare"/>
+		</port>
+	</service>
+</WSDL:definitions>

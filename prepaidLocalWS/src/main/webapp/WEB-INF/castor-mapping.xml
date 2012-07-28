@@ -1,0 +1,189 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<mapping>
+        <class name="com.primus.pl.xml.ActivationRequest">
+           <map-to xml="activationRequest" ns-uri="http://primus.com/prepaidLocal/schemas"/>           
+           <field name="lotId" type="long">
+              <bind-xml name="lotId" node="element"/>
+           </field>
+           <field name="subscriberPhone" type="string">
+              <bind-xml name="subscriberPhone" node="element"/>
+           </field>
+           <field name="initialBalance" type="double">
+              <bind-xml name="initialBalance" node="element"/>
+           </field>
+        </class>
+         
+        <class name="com.primus.pl.xml.ActivationResponse">
+           <map-to xml="activationResponse" ns-uri="http://primus.com/prepaidLocal/schemas"/>
+           <field name="code" type="integer">
+              <bind-xml name="code" node="element"/>
+           </field>
+           <field name="message" type="string">
+              <bind-xml name="message" node="element"/>
+           </field>
+           <field name="subscriberPin" type="string">
+              <bind-xml name="subscriberPin" node="element"/>
+           </field>
+           <field name="subscriberId" type="long">
+              <bind-xml name="subscriberId" node="element"/>
+           </field>
+         </class>
+         
+         <class name="com.primus.pl.xml.VoucherPaymentRequest">
+         	<map-to xml="voucherPaymentRequest" ns-uri="http://primus.com/prepaidLocal/schemas"/>    	
+         	<field name="requestor" type="com.primus.pl.xml.Requestor">
+         		<bind-xml name="requestor" node="element"/>
+         	</field>
+         	<field name="subscriber" type="com.primus.pl.xml.Subscriber">
+         		<bind-xml name="subscriber" node="element"/>
+         	</field>
+         	<field name="voucher" type="com.primus.pl.xml.Voucher">
+         		<bind-xml name="voucher" node="element"/>
+         	</field>
+         </class>
+         
+         <class name="com.primus.pl.xml.VoucherPaymentResponse">
+           <map-to xml="voucherPaymentResponse" ns-uri="http://primus.com/prepaidLocal/schemas"/>
+           <field name="code" type="integer">
+              <bind-xml name="code" node="element"/>
+           </field>           
+           <field name="message" type="string">
+              <bind-xml name="message" node="element"/>
+           </field>
+           <field name="details" type="com.primus.pl.xml.VoucherProcessorResponse">
+           	 <bind-xml name="details" node="element"/>
+           </field>
+         </class>
+         
+        <class name="com.primus.pl.xml.CreditCardPaymentRequest">
+         	<map-to xml="creditCardPaymentRequest" ns-uri="http://primus.com/prepaidLocal/schemas"/>    	
+         	<field name="requestor" type="com.primus.pl.xml.Requestor">
+         		<bind-xml name="requestor" node="element"/>
+         	</field>
+         	<field name="subscriber" type="com.primus.pl.xml.Subscriber">
+         		<bind-xml name="subscriber" node="element"/>
+         	</field>
+         	<field name="card" type="com.primus.pl.xml.CreditCard">
+         		<bind-xml name="card" node="element"/>
+         	</field>
+         </class>
+         
+         <class name="com.primus.pl.xml.CreditCardPaymentResponse">
+	     	<map-to xml="creditCardPaymentResponse" ns-uri="http://primus.com/prepaidLocal/schemas"/>
+           <field name="code" type="integer">
+              <bind-xml name="code" node="element"/>
+           </field>           
+           <field name="message" type="string">
+              <bind-xml name="message" node="element"/>
+           </field>
+           <field name="details" type="com.primus.pl.xml.CreditCardProcessorResponse">
+           	 <bind-xml name="details" node="element"/>
+           </field>
+         </class>
+         
+         <class name="com.primus.pl.xml.CreditCard">
+         	<field name="cardType" type="string">
+         		<bind-xml name="cardType" node="element"/>
+         	</field>
+         	<field name="cardNumber" type="string">
+         		<bind-xml name="cardNumber" node="element"/>
+         	</field>
+         	<field name="nameOnCard" type="string">
+         		<bind-xml name="nameOnCard" node="element"/>
+         	</field>
+         	<field name="addressLine1" type="string">
+         		<bind-xml name="addressLine1" node="element"/>
+         	</field>
+         	<field name="addressLine2" type="string">
+         		<bind-xml name="addressLine2" node="element"/>
+         	</field>
+          	<field name="city" type="string">
+         		<bind-xml name="city" node="element"/>
+         	</field>
+          	<field name="province" type="string">
+         		<bind-xml name="province" node="element"/>
+         	</field>
+          	<field name="postalCode" type="string">
+         		<bind-xml name="postalCode" node="element"/>
+         	</field>
+          	<field name="amount" type="double">
+         		<bind-xml name="amount" node="element"/>
+         	</field>
+         	<field name="expiryDate" type="string">
+         		<bind-xml name="expiryDate" node="element"/>
+         	</field>
+         </class>
+         
+         <class name="com.primus.pl.xml.CreditCardProcessorResponse">
+         	<field name="authorizationCode" type="string">
+         		<bind-xml name="authorizationCode" node="element"/>
+         	</field>
+         	<field name="resultCode" type="string">
+         		<bind-xml name="resultCode" node="element"/>
+         	</field>
+         	<field name="resultDescription" type="string">
+         		<bind-xml name="resultDescription" node="element"/>
+         	</field>
+         	<field name="avsResultCode" type="string">
+         		<bind-xml name="avsResultCode" node="element"/>
+         	</field>
+         	<field name="avsResultDescription" type="string">
+         		<bind-xml name="avsResultDescription" node="element"/>
+         	</field>
+        	<field name="inquiryId" type="string">
+         		<bind-xml name="inquiryId" node="element"/>
+         	</field>
+         </class>
+
+         <class name="com.primus.pl.xml.VoucherProcessorResponse">
+         	<field name="transactionCode" type="string">
+         		<bind-xml name="transactionCode" node="element"/>
+         	</field>
+         	<field name="transactionDescription" type="string">
+         		<bind-xml name="transactionDescription" node="element"/>
+         	</field>
+         	<field name="errorCode" type="string">
+         		<bind-xml name="errorCode" node="element"/>
+         	</field>
+         	<field name="errorDescription" type="string">
+         		<bind-xml name="errorDescription" node="element"/>
+         	</field>
+        	<field name="vendorTransactionId" type="string">
+         		<bind-xml name="vendorTransactionId" node="element"/>
+         	</field>
+ 	      	<field name="settleAmount" type="double" >
+         		<bind-xml name="settleAmount" node="element"/>
+         	</field>
+         </class>
+         
+         <class name="com.primus.pl.xml.Requestor">
+         	<field name="userId" type="string">
+         		<bind-xml name="userId" node="element"/>
+         	</field>
+        	<field name="clientId" type="string">
+         		<bind-xml name="clientId" node="element"/>
+         	</field>
+        	<field name="transactionId" type="string">
+         		<bind-xml name="transactionId" node="element"/>
+         	</field>
+         </class>
+
+        <class name="com.primus.pl.xml.Subscriber">
+         	<field name="phone" type="string">
+         		<bind-xml name="phone" node="element"/>
+         	</field>
+           <field name="serviceProviderName" type="string">
+              <bind-xml name="serviceProviderName" node="element"/>
+           </field>
+         </class>
+
+        <class name="com.primus.pl.xml.Voucher">
+         	<field name="voucherNumber" type="string">
+         		<bind-xml name="voucherNumber" node="element"/>
+         	</field>
+        	<field name="voucherValue" type="double">
+         		<bind-xml name="voucherValue" node="element"/>
+         	</field>
+          </class>
+
+</mapping>

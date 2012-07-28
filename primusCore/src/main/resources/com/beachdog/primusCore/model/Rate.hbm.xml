@@ -1,0 +1,187 @@
+<?xml version="1.0"?>
+<!DOCTYPE hibernate-mapping PUBLIC "-//Hibernate/Hibernate Mapping DTD 3.0//EN"
+"http://hibernate.sourceforge.net/hibernate-mapping-3.0.dtd">
+<!-- Generated Jul 22, 2012 6:38:03 PM by Hibernate Tools 3.4.0.CR1 -->
+<hibernate-mapping>
+    <class name="com.beachdog.primusCore.model.Rate" table="RATE" schema="PCSPROD">
+        <id name="rateId" type="big_decimal">
+            <column name="RATE_ID" precision="22" scale="0" />
+            <generator class="assigned" />
+        </id>
+        <property name="rateTypeId" type="big_decimal">
+            <column name="RATE_TYPE_ID" precision="22" scale="0" not-null="true" />
+        </property>
+        <property name="calcTypeId" type="big_decimal">
+            <column name="CALC_TYPE_ID" precision="22" scale="0" not-null="true" />
+        </property>
+        <property name="defaultAmount" type="big_decimal">
+            <column name="DEFAULT_AMOUNT" precision="22" scale="0" not-null="true" />
+        </property>
+        <property name="serviceProviderId" type="big_decimal">
+            <column name="SERVICE_PROVIDER_ID" precision="22" scale="0" not-null="true" />
+        </property>
+        <property name="eventTypeId" type="big_decimal">
+            <column name="EVENT_TYPE_ID" precision="22" scale="0" not-null="true">
+                <comment>1 - This Event is fired when a user places aprepaid call 2 - This event is fired when a a subscriber signs up for a product offering 3 - This Event is
+                fired when a user issues a credit card recharge</comment>
+            </column>
+        </property>
+        <property name="postEventBillFlag" type="char">
+            <column name="POST_EVENT_BILL_FLAG" length="1" not-null="true" />
+        </property>
+        <property name="bongChargeType" type="char">
+            <column name="BONG_CHARGE_TYPE" length="1" not-null="true">
+                <comment>S = standard, E = extended</comment>
+            </column>
+        </property>
+        <property name="includeTimeAnnounced" type="char">
+            <column name="INCLUDE_TIME_ANNOUNCED" length="1" not-null="true" />
+        </property>
+        <property name="includeTimeAllowed" type="char">
+            <column name="INCLUDE_TIME_ALLOWED" length="1" not-null="true">
+                <comment>specifies whether to factor the rate into the time remaining calculation, applies only to first use rates</comment>
+            </column>
+        </property>
+        <property name="useAccessNumberGroups" type="char">
+            <column name="USE_ACCESS_NUMBER_GROUPS" length="1" not-null="true">
+                <comment>Access number rate uses groups flag. "T" to use group. "F" to use single AN.</comment>
+            </column>
+        </property>
+        <property name="maintFeeFrequency" type="big_decimal">
+            <column name="MAINT_FEE_FREQUENCY" precision="22" scale="0" />
+        </property>
+        <property name="surcharge" type="big_decimal">
+            <column name="SURCHARGE" precision="22" scale="0" />
+        </property>
+        <property name="subrateNotfoundOption" type="big_decimal">
+            <column name="SUBRATE_NOTFOUND_OPTION" precision="22" scale="0">
+                <comment>indicates what to do if a subrate not found 1=Apply Default Rate 2=Do Not Apply Rate 3=Block Call</comment>
+            </column>
+        </property>
+        <property name="effectiveDate" type="date">
+            <column name="EFFECTIVE_DATE" length="7" />
+        </property>
+        <property name="endDate" type="date">
+            <column name="END_DATE" length="7" />
+        </property>
+        <property name="description" type="string">
+            <column name="DESCRIPTION" length="200" />
+        </property>
+        <property name="rateName" type="string">
+            <column name="RATE_NAME" length="200" />
+        </property>
+        <property name="firstMaintFeeFrequency" type="big_decimal">
+            <column name="FIRST_MAINT_FEE_FREQUENCY" precision="22" scale="0">
+                <comment>number of days between first use and billing for first maintenance fee, subsequent maint fee intervals is controlled by maint_fee_frequency, applies only
+                to maintenance fees</comment>
+            </column>
+        </property>
+        <property name="firstMaintFeeRate" type="big_decimal">
+            <column name="FIRST_MAINT_FEE_RATE" precision="22" scale="0">
+                <comment>rate associated with the first maintenance fee, rate for all subsequent maint fees is controlled by default_amount, applies only to maintenance
+                fees</comment>
+            </column>
+        </property>
+        <property name="tdwDiscountFlag" type="char">
+            <column name="TDW_DISCOUNT_FLAG" length="1" not-null="true">
+                <comment>T/F default F. Indicates whether or not a rate plan has time of day/day of week discounts attached to it.</comment>
+            </column>
+        </property>
+        <property name="bucketExhaustionCutoffFlag" type="char">
+            <column name="BUCKET_EXHAUSTION_CUTOFF_FLAG" length="1" not-null="true">
+                <comment>Whether or not the call should be cutoff when the bucket is exhausted. Only applies to the bucket of minutes rate plan. Default is F</comment>
+            </column>
+        </property>
+        <property name="sendViolationNotifications" type="char">
+            <column name="SEND_VIOLATION_NOTIFICATIONS" length="1" not-null="true">
+                <comment>Flag to indicate whether threshold notifications should be sent. Only applies to the bucket of minutes rate plan. Default is F</comment>
+            </column>
+        </property>
+        <property name="sendBucketRefillNotifFlag" type="char">
+            <column name="SEND_BUCKET_REFILL_NOTIF_FLAG" length="1" not-null="true">
+                <comment>Flag to indicate whether notifications should be sent when a bucket is refilled. Only applies to the bucket of minutes rate plan. Default is F</comment>
+            </column>
+        </property>
+        <property name="sendBucketExhaustNotifFlag" type="char">
+            <column name="SEND_BUCKET_EXHAUST_NOTIF_FLAG" length="1" not-null="true">
+                <comment>Flag to indicate whether notifications should be sent when a bucket is exhausted. Only applies to the bucket of minutes rate plan. Default is F</comment>
+            </column>
+        </property>
+        <property name="bucketSize" type="big_decimal">
+            <column name="BUCKET_SIZE" precision="22" scale="0">
+                <comment>The size of the bucket of minutes in minutes. Only applies to the bucket of minutes rate plan.</comment>
+            </column>
+        </property>
+        <property name="numBucketRefillsPerCycle" type="big_decimal">
+            <column name="NUM_BUCKET_REFILLS_PER_CYCLE" precision="22" scale="0">
+                <comment>The number of bucket refills that are allowed per billing cycle. Only applies to the bucket of minutes rate plan.</comment>
+            </column>
+        </property>
+        <property name="dailyUsageThreshold" type="big_decimal">
+            <column name="DAILY_USAGE_THRESHOLD" precision="22" scale="0">
+                <comment>The number of minutes that if exceeded will generate a notification. Only applies to the bucket of minutes rate plan and if the
+                send_violation_notifications flag is set.</comment>
+            </column>
+        </property>
+        <property name="bucketRefillWarnThrshld" type="big_decimal">
+            <column name="BUCKET_REFILL_WARN_THRSHLD" precision="22" scale="0">
+                <comment>The time in minutes to play the bucket refill warning message.</comment>
+            </column>
+        </property>
+        <property name="bucketExhaustWarnThrshld" type="big_decimal">
+            <column name="BUCKET_EXHAUST_WARN_THRSHLD" precision="22" scale="0">
+                <comment>The time in minutes to play the bucket exhaust warning message.</comment>
+            </column>
+        </property>
+        <property name="regionFeeSchedId" type="big_decimal">
+            <column name="REGION_FEE_SCHED_ID" precision="22" scale="0">
+                <comment>The foreign key associating a rate to a variable fee schedule.</comment>
+            </column>
+        </property>
+        <property name="bucketPlanType" type="char">
+            <column name="BUCKET_PLAN_TYPE" length="1" not-null="true" />
+        </property>
+        <property name="bucketRateCallsFlag" type="char">
+            <column name="BUCKET_RATE_CALLS_FLAG" length="1" not-null="true" />
+        </property>
+        <property name="subscriptionFeeFrequency" type="big_decimal">
+            <column name="SUBSCRIPTION_FEE_FREQUENCY" precision="22" scale="0" />
+        </property>
+        <property name="gracePeriod" type="big_decimal">
+            <column name="GRACE_PERIOD" precision="22" scale="0" not-null="true">
+                <comment>The number of extra minutes of calling to allow once the rated calling time is exhausted.</comment>
+            </column>
+        </property>
+        <property name="amountSetting" type="big_decimal">
+            <column name="AMOUNT_SETTING" precision="22" scale="0">
+                <comment>0 = announce, 1 = unannounced, 2 = unreserved (Null means use default behavior for this parameter)</comment>
+            </column>
+        </property>
+        <property name="surchargeSetting" type="big_decimal">
+            <column name="SURCHARGE_SETTING" precision="22" scale="0">
+                <comment>0 = announce, 1 = unannounced, 2 = unreserved (Null means use default behavior for this parameter)</comment>
+            </column>
+        </property>
+        <property name="maintFeeStartSeq" type="big_decimal">
+            <column name="MAINT_FEE_START_SEQ" precision="22" scale="0">
+                <comment>The subscriber's sequence must be &gt;= to this value for the given rate to apply (only for monthly/maint fees)</comment>
+            </column>
+        </property>
+        <property name="firstUseThreshold" type="big_decimal">
+            <column name="FIRST_USE_THRESHOLD" precision="22" scale="0">
+                <comment>First use threshold in seconds, 0/Null treated as no threshold</comment>
+            </column>
+        </property>
+        <property name="maintFeeDayOfWeek" type="big_decimal">
+            <column name="MAINT_FEE_DAY_OF_WEEK" precision="22" scale="0">
+                <comment>Maint fee will only be applied on this day of the week. Null, if no day of week restriction</comment>
+            </column>
+        </property>
+        <set name="ratedEvents" table="RATED_EVENT" inverse="true" lazy="true" fetch="select">
+            <key>
+                <column name="RATE_ID" precision="22" scale="0" not-null="true" />
+            </key>
+            <one-to-many class="com.beachdog.primusCore.model.RatedEvent" />
+        </set>
+    </class>
+</hibernate-mapping>

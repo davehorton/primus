@@ -1,0 +1,100 @@
+	<!DOCTYPE beans PUBLIC "-//SPRING//DTD  BEAN//EN" "file:////root/DOWNLOADS/SPRING/spring-framework-1.2.8/dist/spring-beans.dtd">
+<beans>
+	<bean id="logger" class="org.sipdev.framework.Log4jLogger"  init-method="init">
+		
+	</bean>
+
+	<bean id="wsConfig" class="com.beachdog.primusCore.Config">
+		<property name="webServiceEndoint"><value>http://saturn.ca.primus:80/ECare</value></property> 
+<!-- 	<property name="webServiceEndoint"><value>http://phobos.ca.primus:80/ECare</value></property> -->
+		<property name="wsdlLocation"><value>file:////usr/local/apache-tomcat/webapps/prepaidLocal-3.0/WEB-INF/PrimusWS.wsdl</value></property>
+		<property name="M6Address"><value>10.201.176.6</value></property>
+		<property name="M6User"><value>ppl_api_user</value></property>
+		<property name="M6Password"><value>e89552d0</value></property>		
+	</bean>
+    <bean id="psprd1" class="org.sipdev.framework.CommonsPoolableDataSource"
+                        destroy-method="close" init-method="createPool">
+                        <property name="driverName">
+                                <value>oracle.jdbc.driver.OracleDriver</value>
+                        </property>
+                        <property name="connectionURL">
+<!--                            <value>jdbc:oracle:thin:@10.201.170.95:1521:psprd1</value>   -->
+                                <value>jdbc:oracle:thin:@10.201.174.136:1521:psprd1</value> 
+                        </property>
+                        <property name="username">
+                                <value>pcsprod</value>
+                        </property>
+                        <property name="password">
+                                <value>pcsprod</value>
+                        </property>
+                        <property name="logger">
+                                <ref bean="logger"/>
+                        </property>
+                        <property name="port">
+                                <value>1521</value>
+                        </property>
+                        <!-- 
+                        <property name="validationQuery">
+                                <value>select sysdate from dual;</value>
+                        </property>
+                        -->
+                        <property name="poolName">
+                                <value>psprd1</value>
+                        </property>
+        </bean>
+	<bean id="sessionFactory"
+		class="org.springframework.orm.hibernate3.LocalSessionFactoryBean">
+		<!-- The bean is seeded with the data source defined above -->
+		<property name="dataSource">
+			<ref local="psprd1" />
+		</property>
+		
+		<!--  This property must be set to false if you want to do pure Hibernate Transactions -->
+		<!--  If it is not set, the underlying Spring framework will inject a transaction proxy -->
+		<!--  Which may not give you the transaction behavior you are looking for.   -->
+		<!--  If you wish to use Spring's Hibernate Template classes you may want to set this -->
+		<!--  to true. -->
+		<property name="exposeTransactionAwareSessionFactory">
+			<value>true</value>
+		</property>
+
+		<!-- Pass in hibernate properties -->
+		    <property name="hibernateProperties">
+      			<props>
+		        <prop key="hibernate.dialect">org.hibernate.dialect.Oracle10gDialect</prop>
+ 		        <prop key="hibernate.current_session_context_class">thread</prop>
+ 				<prop key="hibernate.show_sql">true</prop>
+      			</props>
+		     </property>
+
+		<!-- Pass in your table mappings here-->
+   		 <property name="mappingResources">
+		 	<list>
+        		<value>com/beachdog/primusCore/model/AccountActivity.hbm.xml</value>
+        		<value>com/beachdog/primusCore/model/AuditEvent.hbm.xml</value>
+        		<value>com/beachdog/primusCore/model/EvtPointOfSale.hbm.xml</value>
+        		<value>com/beachdog/primusCore/model/EvtPrepaidActivation.hbm.xml</value>
+        		<value>com/beachdog/primusCore/model/EvtPrepaidActivationLog.hbm.xml</value>
+        		<value>com/beachdog/primusCore/model/EvtRechargeTransaction.hbm.xml</value>
+        		<value>com/beachdog/primusCore/model/EvtReversal.hbm.xml</value>
+        		<value>com/beachdog/primusCore/model/Lot.hbm.xml</value>
+        		<value>com/beachdog/primusCore/model/LockedPins.hbm.xml</value>
+        		<value>com/beachdog/primusCore/model/PreActivatedSubscribers.hbm.xml</value>
+        		<value>com/beachdog/primusCore/model/ProductOffering.hbm.xml</value>
+        		<value>com/beachdog/primusCore/model/SubAuthAni.hbm.xml</value>
+        		<value>com/beachdog/primusCore/model/Subscriber.hbm.xml</value>
+        		<value>com/beachdog/primusCore/model/SvcPrepaidCalling.hbm.xml</value>
+        		<value>com/beachdog/primusCore/model/CurrencyRef.hbm.xml</value>
+        		<value>com/beachdog/primusCore/model/LanguageRef.hbm.xml</value>
+       			<value>com/beachdog/primusCore/model/AccessNumber.hbm.xml</value>
+       			<value>com/beachdog/primusCore/model/ServiceProvider.hbm.xml</value>
+      			<value>com/beachdog/primusCore/model/ServiceProviderSettings.hbm.xml</value>
+      			<value>com/beachdog/primusCore/model/PsAudit.hbm.xml</value>
+        	</list>
+    	</property>
+		
+	</bean>
+	<bean id="transactionManager" class="org.springframework.orm.hibernate3.HibernateTransactionManager">
+    	<property name="sessionFactory" ref="sessionFactory" />
+  	</bean>
+</beans>

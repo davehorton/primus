@@ -1,0 +1,52 @@
+<?xml version="1.0"?>
+<!DOCTYPE hibernate-mapping PUBLIC "-//Hibernate/Hibernate Mapping DTD 3.0//EN"
+"http://hibernate.sourceforge.net/hibernate-mapping-3.0.dtd">
+<!-- Generated Mar 1, 2012 2:19:03 PM by Hibernate Tools 3.4.0.CR1 -->
+<hibernate-mapping>
+    <class name="com.beachdog.primusCore.model.EvtPrepaidActivationLog" table="EVT_PREPAID_ACTIVATION_LOG" schema="PCSPROD">
+        <composite-id name="id" class="com.beachdog.primusCore.model.EvtPrepaidActivationLogId">
+            <key-property name="auditId" type="big_decimal">
+                <column name="AUDIT_ID" precision="22" scale="0" />
+            </key-property>
+            <key-property name="activationId" type="string">
+                <column name="ACTIVATION_ID" length="20" />
+            </key-property>
+        </composite-id>
+        <property name="actionCode" type="big_decimal">
+            <column name="ACTION_CODE" precision="22" scale="0" not-null="true" />
+        </property>
+        <property name="totalPins" type="big_decimal">
+            <column name="TOTAL_PINS" precision="22" scale="0" not-null="true" />
+        </property>
+        <property name="lotId" type="big_decimal">
+            <column name="LOT_ID" precision="22" scale="0" />
+        </property>
+        <property name="timeStamp" type="date">
+            <column name="TIME_STAMP" length="7" />
+        </property>
+        <property name="description" type="string">
+            <column name="DESCRIPTION" length="80" />
+        </property>
+        <property name="totalAmount" type="big_decimal">
+            <column name="TOTAL_AMOUNT" precision="22" scale="0" />
+        </property>
+        <property name="offeringId" type="big_decimal">
+            <column name="OFFERING_ID" precision="22" scale="0" />
+        </property>
+        <property name="startLotSeq" type="java.lang.Long">
+            <column name="START_LOT_SEQ" precision="10" scale="0">
+                <comment>Start sequence</comment>
+            </column>
+        </property>
+        <property name="endLotSeq" type="java.lang.Long">
+            <column name="END_LOT_SEQ" precision="10" scale="0">
+                <comment>End sequence</comment>
+            </column>
+        </property>
+        <property name="totalActivePins" type="java.lang.Long">
+            <column name="TOTAL_ACTIVE_PINS" precision="10" scale="0">
+                <comment>Total active pins</comment>
+            </column>
+        </property>
+    </class>
+</hibernate-mapping>

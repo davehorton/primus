@@ -1,0 +1,52 @@
+This document provides instructions on how to install the point of sale reporting software for the Pactolus prepaid database.
+
+PREREQUISITES:
+
+1) You must have the gzip file containing the reporting software.  
+Alternatively, using the directions below, you can check out and build the components from source.
+
+2) You must have a Linux server from which to run the software.  
+This server must have network access to the database server you will be reporting on.
+
+INSTALLATION STEPS:
+
+1) Unzip and untar the distribution file into a directory of your choosing.
+
+2) Edit the beans.xml file to point to the correct database by changing the second line below, if necessary:
+
+<property name="connectionURL">
+       <value>jdbc:oracle:thin:@10.201.174.136:1521:psprd1</value> 
+</property>
+
+3) Edit the log4j.properties file to point to a log file and directory of your choosing, by editing this line:
+
+log4j.appender.A2.File=/export/home/pcs/newPosReporting/logs/posReporting.log
+
+4) Make sure the file named 'runReport.sh' is executable:
+
+chmod +x runReport.sh
+
+5) Now you are ready to run the report.  To run a report for yesterday, execute the following command:
+
+./runReport.sh --start -1 --end 0
+
+To view the possible date options, simply run the script with no parameters:
+
+./runReport
+
+If desired, create a cron entry similar to the one below to run the report each morning:
+
+30 03 * * * /usr/bin/bash -c "/export/home/pcs/newPosReporting/runReport.sh >/export/home/pcs/newPosReporting/logs/newPosReporting.out 2>&1"
+
+
+SOURCE CODE:
+
+Full source code for the reports is available at the following svn URLs:
+
+svn://svn.beachdognet.com/customers/primus/posReporting
+svn://svn.beachdognet.com/customers/primus/primusCore
+svn://svn.beachdognet.com/bd/java-framework
+
+To checkout the source code you will need a subversion client or command line, and a username/password that will be provided separately.
+
+To build the code you will need to install maven on your server.

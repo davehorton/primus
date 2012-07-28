@@ -1,0 +1,86 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- edited with XMLSpy v2006 sp2 U (http://www.altova.com) by Authorized User (Primus Canada) -->
+<WSDL:definitions xmlns="http://schemas.xmlsoap.org/wsdl/" xmlns:SOAP="http://schemas.xmlsoap.org/wsdl/soap/" xmlns:WSDL="http://schemas.xmlsoap.org/wsdl/" xmlns:tns="http://namespaces.soaplite.com/perl" xmlns:SOAP-ENV="http://schemas.xmlsoap.org/soap/envelope/" xmlns:SOAP-ENC="http://schemas.xmlsoap.org/soap/encoding/" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:ns1="uri:ECare" targetNamespace="http://namespaces.soaplite.com/perl" name="ECare">
+	<WSDL:types>
+		<xsi:schema xmlns:SOAP-ENV="http://schemas.xmlsoap.org/soap/envelope/" xmlns:SOAP-ENC="http://schemas.xmlsoap.org/soap/encoding/" xmlns:xsi="http://www.w3.org/2001/XMLSchema" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:ns1="uri:ECare" xmlns="http://www.w3.org/2001/XMLSchema" targetNamespace="uri:ECare" elementFormDefault="unqualified" attributeFormDefault="unqualified">
+			<xsi:element name="prepaid_paymentech_payment_dl">
+				<xsi:complexType>
+					<xsi:sequence>
+						<xsi:element name="user_id" type="xsi:string"/>
+						<xsi:element name="business_unit" type="xsi:string"/>
+						<xsi:element name="client_id" type="xsi:string"/>
+						<xsi:element name="phone_no" type="xsd:string"/>
+						<xsi:element ref="ns1:paymentech_cc_dl"/>
+					</xsi:sequence>
+				</xsi:complexType>
+			</xsi:element>
+			<xsi:element name="paymentech_cc_dl">
+				<xsi:complexType>
+					<xsi:sequence>
+						<xsi:element name="cardtype" type="xsi:string"/>
+						<xsi:element name="cardnumber" type="xsi:string"/>
+						<xsi:element name="expirydate" type="xsi:string"/>
+						<xsi:element name="nameoncard" type="xsi:string"/>
+						<xsi:element name="amount" type="xsi:string"/>
+						<xsi:element name="reason" type="xsi:string"/>
+						<xsi:element name="transactionid" type="xsi:string"/>
+						<xsi:element name="addressline1" type="xsi:string"/>
+						<xsi:element name="addressline2" type="xsi:string"/>
+						<xsi:element name="city" type="xsi:string"/>
+						<xsi:element name="province" type="xsi:string"/>
+						<xsi:element name="postalcode" type="xsi:string"/>
+					</xsi:sequence>
+				</xsi:complexType>
+			</xsi:element>
+			<xsi:element name="prepaid_paymentech_payment_dlResponse">
+				<xsi:complexType>
+					<xsi:sequence>
+						<xsi:element name="ECare__PrepaidPaymentechResponse">
+							<xsi:complexType>
+								<xsi:all>
+									<xsi:element name="transactionid" type="xsi:string"/>
+									<xsi:element name="authorizationcode" type="xsi:string"/>
+									<xsi:element name="resultcode" type="xsi:string"/>
+									<xsi:element name="resultdescription" type="xsi:string"/>
+									<xsi:element name="avsresultcode" type="xsi:string"/>
+									<xsi:element name="avsresultdescription" type="xsi:string"/>
+									<xsi:element name="inquiryid" type="xsi:string"/>
+								</xsi:all>
+							</xsi:complexType>
+						</xsi:element>
+					</xsi:sequence>
+				</xsi:complexType>
+			</xsi:element>
+		</xsi:schema>
+	</WSDL:types>
+	<WSDL:message name="prepaid_paymentechRequest">
+		<WSDL:part name="parameters" element="ns1:prepaid_paymentech_payment_dl"/>
+	</WSDL:message>
+	<WSDL:message name="prepaid_paymentechResponse">
+		<WSDL:part name="parameters" element="ns1:prepaid_paymentech_payment_dlResponse"/>
+	</WSDL:message>
+	<portType name="ECarePortType">
+		<WSDL:operation name="prepaid_paymentech_payment_dl">
+			<WSDL:input message="tns:prepaid_paymentechRequest"/>
+			<WSDL:output message="tns:prepaid_paymentechResponse"/>
+		</WSDL:operation>
+	</portType>
+	<binding name="ECareBinding" type="tns:ECarePortType">
+		<SOAP:binding style="document" transport="http://schemas.xmlsoap.org/soap/http"/>
+		<WSDL:operation name="prepaid_paymentech_payment_dl">
+			<SOAP:operation soapAction="urn:ECare::Prepaid"/>
+			<input>
+				<SOAP:body use="literal"/>
+			</input>
+			<output>
+				<SOAP:body use="literal"/>
+			</output>
+		</WSDL:operation>
+	</binding>
+	<service name="ECare">
+		<documentation>gSOAP 2.3.8 generated service definition</documentation>
+		<port name="ECare" binding="tns:ECareBinding">
+			<SOAP:address location="http://saturn.ca.primus/ECare"/>
+		</port>
+	</service>
+</WSDL:definitions>

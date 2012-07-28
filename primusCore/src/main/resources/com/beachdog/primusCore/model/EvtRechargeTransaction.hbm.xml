@@ -1,0 +1,77 @@
+<?xml version="1.0"?>
+<!DOCTYPE hibernate-mapping PUBLIC "-//Hibernate/Hibernate Mapping DTD 3.0//EN"
+"http://hibernate.sourceforge.net/hibernate-mapping-3.0.dtd">
+<!-- Generated Mar 1, 2012 2:19:03 PM by Hibernate Tools 3.4.0.CR1 -->
+<hibernate-mapping>
+    <class name="com.beachdog.primusCore.model.EvtRechargeTransaction" table="EVT_RECHARGE_TRANSACTION" schema="PCSPROD">
+        <id name="eventId" type="string">
+            <column name="EVENT_ID" length="20" />
+            <generator class="assigned" />
+        </id>
+        <many-to-one name="currencyRef" class="com.beachdog.primusCore.model.CurrencyRef" fetch="select">
+            <column name="CURRENCY_ID" precision="22" scale="0" not-null="true" />
+        </many-to-one>
+        <many-to-one name="subscriber" class="com.beachdog.primusCore.model.Subscriber" fetch="select">
+            <column name="SUBSCRIBER_ID" precision="22" scale="0" />
+        </many-to-one>
+        <property name="timeStamp" type="date">
+            <column name="TIME_STAMP" length="7" not-null="true" />
+        </property>
+        <property name="transactionType" type="java.lang.Character">
+            <column name="TRANSACTION_TYPE" length="1">
+                <comment>debit or credit D or C</comment>
+            </column>
+        </property>
+        <property name="removeFlag" type="java.lang.Character">
+            <column name="REMOVE_FLAG" length="1" />
+        </property>
+        <property name="creditCardId" type="big_decimal">
+            <column name="CREDIT_CARD_ID" precision="22" scale="0" />
+        </property>
+        <property name="auditId" type="big_decimal">
+            <column name="AUDIT_ID" precision="22" scale="0">
+                <comment>optional FK to ps_audit record</comment>
+            </column>
+        </property>
+        <property name="sessionType" type="big_decimal">
+            <column name="SESSION_TYPE" precision="22" scale="0">
+                <comment>0=sessionless, 1=telephony platform, 2=web</comment>
+            </column>
+        </property>
+        <property name="amount" type="big_decimal">
+            <column name="AMOUNT" precision="22" scale="0">
+                <comment>the amount of the recharge</comment>
+            </column>
+        </property>
+        <property name="transactionResult" type="big_decimal">
+            <column name="TRANSACTION_RESULT" precision="22" scale="0" />
+        </property>
+        <property name="initiatedBy" type="big_decimal">
+            <column name="INITIATED_BY" precision="22" scale="0">
+                <comment>code indicating recharge client (admin, subscriber, auto recharge)</comment>
+            </column>
+        </property>
+        <property name="cybersourceResultCode" type="string">
+            <column name="CYBERSOURCE_RESULT_CODE" length="20">
+                <comment>status that comes back from cybersource recharge SOK, DCARDREFUSED, DCARDEXPIRED, DINVALIDCARD, DINVALIDDATEA, DMISSINGFIELD, ESYSTEM, ETIMEOUT,
+                OTHERS</comment>
+            </column>
+        </property>
+        <property name="authorizationNumber" type="string">
+            <column name="AUTHORIZATION_NUMBER" length="20">
+                <comment>Corresponds to a credit card recharge transaction.</comment>
+            </column>
+        </property>
+        <property name="sessionId" type="string">
+            <column name="SESSION_ID" length="120" />
+        </property>
+        <property name="cybersourceRequestId" type="string">
+            <column name="CYBERSOURCE_REQUEST_ID" />
+        </property>
+        <property name="replyMessage" type="string">
+            <column name="REPLY_MESSAGE">
+                <comment>Reply message from credit card vendor.</comment>
+            </column>
+        </property>
+    </class>
+</hibernate-mapping>

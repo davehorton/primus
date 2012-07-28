@@ -1,0 +1,247 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema"
+           xmlns:pl="http://primus.com/prepaidLocal/schemas"
+           elementFormDefault="qualified"
+           targetNamespace="http://primus.com/prepaidLocal/schemas">
+
+	<xs:annotation>
+		<xs:documentation xml:lang="en">
+			Schema for prepaid local web service.
+		</xs:documentation>
+	</xs:annotation>
+
+  <!--          Web services messages -->
+	<xs:element name="activationRequest" type="pl:ActivationRequest"/>
+	<xs:element name="activationResponse" type="pl:ActivationResponse"/>
+
+	<xs:element name="voucherPaymentRequest" type="pl:VoucherPaymentRequest"/>
+	<xs:element name="voucherPaymentResponse" type="pl:VoucherPaymentResponse"/>
+
+	<xs:element name="creditCardPaymentRequest" type="pl:CreditCardPaymentRequest"/>
+	<xs:element name="creditCardPaymentResponse" type="pl:CreditCardPaymentResponse"/>
+
+	<!--  Data Types  -->
+	<xs:complexType name="ActivationRequest">
+		<xs:all>
+			<xs:element name="lotId" type="xs:positiveInteger"/>
+			<xs:element name="subscriberPhone" type="xs:string"/>
+			<xs:element name="initialBalance" type="xs:decimal"/>
+		</xs:all>
+	</xs:complexType>
+
+
+	<xs:annotation>
+		<xs:documentation>
+			The ActivationResponse message contains a integer code describing the outcome of the activation request, along with an 
+			associated message that provides a readable description.  If the activation was successful, then the pin and subscriber id
+			values of the associated account that was activated are also provided.
+		</xs:documentation>
+	</xs:annotation>
+	<xs:complexType name="ActivationResponse">
+		<xs:all>
+			<xs:element name="code">
+				<xs:simpleType>
+					<xs:restriction base="xs:integer">
+						<xs:annotation>
+							<xs:documentation>
+								0 = Success
+								-1 = No lot exists with the specified lot id
+								-2 = The lot status is invalid; the lot must be generated but not activated
+								-3 = No pins are available in the lot (all the pins have been already activated)
+								-4 = The specified lot expiration date has passed
+								-5 = The specified phone number is already associated with a different account for this service provider/reseller
+								-98 = An unexpected system error has occurred
+								-99 = A database access error has occurred; possibly the database is down or unreachable
+							</xs:documentation>
+						</xs:annotation>
+						<xs:enumeration value="0"/> 
+						<xs:enumeration value="-1"/>
+						<xs:enumeration value="-2"/>
+						<xs:enumeration value="-3"/>
+						<xs:enumeration value="-4"/>
+						<xs:enumeration value="-5"/>
+						<xs:enumeration value="-98"/> 
+						<xs:enumeration value="-99"/>	
+					</xs:restriction>
+				</xs:simpleType>
+			</xs:element>
+			<xs:element name="message" type="xs:string"/>
+			<xs:element name="subscriberId" type="xs:string" minOccurs="0"/>
+			<xs:element name="subscriberPin" type="xs:string" minOccurs="0"/>
+		</xs:all>
+	</xs:complexType>
+
+	<xs:complexType name="VoucherPaymentRequest">
+		<xs:all>
+			<xs:element name="requestor" type="pl:Requestor"/>
+			<xs:element name="subscriber" type="pl:Subscriber"/>
+			<xs:element name="voucher" type="pl:Voucher"/>
+		</xs:all>
+	</xs:complexType>
+
+	<xs:complexType name="Requestor">
+		<xs:all>
+			<xs:element name="userId" type="xs:string"/>
+			<xs:element name="transactionId" type="xs:string"/>
+			<xs:element name="clientId" type="xs:string" minOccurs="0"/>
+		</xs:all>
+	</xs:complexType>
+
+	<xs:complexType name="Subscriber">
+		<xs:all>
+			<xs:element name="phone" type="xs:string"/>
+			<xs:element name="serviceProviderName" type="xs:string"/>
+		</xs:all>
+	</xs:complexType>
+
+	<xs:complexType name="Voucher">
+			<xs:all>
+				<xs:element name="voucherNumber" type="xs:string"/>
+				<xs:element name="voucherValue" type="xs:decimal"/>
+			</xs:all>
+	</xs:complexType>
+
+	<xs:complexType name="VoucherPaymentResponse">
+		<xs:all>
+			<xs:element name="code">
+				<xs:simpleType>
+					<xs:restriction base="xs:integer">
+						<xs:annotation>
+							<xs:documentation>
+								0 = Success
+								-3 = Invalid service provider id
+								-4 = Unknown phone number
+								-5 = Subscriber is disabled
+								-6 = Service provider is disabled
+								-9 = business unit not configured for this service provider
+								-97 = The ukash web service returned a fault
+								-98 = An unexpected system error has occurred
+								-99 = A database access error has occurred; possibly the database is down or unreachable
+							</xs:documentation>
+						</xs:annotation>
+						<xs:enumeration value="0"/> 
+						<xs:enumeration value="-3"/>
+						<xs:enumeration value="-4"/>
+						<xs:enumeration value="-5"/>
+						<xs:enumeration value="-6"/>
+						<xs:enumeration value="-9"/>
+						<xs:enumeration value="-97"/> 
+						<xs:enumeration value="-98"/> 
+						<xs:enumeration value="-99"/>	
+					</xs:restriction>
+				</xs:simpleType>
+			</xs:element>
+			<xs:element name="message" type="xs:string"/>
+			<xs:element name="details" type="pl:VoucherProcessorResponse" minOccurs="0"/>
+		</xs:all>
+	</xs:complexType>
+
+	<xs:complexType name="VoucherProcessorResponse">
+		<xs:all>
+			<xs:element name="transactionCode" type="xs:string"/>
+			<xs:element name="transactionDescription" type="xs:string"/>
+			<xs:element name="settleAmount" type="xs:decimal"/>
+			<xs:element name="vendorTransactionId" type="xs:string"/>
+			<xs:element name="errorCode" type="xs:string"/>
+			<xs:element name="errorDescription" type="xs:string"/>
+		</xs:all>
+	</xs:complexType>
+
+	<xs:complexType name="CreditCardPaymentRequest">
+		<xs:all>
+			<xs:element name="requestor" type="pl:Requestor"/>
+			<xs:element name="subscriber" type="pl:Subscriber"/>
+			<xs:element name="card" type="pl:CreditCard"/>
+		</xs:all>
+	</xs:complexType>
+
+	<xs:complexType name="CreditCard">
+		<xs:all>
+			<xs:element name="cardType">
+				<xs:simpleType>
+					<xs:restriction base="xs:string">
+						<xs:enumeration value="VI"/> 
+						<xs:enumeration value="MC"/>
+						<xs:enumeration value="AM"/>
+					</xs:restriction>
+				</xs:simpleType>
+			</xs:element>
+			<xs:element name="cardNumber" type="xs:string"/>
+			<xs:element name="expiryDate">
+				<xs:annotation>
+					<xs:documentation>
+						The expiry date must be expressed as 6 digits; a 4-digit year followed by a 2-digit month
+					</xs:documentation>
+				</xs:annotation>
+				<xs:simpleType>
+					<xs:restriction base="xs:string">
+						<xs:pattern value="[0-9]{6}"/>
+					</xs:restriction>
+				</xs:simpleType>
+			</xs:element>
+			<xs:element name="nameOnCard" type="xs:string"/>
+			<xs:element name="amount" type="xs:decimal"/>
+			<xs:element name="addressLine1" type="xs:string" minOccurs="0"/>
+			<xs:element name="addressLine2" type="xs:string" minOccurs="0"/>
+			<xs:element name="city" type="xs:string" minOccurs="0"/>
+			<xs:element name="province" type="xs:string" minOccurs="0"/>
+			<xs:element name="postalCode" type="xs:string" minOccurs="0"/>
+		</xs:all>
+	</xs:complexType>
+
+	<xs:complexType name="CreditCardPaymentResponse">
+		<xs:all>
+			<xs:element name="code">
+				<xs:simpleType>
+					<xs:restriction base="xs:integer">
+						<xs:annotation>
+							<xs:documentation>
+								0 = Success
+								-1 = Invalid credit card type specified
+								-2 = Invalid credit card number specified
+								-3 = Invalid service provider id
+								-4 = Unknown phone number
+								-5 = Subscriber is disabled
+								-6 = Service provider is disabled
+								-7 = Invalid expiry date
+								-8 = credit card transaction declined
+								-9 = business unit not configured for this service provider
+								-97 = The credit card web service returned a fault
+								-98 = An unexpected system error has occurred
+								-99 = A database access error has occurred; possibly the database is down or unreachable
+							</xs:documentation>
+						</xs:annotation>
+						<xs:enumeration value="0"/> 
+						<xs:enumeration value="-1"/>
+						<xs:enumeration value="-2"/>
+						<xs:enumeration value="-3"/>
+						<xs:enumeration value="-4"/>
+						<xs:enumeration value="-5"/>
+						<xs:enumeration value="-6"/>
+						<xs:enumeration value="-7"/>
+						<xs:enumeration value="-8"/>
+						<xs:enumeration value="-9"/>
+						<xs:enumeration value="-97"/> 
+						<xs:enumeration value="-98"/> 
+						<xs:enumeration value="-99"/>	
+					</xs:restriction>
+				</xs:simpleType>
+			</xs:element>
+			<xs:element name="message" type="xs:string"/>
+			<xs:element name="details" type="pl:CreditCardProcessorResponse" minOccurs="0"/>
+		</xs:all>
+	</xs:complexType>
+
+	<xs:complexType name="CreditCardProcessorResponse">
+		<xs:all>
+			<xs:element name="authorizationCode" type="xs:string"/>
+			<xs:element name="resultCode" type="xs:string"/>
+			<xs:element name="resultDescription" type="xs:string"/>
+			<xs:element name="avsResultCode" type="xs:string"/>
+			<xs:element name="avsResultDescription" type="xs:string"/>
+			<xs:element name="inquiryId" type="xs:string"/>
+		</xs:all>
+	</xs:complexType>
+
+</xs:schema>

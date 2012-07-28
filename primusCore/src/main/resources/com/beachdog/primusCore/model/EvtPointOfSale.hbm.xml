@@ -1,0 +1,114 @@
+<?xml version="1.0"?>
+<!DOCTYPE hibernate-mapping PUBLIC "-//Hibernate/Hibernate Mapping DTD 3.0//EN"
+"http://hibernate.sourceforge.net/hibernate-mapping-3.0.dtd">
+<!-- Generated Mar 1, 2012 2:19:03 PM by Hibernate Tools 3.4.0.CR1 -->
+<hibernate-mapping>
+    <class name="com.beachdog.primusCore.model.EvtPointOfSale" table="EVT_POINT_OF_SALE" schema="PCSPROD" dynamic-insert="true">
+        <comment>Records point of sale transactions, one per message received by the server.</comment>
+        <id name="posEventId" type="big_decimal">
+            <column name="POS_EVENT_ID" precision="22" scale="0" />
+            <generator class="assigned" />
+        </id>
+        <many-to-one name="currencyRef" class="com.beachdog.primusCore.model.CurrencyRef" fetch="select">
+            <column name="CURRENCY_ID" precision="22" scale="0" />
+        </many-to-one>
+        <many-to-one name="productOffering" class="com.beachdog.primusCore.model.ProductOffering" fetch="select">
+            <column name="OFFERING_ID" precision="22" scale="0" />
+        </many-to-one>
+        <property name="serialNumber" type="string">
+            <column name="SERIAL_NUMBER" length="20" not-null="true">
+                <comment>Card serial number.</comment>
+            </column>
+        </property>
+        <property name="custTransactionCode" type="string">
+            <column name="CUST_TRANSACTION_CODE" length="3" not-null="true">
+                <comment>Transaction code received in POS message.</comment>
+            </column>
+        </property>
+        <property name="pcsTransactionCode" type="string">
+            <column name="PCS_TRANSACTION_CODE" length="3" not-null="true">
+                <comment>Pactolus internal code. Put this in so we can support different implementations for different customers. Customer codes may vary, ours will remain
+                constant. For this initial implementation, the cust_transaction_code and transaction_type will be the same.</comment>
+            </column>
+        </property>
+        <property name="interfaceCode" type="string">
+            <column name="INTERFACE_CODE" length="4" not-null="true">
+                <comment>Code to identify the interface the message came in on. For example here:WM = Walmart, MC = Mastercard</comment>
+            </column>
+        </property>
+        <property name="timeStamp" type="date">
+            <column name="TIME_STAMP" length="7" not-null="true">
+                <comment>Time message processed (GMT).</comment>
+            </column>
+        </property>
+        <property name="responseCode" type="string">
+            <column name="RESPONSE_CODE" length="4" not-null="true">
+                <comment>Response code 00 = SUCCESS, etc.</comment>
+            </column>
+        </property>
+        <property name="custData1" type="string">
+            <column name="CUST_DATA1" length="20">
+                <comment>Provide 2 fields for data received in the various that is not pertinent to the pactolus system. For example, in the Walmart implementation data1 =
+                transaction id and data2 = system trace number. For Mastercard, data1 = timestamp and data2 = bank confirmation number.</comment>
+            </column>
+        </property>
+        <property name="custData2" type="string">
+            <column name="CUST_DATA2" length="20" />
+        </property>
+        <property name="subscriberId" type="big_decimal">
+            <column name="SUBSCRIBER_ID" precision="22" scale="0" />
+        </property>
+        <property name="amount" type="big_decimal">
+            <column name="AMOUNT" precision="22" scale="0">
+                <comment>For recharge request, amount added to balance. For deactivation, amount refunded.</comment>
+            </column>
+        </property>
+        <property name="activityId" type="string">
+            <column name="ACTIVITY_ID" length="20" />
+        </property>
+        <property name="userName" type="string">
+            <column name="USER_NAME" length="200" />
+        </property>
+    </class>
+    <sql-query name="posQuery">
+        <return-scalar column="id" type="big_decimal"/>
+        <return-scalar column="user_name" type="string"/>
+        <return-scalar column="offering_id" type="big_decimal"/>
+        <return-scalar column="amount" type="big_decimal"/>
+        <return-scalar column="serial_number" type="string"/>
+        <return-scalar column="time_stamp" type="date"/>
+        <return-scalar column="pcs_transaction_code" type="string"/>
+        <return-scalar column="max_time_stamp" type="date"/>
+        <return-scalar column="line_count" type="integer"/>
+        <![CDATA[select pos_event_id as id,user_name, offering_id,amount, serial_number,time_stamp,pcs_transaction_code,
+          max(time_stamp) over (partition by serial_number) as max_time_stamp,
+          count(time_stamp) over (partition by serial_number) as line_count
+          from evt_point_of_sale
+        ]]>
+        
+    </sql-query>
+    <sql-query name="posQuery2">
+        <return-scalar column="pos_event_id" type="big_decimal"/>
+        <return-scalar column="user_name" type="string"/>
+        <return-scalar column="offering_id" type="big_decimal"/>
+        <return-scalar column="amount" type="big_decimal"/>
+        <return-scalar column="serial_number" type="string"/>
+        <return-scalar column="time_stamp" type="date"/>
+        <return-scalar column="pcs_transaction_code" type="string"/>
+        <return-scalar column="cust_transaction_code" type="string"/>
+        <return-scalar column="interface_code" type="string"/>
+        <return-scalar column="response_code" type="string"/>
+        <return-scalar column="cust_data1" type="string"/>
+        <return-scalar column="cust_data2" type="string"/>
+        <return-scalar column="subscriber_id" type="big_decimal"/>
+        <return-scalar column="activity_id" type="string"/>
+        <return-scalar column="currency_id" type="big_decimal"/>
+          <![CDATA[select pos_event_id,user_name, offering_id,amount, serial_number,time_stamp,pcs_transaction_code,
+          cust_transaction_code, interface_code,response_code,cust_data1,cust_data2,subscriber_id,
+          activity_id,currency_id
+           from evt_point_of_sale
+           where time_stamp >= :start 
+           and time_stamp < :end
+        ]]>
+    </sql-query>    
+</hibernate-mapping>

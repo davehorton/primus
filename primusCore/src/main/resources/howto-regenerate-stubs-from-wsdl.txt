@@ -1,0 +1,25 @@
+cd into the src/main/resources directory, then
+
+ wsimport -d ../java -keep -Xnocompile primusWS.wsdl 
+ 
+ NB!!!
+ 
+ After regenerating the code, you need to modify  the java stub below to reinsert the handler-chain:
+ 
+ change this:
+ 
+ @WebServiceClient(name = "ECare", targetNamespace = "http://namespaces.soaplite.com/perl", wsdlLocation = "file:/Users/dhorton/beachdog-enterprises/beachdog-networks/workspaces/primus/primusCore/src/main/resources/primusWS.wsdl")
+public class ECare
+    extends Service
+{
+ 
+ to this:
+ 
+@WebServiceClient(name = "ECare", targetNamespace = "http://namespaces.soaplite.com/perl", wsdlLocation = "file:/Users/dhorton/beachdog-enterprises/beachdog-networks/workspaces/primus/primusCore/src/main/resources/primusWS.wsdl")
+@HandlerChain(file="handler-chain.xml")
+public class ECare
+    extends Service
+{
+
+ 
+ you will need to import javax.jws.HandlerChain; also

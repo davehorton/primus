@@ -1,0 +1,36 @@
+<?xml version="1.0"?>
+<!DOCTYPE hibernate-mapping PUBLIC "-//Hibernate/Hibernate Mapping DTD 3.0//EN"
+"http://hibernate.sourceforge.net/hibernate-mapping-3.0.dtd">
+<!-- Generated Mar 1, 2012 2:19:03 PM by Hibernate Tools 3.4.0.CR1 -->
+<hibernate-mapping>
+    <class name="com.beachdog.primusCore.model.EvtReversal" table="EVT_REVERSAL" schema="PCSPROD">
+        <id name="eventId" type="string">
+            <column name="EVENT_ID" length="20" />
+            <generator class="assigned" />
+        </id>
+        <property name="timeStamp" type="date">
+            <column name="TIME_STAMP" length="7" not-null="true" />
+        </property>
+        <property name="reversedEventId" type="string">
+            <column name="REVERSED_EVENT_ID" length="20" not-null="true" />
+        </property>
+        <property name="reversingEventId" type="string">
+            <column name="REVERSING_EVENT_ID" length="20" />
+        </property>
+        <property name="sessionId" type="string">
+            <column name="SESSION_ID" length="120" />
+        </property>
+        <property name="auditId" type="big_decimal">
+            <column name="AUDIT_ID" precision="22" scale="0" />
+        </property>
+        <property name="sessionType" type="big_decimal">
+            <column name="SESSION_TYPE" precision="22" scale="0" />
+        </property>
+        <property name="initiatedBy" type="big_decimal">
+            <column name="INITIATED_BY" precision="22" scale="0" />
+        </property>
+        <property name="removeFlag" type="java.lang.Character">
+            <column name="REMOVE_FLAG" length="1" />
+        </property>
+    </class>
+</hibernate-mapping>
