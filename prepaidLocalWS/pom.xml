@@ -6,7 +6,7 @@
     <artifactId>prepaidLocal</artifactId>
     <packaging>war</packaging>
     <version>3.0</version>
-    <name>Prepaid Local Spring Web Service</name>
+    <name>Prepaid Local Web Service</name>
     <url>http://www.springframework.org/spring-ws</url>
     <build>
         <finalName>prepaidLocal</finalName>

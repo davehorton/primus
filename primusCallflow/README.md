@@ -10,7 +10,7 @@ $ mvn install
 
 ### Drop to Java
 
-The jar file built by this project provides the drop-to-Java API used by the TUI.  The project also contains the TUI callflow and the (test) prompts that it uses.  To make the jar file available to be used by the TUI, it must be included on the Java classpath along with primus-core-1.0.jar, which is built by the primusCore project, and the 3rd party libraries they are each dependent on.  Typically, the CLASSPATH variable is set by the `.bashrc` script for the `pcs` user, which is also sourced for the `root` user, and contains code like this to include all of the jar files in the `$PS_APPS_ROOT/jarfiles` directory:
+The jar file built by this project, `prepaid-local-callflow-1.0.jar` provides the drop-to-Java API used by the TUI.  The project also contains the TUI callflow and the (test) prompts that it uses.  To make the jar file available to be used by the TUI, it must be included on the Java classpath along with primus-core-1.0.jar, which is built by the primusCore project, and the 3rd party libraries they are each dependent on.  Typically, the CLASSPATH variable is set by the `.bashrc` script for the `pcs` user, which is also sourced for the `root` user, and contains code like this to include all of the jar files in the `$PS_APPS_ROOT/jarfiles` directory:
 
 ```bash
 export CLASSPATH=${CLASSPATH}:${PS_APPS_ROOT}/java
@@ -25,7 +25,7 @@ do
 export CLASSPATH=${CLASSPATH}:$f
 done
 ```
-So, simply copy the two jar files mentioned above into the `PS_APPS_ROOT/jarfiles` directory, along with the dependencies listed in the pom.xml file for this project.
+So, simply copy the two jar files mentioned above into the `$PS_APPS_ROOT/jarfiles` directory, along with the dependencies listed in the `pom.xml` file for this project.
 
 ### TUI
 

@@ -15,6 +15,7 @@
         <module>posReporting</module>
         <module>primusCore</module>
         <module>primusCallflow</module>
+        <module>prepaidLocalWS</module>
         <module>suspendZeroBalanceAccounts</module>
         <module>M6-suspend</module>
     </modules>
