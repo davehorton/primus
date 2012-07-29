@@ -2,7 +2,8 @@
 
 ## Install
 
-You can run this report from any directory.  Create the following directory structure:
+You can run this report from any directory on the server.  The server must be running a JDK version 1.6 or higher and have network connectivity to the database.  
+Create the following directory structure under the selected directory (referred to here as "POS_HOME"):
 ```
 POS_HOME  
 |  
@@ -11,11 +12,10 @@ POS_HOME
 |--runReport.sh  
 |--jars/  
 |--logs/  
-|--reports  
-</code>
+|--reports/  
 ```
 
-In the `jars` directory the following jars should be placed:  
+In the `jars` directory the following jars should be placed (note that the first three can be created with the source code provided; the remainder are 3rd party jars):  
 ```bash
 pos-reporting-1.0.jar  
 prepaid-local-core-1.0.jar  
