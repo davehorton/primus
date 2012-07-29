@@ -14,7 +14,7 @@
         <module>java_framework</module>
         <module>posReporting</module>
         <module>primusCore</module>
-        <module>primusCallflow</module>
+        <module>prepaidLocalCallflow</module>
         <module>prepaidLocalWS</module>
         <module>suspendZeroBalanceAccounts</module>
         <module>M6-suspend</module>
