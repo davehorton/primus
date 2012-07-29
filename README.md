@@ -9,9 +9,7 @@ $mvn install
 ```
 This will simply run the pom.xml files in each of the project subdirectories.
 
-The pom.xml files in each project contain dependencies for all the third-party jar files required.  
-
-With the exception of a Broadsoft jar required for M6 integration, these jars are all available in public maven repositories you may find on the internet.  However, a copy of all of these dependencies -- including the Broadsoft jar -- are available on the beachdognet maven repository, and by copying the provided `example-maven-settings.xml` into your ~/.m2 directory as `settings.xml` you will automatically access these when running a maven build.  
+The pom.xml files in each project contain dependencies for all the third-party jar files required.  With the exception of a Broadsoft jar required for M6 integration, these jars are all available in public maven repositories you may find on the internet.  However, a copy of all of these dependencies -- including the Broadsoft jar -- are available on the beachdognet maven repository, and by copying the provided `example-maven-settings.xml` into your ~/.m2 directory as `settings.xml` you will automatically access these when running a maven build.  
 
 In other words, by using this as your settings.xml you should be able 
 to build all projects on any machine of your liking (that has internet access) with no dependencies so long as it has a JDK 1.6 or above and maven has been installed on it.
