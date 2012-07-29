@@ -69,4 +69,9 @@ for i;
 		usage 
 	fi	
 	
-java -cp $POS_HOME:$POS_HOME/posReporting-1.0.jar:$POS_HOME/primusCore-1.0.jar:$POS_HOME/java_framework-1.0.jar:$POS_HOME/jars/log4j-1.2.15.jar:$POS_HOME/jars/commons-pool-1.3.jar:$POS_HOME/jars/commons-dbcp-1.2.2.jar:$POS_HOME/jars/commons-beanutils-1.8.3.jar:$POS_HOME/jars/Oracle-11.1.0.6.jar:$POS_HOME/jars/commons-collections-3.2.1.jar:$POS_HOME/jars/hibernate-3.2.6.ga.jar:$POS_HOME/jars/spring-2.5.6.jar:$POS_HOME/jars/commons-logging-1.1.1.jar:$POS_HOME/jars/dom4j-1.6.1.jar:$POS_HOME/jars/jta-1.1.jar:$POS_HOME/jars/slf4j-api-1.5.8.jar:$POS_HOME/jars/slf4j-simple-1.5.8.jar:$POS_HOME/jars/cglib-2.1_3.jar:$POS_HOME/jars/asm-1.5.3.jar:$POS_HOME/jars/asm-attrs-1.5.3.jar com.beachdog.App --dir $POS_HOME/reports $@
+for f in $SUSPEND_HOME/jars/*.jar
+do
+CP=${CP}:$f
+done
+	
+java -cp $POS_HOME:$CP com.beachdog.App --dir $POS_HOME/reports $@

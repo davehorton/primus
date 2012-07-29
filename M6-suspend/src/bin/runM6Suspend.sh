@@ -1,6 +1,5 @@
 #!/usr/bin/bash
 #usage: runSuspend.sh -M6User user -M6Password pass -M6Address address -phoneNumber phone -[suspend|unsuspend]
-date_regex='^[-|0][0-9]*$|^[0-9]{4}-[0-9]{2}-[0-9]{2}$'
 
 usage () {
         cat <<EOF 
