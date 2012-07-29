@@ -2,7 +2,7 @@
 
 This project contains the source code created by Beachdog Networks under contract to Primus Telecom.  
 
-## Install
+## Build
 Simply run the top-level pom.xml as follows:
 ```bash
 $mvn install
@@ -44,5 +44,6 @@ This project contains core database functionality that is used by several of the
 
 This project provides a nightly batch job that is used to suspend prepaid local accounts on the M6 gateway when the subscriber account balance is zero and has met several other conditions.
 
+## Install
 
-
+TBD...
