@@ -46,4 +46,4 @@ This project provides a nightly batch job that is used to suspend prepaid local 
 
 ## Install
 
-TBD...
+Refer to the README.md in each of the project folders.
