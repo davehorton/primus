@@ -3,7 +3,8 @@
 ## Install
 
 You can run this report from any directory.  Create the following directory structure:
-`POS_HOME  
+<code>
+POS_HOME  
 	|  
 	beans.xml  
 	log4j.properties  
@@ -11,7 +12,7 @@ You can run this report from any directory.  Create the following directory stru
 	--jars  
 	--logs  
 	--reports  
-`
+</code>
 
 In the `jars` directory the following jars should be placed:
 
