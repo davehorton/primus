@@ -14,9 +14,9 @@ POS_HOME
 |--reports  
 </code>
 
-In the `jars` directory the following jars should be placed:
-<code> 
-pos-reporting-1.0.jar
+In the `jars` directory the following jars should be placed:  
+<code>   
+pos-reporting-1.0.jar  
 prepaid-local-core-1.0.jar  
 java_framework-1.0.jar    
 log4j-1.2.15.jar  
