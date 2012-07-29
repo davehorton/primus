@@ -6,7 +6,6 @@
   <version>2.0</version>
   <name>Java Framework for logging and database connection management</name>
   <build>
-    <finalName>java_framework</finalName>
     <sourceDirectory>${basedir}/Java</sourceDirectory>
   </build>
    	<properties>
