@@ -19,7 +19,7 @@ In the `jars` directory the following jars should be placed (note that the first
 ```bash
 pos-reporting-1.0.jar  
 prepaid-local-core-1.0.jar  
-java_framework-1.0.jar    
+java_framework-2.0.jar    
 log4j-1.2.15.jar  
 commons-pool-1.3.jar  
 commons-dbcp-1.2.2.jar  
