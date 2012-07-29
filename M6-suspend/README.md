@@ -15,5 +15,5 @@ $ mvn install
 - Run the script as follows:
 
 ```bash
-.\runM6Suspend.sh -M6User user -M6Password pass -M6Address address -phoneNumber phone -[suspend|unsuspend]
+./runM6Suspend.sh -M6User user -M6Password pass -M6Address address -phoneNumber phone -suspend|unsuspend
 ```
