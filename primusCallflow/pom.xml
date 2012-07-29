@@ -5,9 +5,9 @@
   <groupId>com.beachdog</groupId>
   <artifactId>primusCallflow</artifactId>
   <version>1.0</version>
+  <name>prepaid local callflow components</name>
   <packaging>jar</packaging>
 
-  <name>primusCallflow</name>
   <url>http://maven.apache.org</url>
 
   <properties>
@@ -18,8 +18,8 @@
 
   <dependencies>
   	<dependency>
-	   	<groupId>com.beachdog</groupId>
-  		<artifactId>primusCore</artifactId>
+	   	<groupId>com.primus</groupId>
+  		<artifactId>prepaid-local-core</artifactId>
    		<version>1.0</version>
   	</dependency>
 <dependency>

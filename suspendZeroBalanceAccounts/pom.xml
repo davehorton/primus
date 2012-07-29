@@ -3,6 +3,7 @@
   <groupId>com.primus.prepaidLocal</groupId>
   <artifactId>suspendZeroBalanceAccounts</artifactId>
   <version>1.0</version>
+  <name>batch job to suspend zero balance accounts on the M6</name>
   
   
   <properties>
@@ -14,8 +15,8 @@
 
 	<dependencies>
    		<dependency>
-	   		<groupId>com.beachdog</groupId>
-  			<artifactId>primusCore</artifactId>
+	   		<groupId>com.primus</groupId>
+  			<artifactId>prepaid-local-core</artifactId>
    			<version>1.0</version>
  	 	</dependency>
  		<dependency>

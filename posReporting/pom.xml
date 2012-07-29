@@ -2,14 +2,21 @@
 xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" 
 xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
   <modelVersion>4.0.0</modelVersion>
-  <groupId>com.beachdog</groupId>
-  <artifactId>posReporting</artifactId>
+  <groupId>com.primus</groupId>
+  <artifactId>pos-reporting</artifactId>
   <version>1.0</version>
+  <name>prepaid local point of sale reporting</name>
   
+  <properties>
+        <maven.compiler.source>1.6</maven.compiler.source>
+    	<maven.compiler.target>${maven.compiler.source}</maven.compiler.target>
+    	<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+  </properties>
+
    <dependencies>
      <dependency>
-      <groupId>com.beachdog</groupId>
-      <artifactId>primusCore</artifactId>
+      <groupId>com.primus</groupId>
+      <artifactId>prepaid-local-core</artifactId>
       <version>1.0</version>
     </dependency>
      <dependency>

@@ -3,6 +3,7 @@
   <groupId>com.primus</groupId>
   <artifactId>M6-suspend</artifactId>
   <version>1.0</version>
+  <name>cli to suspend/unsuspend accounts on the M6</name>
   
  <properties>
  	<maven.compiler.source>1.6</maven.compiler.source>
