@@ -3,10 +3,12 @@
 This project contains the source code created by Beachdog Networks under contract to Primus Telecom.  
 
 ## Install
-From within each of the project directories below, run the pom.xml as follows:
+Simply run the top-level pom.xml as follows:
 ```bash
 $mvn install
 ```
+This will simply run the pom.xml files in each of the project subdirectories.
+
 The pom.xml files in each project contain dependencies for all the third-party jar files required.  
 
 With the exception of a Broadsoft jar required for M6 integration, these jars are all available in public maven repositories you may find on the internet.  However, a copy of all of these dependencies -- including the Broadsoft jar -- are available on the beachdognet maven repository, and by copying the provided `example-maven-settings.xml` into your ~/.m2 directory as `settings.xml` you will automatically access these when running a maven build.  
