@@ -69,7 +69,7 @@ for i;
 		usage 
 	fi	
 	
-for f in $SUSPEND_HOME/jars/*.jar
+for f in $POS_HOME/jars/*.jar
 do
 CP=${CP}:$f
 done

@@ -1,5 +1,11 @@
 # point of sale reporting
 
+## Build
+
+```bash
+$ mvn install
+```
+
 ## Install
 
 You can run this report from any directory on the server.  The server must be running a JDK version 1.6 or higher and have network connectivity to the database. 
