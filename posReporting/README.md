@@ -3,7 +3,7 @@
 ## Install
 
 You can run this report from any directory.  Create the following directory structure:
-<code>  
+```
 POS_HOME  
 |  
 |--beans.xml  
@@ -13,9 +13,10 @@ POS_HOME
 |--logs/  
 |--reports  
 </code>
+```
 
 In the `jars` directory the following jars should be placed:  
-<code>
+```bash
 pos-reporting-1.0.jar  
 prepaid-local-core-1.0.jar  
 java_framework-1.0.jar    
@@ -35,7 +36,7 @@ slf4j-api-1.5.8.jar
 spring-2.5.6.jar  
 commons-collections-3.2.1.jar  
 hibernate-3.2.6.ga.jar  
-</code>  
+```  
 
 Edit the beans.xml file to point to the correct database by changing the second line below, if necessary:
 ```xml  
@@ -46,9 +47,9 @@ Edit the beans.xml file to point to the correct database by changing the second 
 
 Edit the log4j.properties file to point to a log file and directory of your choosing, by editing this line:
 
-`
+```bash
 log4j.appender.A2.File=/export/home/pcs/newPosReporting/logs/posReporting.log
-`
+```
 
 Make sure the file named 'runReport.sh' is executable:
 ```bash
