@@ -3,9 +3,7 @@ package com.beachdog.primusCore;
 import java.io.BufferedReader;
 import java.io.InputStreamReader;
 import java.math.BigDecimal;
-import java.net.MalformedURLException;
 import java.text.DecimalFormat;
-import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.List;
@@ -21,16 +19,10 @@ import org.sipdev.commons.mutables.MutableInt;
 import org.sipdev.framework.Framework;
 
 import com.beachdog.primusCore.model.AccountActivity;
-import com.beachdog.primusCore.model.CurrencyRef;
-import com.beachdog.primusCore.model.ProductOffering;
 import com.beachdog.primusCore.model.Rate;
 import com.beachdog.primusCore.model.ServiceProvider;
 import com.beachdog.primusCore.model.Subscriber;
 import com.beachdog.primusCore.model.SuspendTracking;
-import com.sun.xml.internal.ws.client.ClientTransportException;
-
-import uri.ecare.PrepaidPaymentechPaymentDlResponse.ECarePrepaidPaymentechResponse;
-import uri.ecare.PrepaidUkashPaymentDlResponse.ECarePrepaidUkashResponse;
 
 public class App {
 

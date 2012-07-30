@@ -20,7 +20,7 @@ import uri.ecare.UkashVoucherDl;
 
 import com.soaplite.namespaces.perl.ECare;
 import com.soaplite.namespaces.perl.ECarePortType;
-import com.sun.xml.internal.ws.client.ClientTransportException ;
+import com.sun.xml.rpc.client.ClientTransportException;
 
 @SuppressWarnings("restriction")
 public class PrimusWS {
