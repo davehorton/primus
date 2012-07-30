@@ -87,7 +87,8 @@ public class App {
 			
 			sessionFactory = (SessionFactory)framework.getResource("sessionFactory");    	
     		session = sessionFactory.openSession() ;
-    		
+			Calendar now = Calendar.getInstance();
+ 		
     		if( null != purgeDays ) {
     			
     			Date dt =  new Date( System.currentTimeMillis() )  ;
@@ -200,7 +201,7 @@ public class App {
             			logger.info("Not suspending subscriber -- does not have an active auth ani; subscriber id: " + sub.getSubscriberId().longValue() ) ;
         				continue ;
         			}
-        			logger.info("   Processing subscriber with phone number " + cli + " and subscriber_id " + sub.getSubscriberId() ) ;
+        			logger.info("   Processing subscriber with phone number " + cli + " and subscriber_id " + sub.getSubscriberId() + " that has zero balance") ;
         			
         			
         			/* to be suspended, a subscriber must also 
@@ -260,16 +261,32 @@ public class App {
         				}
         			}
         			else {
-        			
-	        			/* now we have the most recent maintenance fee account activity record.  Check whether we got the full amount */
-	        			logger.info("Last maintenance fee collected was: " + fmt.format( aa.getTotalAmount().abs().doubleValue() ) + ", activity id was " + aa.getActivityId() ) ;
-	        		    logger.info("Maintenance fee rate is:            " + fmt.format( rateApplied.getDefaultAmount().abs().doubleValue() ) + " rate id was " + rateApplied.getRateId().longValue() ) ;
-	
-	        			if( rateApplied.getDefaultAmount().abs().compareTo( aa.getTotalAmount().abs() ) <= 0 ) {
-	        				/* we got the total fee on our last attempt....probably we'll expire them tomorrow after the next one fails (if they don't recharge) */
-	            			logger.info("   Not suspending -- the most recent maintenance fee got the full amount; subscriber id: " + sub.getSubscriberId().longValue() ) ;
-	        				continue ;
-	        			}
+        				
+        				/* now we have the most recent maintenance fee account activity record.  Check to see when it occurred --
+        				 * if there was a maintenance fee run in the meantime, that means we did not write an AA record because the balance
+        				 * was zero, and in that case we DO want to suspend them.
+        				 */
+        				Long nDays = rateApplied.getMaintFeeFrequency().longValue() ;
+         				Calendar then = Calendar.getInstance() ;
+        				then.setTime( aa.getTimeDateStamp() ) ;
+        				Long daysInArrears = (now.getTimeInMillis() - then.getTimeInMillis())/(1000*60*60*24);
+
+	        			logger.info("   Last maintenance fee was collected " + daysInArrears + " days ago and was for an amount of $" + fmt.format( aa.getTotalAmount().abs().doubleValue() ) + ", the activity id was " + aa.getActivityId() ) ;
+	        		    logger.info("   The maintenance fee rate is: $" + fmt.format( rateApplied.getDefaultAmount().abs().doubleValue() ) + 
+	        		    		", the rate id is " + rateApplied.getRateId().longValue() + " and the fee is collected every " + nDays + " days" ) ;
+
+        				if( daysInArrears > nDays ) {
+        					logger.info("   Suspending the account since a maintenance fee has recently run and was unable to collect anything from this account") ;
+        				}
+        				else {
+     			
+		        			/* now we have the most recent maintenance fee account activity record.  Check whether we got the full amount */
+		        			if( rateApplied.getDefaultAmount().abs().compareTo( aa.getTotalAmount().abs() ) <= 0 ) {
+		        				/* we got the total fee on our last attempt....probably we'll expire them tomorrow after the next one fails (if they don't recharge) */
+		            			logger.info("   Not suspending -- the most recent maintenance fee got the full amount and it appears no ; subscriber id: " + sub.getSubscriberId().longValue() ) ;
+		        				continue ;
+		        			}
+        				}
         			}
         			logger.info("   Attempting to suspend subscriber with subscriber id: " + sub.getSubscriberId().longValue() + "...." ) ;
         			
