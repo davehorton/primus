@@ -827,7 +827,7 @@ public class Dao {
 			Calendar then = Calendar.getInstance() ;
 			then.setTime( st.getSuspendedOn() ) ;
 			Long daysInArrears = (now.getTimeInMillis() - then.getTimeInMillis())/(1000*60*60*24);
-			logger.info("Subscriber was suspended on: " + sdf.format( st.getSuspendedOn() ) + " which was " + daysInArrears + " ago." ) ;
+			logger.info("Subscriber was suspended on: " + sdf.format( st.getSuspendedOn() ) + " which was " + daysInArrears + " days ago." ) ;
 			AccountActivity aa = (AccountActivity) session.load(AccountActivity.class, st.getAaActivityId() ); 
 			if( null != aa ) {
 				Rate rate = (Rate) session.load(Rate.class, aa.getRateId1() ) ;

@@ -81,33 +81,6 @@ public class App {
 				then.setTime( st.getSuspendedOn() ) ;
 				Long daysInArrears = (now.getTimeInMillis() - then.getTimeInMillis())/(1000*60*60*24);
 				System.out.println("Found subscriber.  Subscriber was suspended on: " + sdf.format( st.getSuspendedOn() ) + " which was " + daysInArrears + " days ago." ) ;
-				/*
-				AccountActivity aa = (AccountActivity) session.load(AccountActivity.class, st.getAaActivityId() ); 
-				if( null != aa ) {
-					BigDecimal owedMaintFees = BigDecimal.ZERO ;
-					Rate rate = (Rate) session.load(Rate.class, aa.getRateId1() ) ;
-					if( daysInArrears > 1 ) {
-						owedMaintFees = rate.getDefaultAmount().multiply( BigDecimal.valueOf(daysInArrears-1) ).divide( rate.getMaintFeeFrequency() ) ;
-						System.out.println("Charging $" + fmt.format( owedMaintFees.doubleValue() ) + " for " + (daysInArrears-1) + " days of missed maintenance fees") ;
-						System.out.println("Note: this maintenance fee has a frequency (interval) of " + rate.getMaintFeeFrequency().longValue() + 
-								" days and a fee of $" + fmt.format(rate.getDefaultAmount() ) ) ;
-					}
-					if( daysInArrears > 0 ) {
-						System.out.println("activity id: " + aa.getActivityId() + ", rate id: " + rate.getRateId() ) ;
-						double rateAmount = rate.getDefaultAmount().doubleValue() ; 
-						double chargedAmount = aa.getTotalAmount().doubleValue() ;
-						double rateAmountAcharged = aa.getRateAmt1().doubleValue() ;
-						BigDecimal partialMissedFee = rate.getDefaultAmount().add( aa.getTotalAmount() ) ;
-						System.out.println("Charging $" + fmt.format( partialMissedFee.doubleValue() )  + " for the partial maintenance fee collected that resulted in suspension") ;
-						owedMaintFees.add( partialMissedFee ) ;
-					}
-					System.out.println("Total payment in arrears to be collected is calculated as " + fmt.format( owedMaintFees.doubleValue())) ;
-					if( owedMaintFees.compareTo(BigDecimal.valueOf(15)) > 0 ) {
-						System.out.println("The payment in arrears exceeds $15, so only $15 will be collected") ;
-						owedMaintFees = BigDecimal.valueOf(15) ;
-					}
-	 			}	
-	 			*/			
 			}
 			System.out.println("Subscriber's current prepaid balance is now: $" + fmt.format(sub.getCurrPrepaidBalance().doubleValue() ) ) ;
 			
