@@ -63,6 +63,7 @@ public class App {
 				return ;
 			}
 			Subscriber sub = list.get(0) ;
+			ServiceProvider sp = (ServiceProvider) session.load(ServiceProvider.class, sub.getServiceProviderId() ) ;
 			
 			/* check whether the subscriber needs to be unsuspended on the M6 */
 			SuspendTracking st = (SuspendTracking) session.createCriteria(SuspendTracking.class)
@@ -120,7 +121,6 @@ public class App {
 			    String payment = bufferRead.readLine();
 			    Float fPayment = Float.valueOf( payment ) ;
 			    
-			    Transaction transaction = null ;
 				StringBuffer transactionCode = new StringBuffer() ;
 				StringBuffer transactionDesc = new StringBuffer() ;
 				MutableFloat settlementAmount = new MutableFloat(0f) ;
@@ -128,9 +128,7 @@ public class App {
 				StringBuffer errorDescription  = new StringBuffer() ;
 				StringBuffer ukashTransactionId = new StringBuffer() ; 
 				StringBuffer msg = new StringBuffer() ;
-				
-				ServiceProvider sp = (ServiceProvider) session.load(ServiceProvider.class, sub.getServiceProviderId() ) ;
-				
+								
 				System.out.print("Enter a userid to use for the ukash transaction (can be anything): ") ;
 			    String userId = bufferRead.readLine();
 				System.out.print("Enter a clientid to use for the ukash transaction (can be anything): ") ;
@@ -157,7 +155,6 @@ public class App {
 			    } catch( Exception e ) {
 			    	e.printStackTrace() ;
 			    	System.out.println("error message: " + msg.toString() ) ;
-			    	if( null != transaction ) transaction.rollback() ;
 			    	return  ;
 			    }
 			    
@@ -173,8 +170,75 @@ public class App {
 			
 			}
 			else if( "2".equalsIgnoreCase(type) ) {
-				//TODO: credit card recharge
-				System.out.println("sorry not implemented yet") ;
+				System.out.print("Enter a userid to use for the ukash transaction (can be anything): ") ;
+			    String userId = bufferRead.readLine();
+				System.out.print("Enter a clientid to use for the ukash transaction (can be anything): ") ;
+			    String clientId = bufferRead.readLine();
+			    System.out.print("Enter the card type: ") ;
+			    String cardType = bufferRead.readLine();
+			    System.out.print("Enter the card number: ") ;
+			    String cardNumber = bufferRead.readLine();
+			    System.out.print("Enter the expiryDate: ") ;
+			    String expiryDate = bufferRead.readLine();
+			    System.out.print("Enter the amount: ") ;
+			    String payment = bufferRead.readLine();
+			    Float fPayment = Float.valueOf( payment ) ;
+			    System.out.print("Enter the cardholder name: ") ;
+			    String cardHolderName = bufferRead.readLine();
+			    System.out.print("Enter address1: ") ;
+			    String address1 = bufferRead.readLine();
+			    System.out.print("Enter address2: ") ;
+			    String address2 = bufferRead.readLine();
+			    System.out.print("Enter the city: ") ;
+			    String city = bufferRead.readLine();
+			    System.out.print("Enter the province: ") ;
+			    String province = bufferRead.readLine();
+			    System.out.print("Enter the postal code: ") ;
+			    String postalCode = bufferRead.readLine();
+			    System.out.print("Enter the transaction id (must be unique): ") ;
+			    String transactionId = bufferRead.readLine();
+
+				StringBuffer avsCode = new StringBuffer() ;
+				StringBuffer avsDescription = new StringBuffer() ;
+				StringBuffer inquiryId = new StringBuffer() ;
+				StringBuffer authorizationCode = new StringBuffer() ;
+				StringBuffer transactionDesc = new StringBuffer() ;
+				MutableInt resultCode = new MutableInt(0) ;
+				StringBuffer resultDescription  = new StringBuffer() ;
+				StringBuffer ukashTransactionId = new StringBuffer() ; 
+				StringBuffer msg = new StringBuffer() ;
+
+				try {
+					int rc = Dao.processRechargeTransactionCC(phone, sp.getName(), userId, clientId, cardType, cardNumber, expiryDate, fPayment.doubleValue(), 
+							cardHolderName, address1, address2, city, province, postalCode, 
+							transactionId, authorizationCode, resultCode, resultDescription, avsCode, avsDescription, inquiryId, msg) ;
+			    	if( Dao.WS_FAILURE == rc ) {
+			    		System.out.println("Web service failure: " + msg.toString() ) ;
+			    		return ;
+			    	}
+			    	else if( Dao.DB_ERROR == rc ) {
+			    		System.out.println("Database failure: " + msg.toString() ) ;
+			    		return ;			    		
+			    	}
+			    	else if( Dao.OTHER_ERROR == rc ) {
+			    		System.out.println("Exception: " + msg.toString() ) ;
+			    		return ;			    		
+			    	}
+			    } catch( Exception e ) {
+			    	e.printStackTrace() ;
+			    	System.out.println("error message: " + msg.toString() ) ;
+			    	return  ;
+			    }
+			    System.out.println("Transaction completed, results as follows:") ;
+			    System.out.println("authorization code: " + authorizationCode.toString()) ;
+			    System.out.println("inquiry id: " + inquiryId.toString()) ;
+			    System.out.println("result code: " + resultCode.getInt()) ;
+			    System.out.println("result description: " + resultDescription.toString()) ;
+			    System.out.println("avs code: " + avsCode.toString()) ;
+			    System.out.println("avs description: " + avsDescription.toString()) ;
+				    				    
+				System.out.println("Account has been updated") ;
+
 			}
 			else {
 				System.out.println("invalid choice") ;
@@ -205,14 +269,11 @@ public class App {
 			System.out.println("Subscriber's prepaid balance is now: $" + fmt.format(subNow.getCurrPrepaidBalance().doubleValue() ) ) ;
 
 		    
-			//ukashResult = pws.prepaidUkashPayment("userId", "clientId", businessUnit, "5083084809", voucher, 50.0f, "CAD", txnId) ;
 		} catch (SOAPFaultException e1) {
 			e1.printStackTrace();
 		} catch (Exception e1) {
 			e1.printStackTrace();
-		}
-		//System.out.println("ukash result: " + ukashResult.getErrorcode() ) ;
-		
+		}		
 	}
 
 }
