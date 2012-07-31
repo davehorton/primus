@@ -840,7 +840,7 @@ public class Dao {
 				if( daysInArrears >= 0 ) {
 					BigDecimal partialMissedFee = rate.getDefaultAmount().add( aa.getTotalAmount() ) ;
 					logger.info("Charging $" + fmt.format( partialMissedFee.doubleValue() )  + " for the partial maintenance fee collected that resulted in suspension") ;
-					owedMaintFees.add( partialMissedFee ) ;
+					owedMaintFees = owedMaintFees.add( partialMissedFee ) ;
 				}
 				logger.info("Total payment in arrears to be collected is calculated as " + fmt.format( owedMaintFees.doubleValue())) ;
 				if( owedMaintFees.compareTo(BigDecimal.valueOf(15)) > 0 ) {
