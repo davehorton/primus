@@ -14,7 +14,7 @@ public class M6AbstractCommand {
 	protected String M6User ;
 	protected String M6Password ;
 	protected String M6Address ;
-	protected Hashtable values ;
+	protected Hashtable values = new Hashtable<Object,Object>() ;
 	protected String sessionOid ;
 	protected String localHost ;
 	protected VDAdmin vdadmin ;
