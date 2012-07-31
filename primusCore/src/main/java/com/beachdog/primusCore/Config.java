@@ -5,9 +5,9 @@ public class Config {
 	private String webServiceEndoint ;
 	
 	private String wsdlLocation ;
-	private String M6Address ;
-	private String M6User ;
-	private String M6Password ;
+	private String m6Address ;
+	private String m6User ;
+	private String m6Password ;
 
 	public String getWebServiceEndoint() {
 		return webServiceEndoint;
@@ -26,27 +26,27 @@ public class Config {
 	}
 
 	public String getM6Address() {
-		return M6Address;
+		return m6Address;
 	}
 
 	public void setM6Address(String m6Address) {
-		M6Address = m6Address;
+		m6Address = m6Address;
 	}
 
 	public String getM6User() {
-		return M6User;
+		return m6User;
 	}
 
 	public void setM6User(String m6User) {
-		M6User = m6User;
+		m6User = m6User;
 	}
 
 	public String getM6Password() {
-		return M6Password;
+		return m6Password;
 	}
 
 	public void setM6Password(String m6Password) {
-		M6Password = m6Password;
+		m6Password = m6Password;
 	}
 	
 	

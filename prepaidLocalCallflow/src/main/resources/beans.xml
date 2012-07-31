@@ -9,9 +9,9 @@
         		<property name="wsdlLocation"><value>file:///export/home/pcs1/pactolus_applications/java/PrimusWS.wsdl</value></property>
         		-->
         		<property name="wsdlLocation"><value>file:///Users/dhorton/beachdog-enterprises/beachdog-networks/workspaces/primus/primusCore/src/main/resources/PrimusWS.wsdl</value></property>        		
-				<property name="M6Address"><value>10.201.176.6</value></property>
-				<property name="M6User"><value>ppl_api_user</value></property>
-				<property name="M6Password"><value>e89552d0</value></property>
+				<property name="m6Address"><value>10.201.176.6</value></property>
+				<property name="m6User"><value>ppl_api_user</value></property>
+				<property name="m6Password"><value>e89552d0</value></property>
         </bean>    
         <bean id="psprd1" class="org.sipdev.framework.CommonsPoolableDataSource"
                         destroy-method="close" init-method="createPool">

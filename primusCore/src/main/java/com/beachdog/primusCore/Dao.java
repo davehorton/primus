@@ -727,7 +727,6 @@ public class Dao {
 			} catch( Exception e ) {
 				if( null != transaction ) transaction.rollback() ;
 				logger.error("Exception: ", e) ;
-				if( null != transaction ) transaction.rollback() ;	
 				msg.append("Exception: " + e.getLocalizedMessage() ) ;
 				return OTHER_ERROR ;
 				
