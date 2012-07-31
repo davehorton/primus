@@ -30,7 +30,7 @@ public class Config {
 	}
 
 	public void setM6Address(String m6Address) {
-		m6Address = m6Address;
+		this.m6Address = m6Address;
 	}
 
 	public String getM6User() {
@@ -38,7 +38,7 @@ public class Config {
 	}
 
 	public void setM6User(String m6User) {
-		m6User = m6User;
+		this.m6User = m6User;
 	}
 
 	public String getM6Password() {
@@ -46,8 +46,8 @@ public class Config {
 	}
 
 	public void setM6Password(String m6Password) {
-		m6Password = m6Password;
+		this.m6Password = m6Password;
 	}
-	
+
 	
 }
