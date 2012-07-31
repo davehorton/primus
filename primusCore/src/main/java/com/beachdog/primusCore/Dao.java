@@ -833,7 +833,7 @@ public class Dao {
 				Rate rate = (Rate) session.load(Rate.class, aa.getRateId1() ) ;
 				if( daysInArrears > 0 ) {
 					owedMaintFees = rate.getDefaultAmount().multiply( BigDecimal.valueOf(daysInArrears) ).divide( rate.getMaintFeeFrequency() ) ;
-					logger.info("Charging $" + fmt.format( owedMaintFees.doubleValue() ) + " for " + (daysInArrears-1) + " days of missed maintenance fees") ;
+					logger.info("Charging $" + fmt.format( owedMaintFees.doubleValue() ) + " for " + daysInArrears + " days of missed maintenance fees") ;
 					logger.info("Note: this maintenance fee has a frequency (interval) of " + rate.getMaintFeeFrequency().longValue() + 
 							" days and a fee of $" + fmt.format(rate.getDefaultAmount() ) ) ;
 				}
