@@ -56,14 +56,15 @@ public class App {
 	public void run( String[] args ) {
 		
 		try {
-			framework = Framework.getInstance() ;
-			logger = framework.getLogger() ;
-			logger.debug("starting pos reporting") ;
-			
 			if( !parseCommandLine( args ) ) {
 				usage() ;
 				return ;
 			}
+
+			framework = Framework.getInstance() ;
+			logger = framework.getLogger() ;
+			logger.debug("starting pos reporting") ;
+			
 			
 			SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss") ;
 			
@@ -91,21 +92,46 @@ public class App {
 			for( Iterator<Object> it = results.iterator(); it.hasNext(); ) {
 				
 				Object[] row = (Object[]) it.next() ;
-				BigDecimal id = (BigDecimal) row[0] ; //pos_event_id
-				String userName = null != row[1] ? (String) row[1] : null ;   
-				BigDecimal offeringId = (BigDecimal) row[2] ; 
-				BigDecimal amount = row[3] != null ? (BigDecimal) row[3] : null ; 
-				String serialNumber = (String) row[4] ;
-				Date timeStamp = (Date) row[5] ;
-				String transactionCode = null != row[6] ? (String) row[6] : null ;
-				String custTransactionCode = null != row[7] ? (String) row[7] : null ;
-				String interfaceCode = null != row[8] ? (String) row[8] : null ;
-				String responseCode = null != row[9] ? (String) row[9] : null ;
-				String custData1 = null != row[9] ? (String) row[9] : null ;
-				String custData2 = null != row[10] ? (String) row[10] : null ;
-				BigDecimal subscriberId = null != row[11] ? (BigDecimal) row[11] : null ;
-				String activityId = null != row[12] ? (String) row[12] : null ;
-				BigDecimal currencyId = null != row[13] ? (BigDecimal) row[13] : null ;
+				BigDecimal id = null; //pos_event_id
+				String userName = null;   
+				BigDecimal offeringId = null; 
+				BigDecimal amount  = null; 
+				String serialNumber = null ;
+				Date timeStamp  = null ;
+				String transactionCode = null ;
+				String custTransactionCode = null ;
+				String interfaceCode  = null;
+				String responseCode = null ;
+				String custData1 = null;
+				String custData2  = null ;
+				BigDecimal subscriberId = null  ;
+				String activityId = null ;
+				BigDecimal currencyId = null ;
+				try {
+					id = (BigDecimal) row[0] ; //pos_event_id
+					userName = null != row[1] ? (String) row[1] : null ;   
+					offeringId = (BigDecimal) row[2] ; 
+					amount = row[3] != null ? (BigDecimal) row[3] : null ; 
+					serialNumber = (String) row[4] ;
+					timeStamp = (Date) row[5] ;
+					transactionCode = null != row[6] ? (String) row[6] : null ;
+					custTransactionCode = null != row[7] ? (String) row[7] : null ;
+					interfaceCode = null != row[8] ? (String) row[8] : null ;
+					responseCode = null != row[9] ? (String) row[9] : null ;
+					custData1 = null != row[10] ? (String) row[10] : null ;
+					custData2 = null != row[11] ? (String) row[11] : null ;
+					subscriberId = null != row[12] ? (BigDecimal) row[12] : null ;
+					activityId = null != row[13] ? (String) row[13] : null ;
+					currencyId = null != row[14] ? (BigDecimal) row[14] : null ;
+				} catch( ClassCastException e ) {
+					e.printStackTrace(); 
+					System.out.println("Exception reading data, row retrieved was as follows:") ;
+					for( int i = 0; i < row.length; i++ ) {
+						System.out.println("col #" + (i+1)  + ": " + (null == row[i] ? "null" : row[i].toString() ) ) ;
+					}
+					continue ;
+					
+				}
 				String paymentMethod = "" ;
 				
 				boolean bProcessRecord = true ;
@@ -264,18 +290,24 @@ public class App {
       	
        	for( String s : args ) {
 			if( processingStart ) {
-				if( null == (startDate = parseDate( s ) ) ) return false ;
+				if( null == (startDate = parseDate( s ) ) ) {
+					System.out.println("Invalid date: " + s ) ;
+					return false ;
+				}
 				processingStart = false ;
 			}
 			else if( processingEnd ) {
-				if( null == (endDate = parseDate( s ) ) ) return false ;	
+				if( null == (endDate = parseDate( s ) ) ) {
+					System.out.println("Invalid date: " + s ) ;
+					return false ;	
+				}
 				processingEnd = false ;
 			}
 			else if( processingDirectory ) {
       			File dir = new File(s) ;
       			if( !dir.exists() || !dir.isDirectory() ) {
       				logger.error("'" + s + "' either does not exist, or is not a directory") ;
-      				System.err.println("'" + s + "' either does not exist, or is not a directory") ;
+      				System.out.println("'" + s + "' either does not exist, or is not a directory") ;
       				return false ;
       			}
        			SimpleDateFormat sdf2 = new SimpleDateFormat("HHmm") ;
@@ -285,7 +317,7 @@ public class App {
 					writer = new BufferedWriter(new FileWriter( outFile ) );
 				} catch (IOException e) {
 					logger.error("Error opening output file: " + e.getLocalizedMessage()) ;
-					System.err.println("Error opening output file: " + e.getLocalizedMessage()) ;
+					System.out.println("Error opening output file: " + e.getLocalizedMessage()) ;
 					e.printStackTrace();
 					return false ;
 				}
@@ -303,6 +335,19 @@ public class App {
 				processingDirectory = true ;
 			}
 		}
+       	
+       	if( null == outFile ) {
+       		System.out.println("--dir parameter is required") ;
+       		return false ;
+       	}
+       	if( null == startDate ) {
+       		System.out.println("--start is a required parameter") ;
+       		return false ;
+       	}
+       	if( null == startDate ) {
+       		System.out.println("--start is a required parameter") ;
+       		return false ;
+       	}
 		
 		return true ;
 	}
@@ -357,6 +402,18 @@ public class App {
 	}
 
 	protected void usage() {
-		
+		System.out.println("Usage: `basename $0` --start startValue --end endValue --dir path ") ;
+		System.out.println("       where:") ;
+		System.out.println("       startValue - a start date in yyyy-mm-dd format, or else a negative integer representing a nuber of days in the past") ;
+		System.out.println("       endValue   - an end date in yyyy-mm-dd format, or else a non-positive integer representing a number of days in the past") ;
+		System.out.println("       path   - a directory on the filesystem where the report should be written do") ;
+		System.out.println() ;
+		System.out.println("       note: the date range selected for the report will be from the start date to the end date, inclusive of the start date but NOT inclusive of the end date") ;
+		System.out.println() ;
+		System.out.println("   examples:") ;
+		System.out.println() ;
+		System.out.println(" --start -21 --end 0                        #runs report starting 21 days ago through yesterday") ;
+		System.out.println(" --start -1 --end 0                         #runs report for yesterday") ;
+		System.out.println(" --start 2012-01-01 --end 2012-02-01        #runs report for month of January 2012") ;
 	}
 }
