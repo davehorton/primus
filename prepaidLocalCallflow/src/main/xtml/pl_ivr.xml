@@ -1,6 +1,6 @@
 <?xml version="1.0"?>
 <xtml version="1.0" xmlns="urn:www.pactolus.com:xtml" >
-  <version sce-version="1" prev-sce-version="1" last-mod-time="Friday, July 13, 2012 17:51:51"/>
+  <version sce-version="1" prev-sce-version="1" last-mod-time="Wednesday, August 01, 2012 14:41:40"/>
   <global-handlers >
     <handler event="Pactolus.EveSessionTerminate.1" function="OnSipDialogTerminated" public="0" always-on="0"/>
     <handler event="Standard.OnServiceLoad.1" function="OnServiceLoad" public="0" always-on="0"/>
@@ -22,6 +22,7 @@
     <var name="g_fMaxRechargeAmount" type="float" >0</var>
     <var name="g_fMinRechargeAmount" type="float" >0</var>
     <var name="g_strBusinessUnit" type="string" ></var>
+    <var name="g_strServiceProviderName" type="string" ></var>
   </global-vars>
   <shared-vars >
     <var name="s_SUCCESS" type="i4" >0</var>
@@ -114,6 +115,7 @@
             <parameter type="inout" var-type="float" >g_fMaxRechargeAmount</parameter>
             <parameter type="inout" var-type="float" >g_fMinRechargeAmount</parameter>
             <parameter type="inout" var-type="string" >g_strBusinessUnit</parameter>
+            <parameter type="inout" var-type="string" >g_strServiceProviderName</parameter>
           </java>
           <results >
             <result name="Default" link="3" stubbed="0"/>
@@ -615,6 +617,7 @@ if( len >= 3 ) {
             <parameter type="in" var-type="string" >g_strSessionId</parameter>
             <parameter type="in" var-type="i8" >g_lSubscriberId</parameter>
             <parameter type="in" var-type="string" >g_strCallingNumber</parameter>
+            <parameter type="in" var-type="string" >g_strServiceProviderName</parameter>
             <parameter type="in" var-type="string" >s_strWSUserId</parameter>
             <parameter type="in" var-type="string" >s_strWSClientId</parameter>
             <parameter type="in" var-type="string" >g_strBusinessUnit</parameter>
