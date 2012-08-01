@@ -32,8 +32,8 @@
             <version>2.0.5.RELEASE</version>
         </dependency>
         <dependency>
-			<groupId>com.beachdog</groupId>
-			<artifactId>primusCore</artifactId>
+			<groupId>com.primus</groupId>
+			 <artifactId>prepaid-local-core</artifactId>
 			<version>1.0</version>
         </dependency>
     <dependency>

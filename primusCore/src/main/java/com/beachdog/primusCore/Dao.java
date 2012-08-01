@@ -564,7 +564,7 @@ public class Dao {
 			if( SUCCESS == resultCode.getInteger() ) {
 				CurrencyRef currency = (CurrencyRef) session.load(CurrencyRef.class, sub.getCurrencyId() ) ;
 				Dao.updateSubscriberWithSuccessfulRecharge(session, sub, amount.floatValue(),
-						cfg.getM6Address(), cfg.getM6User(), cfg.getM6Password(), phone, cfg, 
+						phone, cfg, 
 						res.getAuthorizationcode(), businessUnit, "P") ;
 				logger.info("credit card recharge approved") ;
 				msg.append("Credit card recharge approved") ;
@@ -726,7 +726,7 @@ public class Dao {
 
 				if( 0 == txnCode ) {
 					Dao.updateSubscriberWithSuccessfulRecharge(session, sub, 
-							Float.valueOf( res.getSettleamount() ), cfg.getM6Address(), cfg.getM6User(), cfg.getM6Password(), phone, cfg, 
+							Float.valueOf( res.getSettleamount() ), phone, cfg, 
 							res.getUkashtransactionid(), businessUnit, "U"  ) ;					
 					rc = SUCCESS ;
 				}
@@ -808,7 +808,7 @@ public class Dao {
 		return lActivationId ;
 	}
 	static public void updateSubscriberWithSuccessfulRecharge( Session session, Subscriber sub, Float amount, 
-			String M6Address, String M6User, String M6Password, String phoneNumber, Config cfg, 
+			String phoneNumber, Config cfg, 
 			String authorizationCode, String businessUnit, String rechargeType ) throws HibernateException {
 		
 		/* success - update the pactolus database */
@@ -834,7 +834,7 @@ public class Dao {
 
 			try {
 				M6ModifyUserCommand cmd;
-				cmd = new M6ModifyUserCommand(M6Address, M6User, M6Password, Utilities.getHost(), phoneNumber);
+				cmd = new M6ModifyUserCommand(cfg.getM6Address(), cfg.getM6User(), cfg.getM6Password(), Utilities.getHost(), phoneNumber);
 				cmd.setValue(UserKeys.SUSPEND_SERVICE, false ) ;
 				cmd.execute() ;
 			} catch( DBSOAPException e ) {

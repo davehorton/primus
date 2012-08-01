@@ -1,49 +1,30 @@
 package com.beachdog.primusCallflow;
 
-import java.math.BigDecimal;
-import java.net.MalformedURLException;
-import java.sql.SQLException;
-import java.text.DecimalFormat;
-import java.text.ParseException;
-import java.util.Date;
 import java.util.List;
 import java.util.Properties;
 
-import java.text.SimpleDateFormat ;
-
-import javax.xml.bind.JAXBContext;
-import javax.xml.bind.JAXBException;
 import javax.xml.ws.soap.SOAPFaultException;
 
 import org.hibernate.Criteria;
-import org.hibernate.HibernateException;
 import org.hibernate.Session;
 import org.hibernate.SessionFactory;
-import org.hibernate.Transaction;
 import org.hibernate.criterion.Restrictions;
 
 import com.pactolus.java.*;
 
+import org.sipdev.commons.mutables.MutableFloat;
+import org.sipdev.commons.mutables.MutableInt;
 import org.sipdev.framework.Framework;
 import org.sipdev.framework.Log;
 
 import uri.ecare.GetPrepaidBalanceDlResponse.ECarePrepaidBalanceResponse;
-import uri.ecare.ObjectFactory;
-import uri.ecare.PrepaidPaymentechPaymentDlResponse.ECarePrepaidPaymentechResponse;
-import uri.ecare.PrepaidUkashPaymentDlResponse.ECarePrepaidUkashResponse;
 
 
 import com.beachdog.primusCore.Constants;
-import com.beachdog.primusCore.PactolusPOSConstants ;
 import com.beachdog.primusCore.Config;
 import com.beachdog.primusCore.Dao;
 import com.beachdog.primusCore.PrimusWS;
 import com.beachdog.primusCore.model.AccessNumber;
-import com.beachdog.primusCore.model.AccountActivity;
-import com.beachdog.primusCore.model.EvtPointOfSale;
-import com.beachdog.primusCore.model.CurrencyRef;
-import com.beachdog.primusCore.model.LanguageRef;
-import com.beachdog.primusCore.model.LockedPins;
 import com.beachdog.primusCore.model.ProductOffering;
 import com.beachdog.primusCore.model.ServiceProvider;
 import com.beachdog.primusCore.model.ServiceProviderSettings;
@@ -80,36 +61,6 @@ public class XtmlApi {
 		return rc ;
 	}
 	
-	static private void updateSubscriberWithSuccessfulRecharge( Session session, Log logger, Subscriber sub, CurrencyRef cr,
-			String strTransactionId, String authorizationCode, String strBusinessUnit, Float amount, String strTransactionType ) throws HibernateException {
-		
-		/* success - update the pactolus database */
-		logger.info("updateSubscriberWithSuccessfulRecharge, amount: " + amount) ;
-		
-		/* step 1: update the subscriber balance */
-		DecimalFormat fmt = new DecimalFormat("#####.00") ;
-
-		BigDecimal balance = sub.getCurrPrepaidBalance()  ;
-		logger.info("Subscriber balance before voucher transfer is $" + fmt.format(balance)) ;
-		
-		BigDecimal newBalance  = balance.add( new BigDecimal( amount.doubleValue() ) ) ;
-		sub.setCurrPrepaidBalance( newBalance ) ;
-		session.save(sub) ;
-		
-		logger.info("Subscriber balance after voucher transfer is $" + fmt.format(newBalance)) ;
-
-		/* step 2: write an account activity record */
-		AccountActivity aa = Dao.createAccountActivity(session, sub, amount, Dao.POS_RECHARGE_EVENT_TYPE_ID) ;
-		
-		session.save( aa ) ;
-		
-		/* step 3: write an evt_point_of_sale record, link it to the account activity record, and store the transaction ids, identifying it as a Ukash transaction */
-		EvtPointOfSale epos = Dao.createEvtPointOfSale(session, sub, aa, cr, strBusinessUnit, amount, PactolusPOSConstants.TRANS_CODE_RECHARGE, 
-				authorizationCode, strTransactionType) ;
-		
-		session.save( epos ) ;
-
-	}
 	static public int Init() {
 		
 		Framework framework = null;
@@ -153,7 +104,8 @@ public class XtmlApi {
 			MutableBoolean mbPlayAsUnits,
 			MutableFloat mfMaxRechargeAmount,
 			MutableFloat mfMinRechargeAmount,
-			StringBuffer strBusinessUnit)  {
+			StringBuffer strBusinessUnit, 
+			StringBuffer strServiceProviderName)  {
 		
 		Framework framework = null;
 		Log logger = null;
@@ -169,6 +121,7 @@ public class XtmlApi {
 		mfMinRechargeAmount.setFloat(0) ;
 		mfMaxRechargeAmount.setFloat(0) ;
 		strBusinessUnit.setLength(0) ;
+		strServiceProviderName.setLength(0) ;
 		
 		
 		try {
@@ -178,7 +131,7 @@ public class XtmlApi {
 	   		
 			sessionFactory = (SessionFactory)framework.getResource("sessionFactory");    	
     		session = sessionFactory.openSession() ;
-
+    		
     		logger.info("--------------   XTMLApi.InitializeRechargeSession   --  Starting  ------------------");
 			logger.info("dnis:          	      " + strDnis) ;
 			logger.info("subscriber phone number: " + strSubscriberPhone) ;
@@ -201,6 +154,7 @@ public class XtmlApi {
 			ProductOffering po = (ProductOffering) session.get(ProductOffering.class, sub.getPrimaryOfferingId() ) ;
 			ServiceProvider sp = (ServiceProvider) session.get( ServiceProvider.class, sub.getServiceProviderId() ) ;
 			logger.debug("Service provider: " + sp.getName() ) ;
+			strServiceProviderName.append(sp.getName()) ;
 			
 			
 			mlSubscriberId.setLong( sub.getSubscriberId().longValue() ) ;
@@ -273,343 +227,6 @@ public class XtmlApi {
 		return rc ;
 	}
 
-	static public int ProcessRechargeUkash( 
-			String xtmlSessionId,
-			long subscriberId,
-			String strSubscriberPhone,
-			String strUserId,
-			String strClientId,
-			String strBusinessUnit,
-			String strUkashVoucher,
-			String strUkashVoucherValue,
-			String strTransactionId,
-			StringBuffer strTransactionCode,
-			StringBuffer strTransactionDesc,
-			MutableFloat fSettlementAmount,
-			MutableInteger errorCode,
-			StringBuffer strErrorDesc,
-			StringBuffer strUkashTransactionId)  {
-		
-		Framework framework = null;
-		Log logger = null;
-		Session session = null ;
-		SessionFactory sessionFactory = null ;
-		Transaction transaction = null ;
-		int rc = DB_ERROR;
-		
-		strTransactionCode.setLength(0) ;
-		strTransactionDesc.setLength(0) ;
-		fSettlementAmount.setFloat(0f) ;
-		errorCode.setInteger(0) ;
-		strErrorDesc.setLength(0) ;
-		strUkashTransactionId.setLength(0) ;
-
-		LockedPins lock = null ;
-		
-		try {
-			
-			framework = Framework.getInstance(xtmlSessionId) ;
-			logger = framework.getLogger();
-	   		
-			sessionFactory = (SessionFactory)framework.getResource("sessionFactory");    	
-    		session = sessionFactory.openSession() ;
-
-    		logger.info("--------------   XTMLApi.ProcessRechargeUkash   --  Starting  ------------------");
-			logger.info("subscriberId:          	 " + subscriberId) ;
-			logger.info("strUserId: 			     " + strUserId) ;
-			logger.info("strClientId: 			     " + strClientId) ;
-			logger.info("strBusinessUnit: 			 " + strBusinessUnit) ;
-			logger.info("strUkashVoucher: 			 " + strUkashVoucher) ;
-			logger.info("strSubscriberPhone: 		 " + strSubscriberPhone) ;
-			logger.info("strUkashVoucherValue: 		 " + strUkashVoucherValue) ;
-
-			/* retrieve subscriber */
-			Subscriber sub = (Subscriber) session.get(Subscriber.class, BigDecimal.valueOf(subscriberId)) ;
-			if( null == sub ) {
-				logger.error("Unknown Subscriber id: " + subscriberId) ;
-				return rc = UNKNOWN_SUB ;
-			}
-			CurrencyRef currency = (CurrencyRef) session.get(CurrencyRef.class, sub.getCurrencyId() ) ;
-			if( null == currency || null == currency.getIsoCurrencyCode() ) {
-				logger.error("Unknown currency for subscriber id: " + subscriberId) ;
-				return rc = UNKNOWN_CURRENCY ;				
-			}
-			String strCurrency = currency.getIsoCurrencyCode() ;
-			transaction = session.beginTransaction() ;
-			
-			lock = Dao.createLockedPin(sub, xtmlSessionId) ;
-			try {
-				session.save(lock) ;
-				transaction.commit() ;
-			} catch( HibernateException hbe ) {
-				logger.error("Unable to lock pin for subscriber id: " + subscriberId + "; recharge can not be processed") ;
-				transaction.rollback() ;
-				transaction = null ;
-				return rc = PIN_IN_USE ;
-			}
-			logger.debug("prepaid_ukash_payment: subscriber was successfully retrieved and pin locked, ready to attempt ukash payment") ;
-			transaction = session.beginTransaction() ;
-			
-			/* perform the transaction */
-			ECarePrepaidUkashResponse res = null ;
-			try {
-				Config cfg = (Config) framework.getResource("wsConfig") ;
-				PrimusWS pws = new PrimusWS( cfg.getWebServiceEndoint(), cfg.getWsdlLocation() ) ;
-				Thread.currentThread().setContextClassLoader(ClassLoader.getSystemClassLoader() ) ;
-				res = pws.prepaidUkashPayment(strUserId, strClientId, strBusinessUnit, strSubscriberPhone, strUkashVoucher, 
-						Float.valueOf(strUkashVoucherValue), strCurrency, strTransactionId) ;
-			} catch( SOAPFaultException sfe ) {
-				logger.error("SOAP Fault calling prepaid_ukash_payment: " + sfe.getLocalizedMessage() ) ;
-				transaction.rollback() ;
-				transaction = null ;
-				return rc = getWsFailureReason( sfe ) ;
-			} catch( Exception e ) {
-				logger.error("Error calling primus web service prepaid_ukash_payment") ;
-				logger.error(e) ;
-				transaction.rollback() ;
-				transaction = null ;
-				return rc = WS_ERROR ;
-			}
-			Integer ec = null ;
-			Integer txnCode = null ;
-			try {
-				if( null != res && null != res.getErrorcode() && res.getErrorcode().length() > 0 ) {
-					ec = Integer.valueOf( res.getErrorcode() ) ;
-				}
-				txnCode = Integer.valueOf( res.getTransactioncode() ) ;
-			} catch( NumberFormatException nfe ) {
-				logger.error("ProcessRechargeUkash: prepaid_ukash_payment web service returned a non-integer error code: " + res.getErrorcode() ) ;
-				rc = WS_REJECTED; 
-				throw nfe ;
-			}
-			if( 0 == txnCode ) {
-				updateSubscriberWithSuccessfulRecharge(session, logger, sub, currency, strTransactionId, res.getUkashtransactionid(), strBusinessUnit, 
-						Float.valueOf( res.getSettleamount() ), "U" ) ;
-				
-				rc = SUCCESS ;
-			}
-			else {
-				logger.error("ProcessRechargeUkash: prepaid_ukash_payment web service returned a non-success result: " + txnCode ) ;
-				rc = WS_REJECTED; 
-			}
-			
-			if( null != ec ) errorCode.setInteger( ec ) ;
-			if( null != res.getErrordescription() ) strErrorDesc.append( res.getErrordescription() ) ;
-			if( null != res.getSettleamount() && res.getSettleamount().length() > 0 ) fSettlementAmount.setFloat( Float.valueOf( res.getSettleamount() ) ) ;
-			if( null != res.getTransactioncode() ) strTransactionCode.append( res.getTransactioncode() ) ;
-			if( null != res.getTransactiondescription() ) strTransactionDesc.append( res.getTransactiondescription() ) ;
-			if( null != res.getUkashtransactionid() ) strUkashTransactionId.append( res.getUkashtransactionid() ) ;
-			
-			
-		} catch (Exception ex) {
-			Framework.getInstance().getLogger().error("Caught exception in XtmlApi.ProcessRechargeUkash", ex);
-			if( null != transaction ) {
-				transaction.rollback() ;
-				transaction = null ;
-			}
-		} finally {
-			if( null != transaction ) {
-				try {
-					transaction.commit() ;
-				} catch( HibernateException sqe ){
-					logger.error("Error committing transaction") ;
-					logger.error( sqe ) ;
-				}
-			}
-			if( null != lock ) {
-				try {
-					transaction = session.beginTransaction() ;
-					int nRows = session.createSQLQuery("delete from locked_pins where subscriber_id = :sub_id")
-						.setBigDecimal("sub_id", lock.getSubscriberId() )
-						.executeUpdate() ;
-					//session.delete(lock) ;
-					transaction.commit() ;
-				} catch( Exception ex2 ) {
-					logger.error("Unable to unlock pin", ex2) ;
-				}
-			}
-			
-			if( SUCCESS == rc || WS_REJECTED == rc ) {
-				logger.info("Error code: " + errorCode.getInteger()) ;
-				logger.info("Error description: " + strErrorDesc.toString()) ;
-				logger.info("Settlement amount: " + fSettlementAmount.getFloat()) ;
-				logger.info("Transaction code: " + strTransactionCode.toString()) ;
-				logger.info("Ukash transaction id: " + strUkashTransactionId.toString()) ;
-		   		logger.info("--------------   XtmlApi.ProcessRechargeUkash   --  Ending  ------------------");				
-			}
-			if( null != session ) session.close() ;
-		}			
-		return rc ;
-	}
-
-	static public int ProcessRechargePaymentTech( 
-			String xtmlSessionId,
-			Long subscriberId,
-			String strSubscriberPhone,
-			String strUserId,
-			String strClientId,
-			String strBusinessUnit,
-			String strCardNumber,
-			String strExpiryDate,
-			String strCardType,
-			String strAmount,
-			String strNameOnCard,
-			String strAddress1, 
-			String strAddress2,
-			String strCity,
-			String strProvince, 
-			String strPostalCode,
-			String strReason,
-			String strTransactionId,
-			StringBuffer strAuthorizationCode,
-			MutableInteger resultCode,
-			StringBuffer strResultDescription,
-			StringBuffer strAvsCode,
-			StringBuffer strAvsDescription,
-			StringBuffer strInquiryId)  {
-		
-		Framework framework = null;
-		Log logger = null;
-		Session session = null ;
-		SessionFactory sessionFactory = null ;
-		Transaction transaction = null ;
-		int rc = DB_ERROR;
-		
-		strAuthorizationCode.setLength(0) ;
-		strResultDescription.setLength(0) ;
-		resultCode.setInteger(0) ;
-		strAvsCode.setLength(0) ;
-		strAvsDescription.setLength(0) ;
-		strInquiryId.setLength(0) ;
-		
-		LockedPins lock = null ;
-		
-		try {
-			
-			framework =Framework.getInstance(xtmlSessionId) ;
-			logger = framework.getLogger();
-	   		
-			sessionFactory = (SessionFactory)framework.getResource("sessionFactory");    	
-    		session = sessionFactory.openSession() ;
-
-    		logger.info("--------------   XTMLApi.ProcessRechargePaymentTech   --  Starting  ------------------");
-			logger.info("subscriberId:          	 " + subscriberId) ;
-			logger.info("strSubscriberPhone: 			 " + strSubscriberPhone) ;
-			logger.info("strUserId: 			 " + strUserId) ;
-			logger.info("strClientId: 			 " + strClientId) ;
-			logger.info("strBusinessUnit: 			 " + strBusinessUnit) ;
-			logger.info("strCardNumber: 			 " + strCardNumber) ;
-			logger.info("strExpiryDate: 			 " + strExpiryDate) ;
-			logger.info("strCardType: 			 " + strCardType) ;
-			logger.info("strAmount: 			 " + strAmount) ;
-			logger.info("strNameOnCard: 			 " + strNameOnCard) ;
-			logger.info("strAddress1: 			 " + strAddress1) ;
-			logger.info("strAddress2: 			 " + strAddress2) ;
-			logger.info("strCity: 			 " + strCity) ;
-			logger.info("strProvince: 			 " + strProvince) ;
-			logger.info("strPostalCode: 			 " + strPostalCode) ;
-			logger.info("strReason: 			 " + strReason) ;
-			logger.info("strTransaction: 			 " + strTransactionId) ;
-
-			/* retrieve subscriber */
-			Subscriber sub = (Subscriber) session.get(Subscriber.class, BigDecimal.valueOf(subscriberId)) ;
-			if( null == sub ) {
-				logger.error("Unknown Subscriber id: " + subscriberId) ;
-				return rc = UNKNOWN_SUB ;
-			}
-			CurrencyRef currency = (CurrencyRef) session.get(CurrencyRef.class, sub.getCurrencyId() ) ;
-			if( null == currency || null == currency.getIsoCurrencyCode() ) {
-				logger.error("Unknown currency for subscriber id: " + subscriberId) ;
-				return rc = UNKNOWN_CURRENCY ;				
-			}
-			
-			transaction = session.beginTransaction() ;
-			
-			lock = Dao.createLockedPin(sub, xtmlSessionId) ;
-			try {
-				session.save(lock) ;
-				transaction.commit() ;
-			} catch( HibernateException hbe ) {
-				logger.error("Unable to lock pin for subscriber id: " + subscriberId + "; recharge can not be processed") ;
-				transaction.rollback() ;
-				transaction = null ;
-				return rc = PIN_IN_USE ;
-			}
-			transaction = session.beginTransaction() ;
-			
-			/* perform the transaction */
-			ECarePrepaidPaymentechResponse res = null ;
-			Float fAmount = Float.valueOf(strAmount) ;
-			try {
-				Config cfg = (Config) framework.getResource("wsConfig") ;
-				PrimusWS pws = new PrimusWS( cfg.getWebServiceEndoint(), cfg.getWsdlLocation() ) ;
-				Thread.currentThread().setContextClassLoader(ClassLoader.getSystemClassLoader() ) ;
-				res = pws.prepaidPaymentTechPayment(strUserId, strClientId, strBusinessUnit, strSubscriberPhone, strCardNumber, strExpiryDate, 
-						strCardType, fAmount, strNameOnCard, strAddress1, strAddress2, strCity, strProvince, strPostalCode, strReason, strTransactionId) ;
-			} catch( SOAPFaultException sfe ) {
-				logger.error("SOAP Fault calling prepaid_paymentech_payment: " + sfe.getLocalizedMessage() ) ;
-				transaction.rollback() ;
-				transaction = null ;
-				return rc = getWsFailureReason( sfe ) ;
-			} catch( Exception e ) {
-				logger.error("Error calling primus web service prepaid_paymentech_payment") ;
-				logger.error(e) ;
-				transaction.rollback() ;
-				transaction = null ;
-				return rc = WS_ERROR ;
-			}
-
-			strAuthorizationCode.append( res.getAuthorizationcode() ) ;
-			if( null != res.getResultcode() ) resultCode.setInteger( Integer.valueOf( res.getResultcode() ) ) ;
-			strResultDescription.append(res.getResultdescription() ) ;
-			strAvsCode.append( res.getAvsresultcode() ) ;
-			strAvsDescription.append( res.getAvsresultdescription() ) ;
-			strInquiryId.append( res.getInquiryid() ) ;
-			
-			if( SUCCESS == resultCode.getInteger() ) {
-				updateSubscriberWithSuccessfulRecharge(session, logger, sub, currency, strTransactionId, res.getAuthorizationcode(), strBusinessUnit, 
-						fAmount, "P" ) ;
-				rc = SUCCESS ;
-
-			}
-			else {
-				rc = CC_DECLINED ;
-			}
-			
-			logger.info("Result code: " + resultCode.getInteger()) ;
-			logger.info("Result description: " + strResultDescription.toString()) ;
-			logger.info("Authorization code: " + strAuthorizationCode.toString()) ;
-			logger.info("AVS code:           " +  strAvsCode.toString()) ;
-			logger.info("AVS description:    " +  strAvsDescription.toString()) ;
-			logger.info("InquiryId:          " +  strInquiryId.toString()) ;
-			
-	   		logger.info("--------------   XtmlApi.ProcessRechargePaymentTech   --  Ending  ------------------");				
-			
-		} catch (Exception ex) {
-			Framework.getInstance().getLogger().error("Caught exception in XtmlApi.ProcessRechargePaymentTech", ex);
-			if( null != transaction ) {
-				transaction.rollback() ;
-				transaction = null ;
-			}
-		} finally {
-			if( null != transaction ) {
-				transaction.commit() ;
-			}
-			if( null != lock ) {
-				try {
-					transaction = session.beginTransaction() ;
-					session.delete(lock) ;
-					transaction.commit() ;
-				} catch( Exception ex2 ) {
-					logger.error("Unable to unlock pin", ex2) ;
-				}
-			}
-			
-			if( null != session ) session.close() ;
-		}			
-		return rc ;
-	}
-
 	static public int GetPrepaidBalance( 
 			String xtmlSessionId,
 			String strSubscriberPhone,
@@ -665,6 +282,160 @@ public class XtmlApi {
 		return rc ;
 	}
 	
+	static public int ProcessRechargeUkash( 
+			String xtmlSessionId,
+			long subscriberId,
+			String strSubscriberPhone,
+			String strServiceProviderName,
+			String strUserId,
+			String strClientId,
+			String strBusinessUnit,
+			String strUkashVoucher,
+			String strUkashVoucherValue,
+			String strTransactionId,
+			StringBuffer strTransactionCode,
+			StringBuffer strTransactionDesc,
+			MutableFloat fSettlementAmount,
+			MutableInt errorCode,
+			StringBuffer strErrorDesc,
+			StringBuffer strUkashTransactionId)   {
+		
+		Framework framework = null;
+		Log logger = null;
+		int rc = DB_ERROR;
+				
+		try {
+			
+			framework = Framework.getInstance(xtmlSessionId) ;
+			logger = framework.getLogger();
+
+    		logger.info("--------------   XTMLApi.ProcessRechargeUkash   --  Starting  ------------------");
+			logger.info("subscriberId:          	 " + subscriberId) ;
+			logger.info("strUserId: 			     " + strUserId) ;
+			logger.info("strClientId: 			     " + strClientId) ;
+			logger.info("strBusinessUnit: 			 " + strBusinessUnit) ;
+			logger.info("strUkashVoucher: 			 " + strUkashVoucher) ;
+			logger.info("strSubscriberPhone: 		 " + strSubscriberPhone) ;
+			logger.info("strUkashVoucherValue: 		 " + strUkashVoucherValue) ;
+
+			StringBuffer msg = new StringBuffer() ;
+			
+			rc = Dao.processRechargeTransactionUkash(strSubscriberPhone, 
+					strServiceProviderName, 
+					strUserId, 
+					strClientId, 
+					strUkashVoucher, 
+					Double.valueOf( strUkashVoucherValue ),
+					strTransactionId, 
+					strTransactionCode, strTransactionDesc, 
+					fSettlementAmount, errorCode, strErrorDesc, 
+					strUkashTransactionId, msg) ;
+
+			logger.info("Error code: " + errorCode.getInteger()) ;
+			logger.info("Error description: " + strErrorDesc.toString()) ;
+			logger.info("Settlement amount: " + fSettlementAmount.getFloat()) ;
+			logger.info("Transaction code: " + strTransactionCode.toString()) ;
+			logger.info("Ukash transaction id: " + strUkashTransactionId.toString()) ;
+	   		logger.info("--------------   XtmlApi.ProcessRechargeUkash   --  Ending  ------------------");				
+			
+	
+		} catch (Exception ex) {
+			Framework.getInstance().getLogger().error("Caught exception in XtmlApi.ProcessRechargeUkash", ex);
+		} finally {
+		}			
+		
+		return rc ;
+	}
+
+	
+	public int ProcessRechargePaymentTech( 
+			String xtmlSessionId,
+			Long subscriberId,
+			String strSubscriberPhone,
+			String strServiceProviderName,
+			String strUserId,
+			String strClientId,
+			String strBusinessUnit,
+			String strCardNumber,
+			String strExpiryDate,
+			String strCardType,
+			String strAmount,
+			String strNameOnCard,
+			String strAddress1, 
+			String strAddress2,
+			String strCity,
+			String strProvince, 
+			String strPostalCode,
+			String strReason,
+			String strTransactionId,
+			StringBuffer strAuthorizationCode,
+			MutableInt resultCode,
+			StringBuffer strResultDescription,
+			StringBuffer strAvsCode,
+			StringBuffer strAvsDescription,
+			StringBuffer strInquiryId) {
+
+
+		Framework framework = null;
+		Log logger = null;
+		int rc = DB_ERROR;
+				
+		try {
+			
+			framework = Framework.getInstance(xtmlSessionId) ;
+			logger = framework.getLogger();
+	
+    		logger.info("--------------   XTMLApi.ProcessRechargePaymentTech   --  Starting  ------------------");
+			logger.info("subscriberId:          	 " + subscriberId) ;
+			logger.info("strSubscriberPhone: 			 " + strSubscriberPhone) ;
+			logger.info("strUserId: 			 " + strUserId) ;
+			logger.info("strClientId: 			 " + strClientId) ;
+			logger.info("strBusinessUnit: 			 " + strBusinessUnit) ;
+			logger.info("strCardNumber: 			 " + strCardNumber) ;
+			logger.info("strExpiryDate: 			 " + strExpiryDate) ;
+			logger.info("strCardType: 			 " + strCardType) ;
+			logger.info("strAmount: 			 " + strAmount) ;
+			logger.info("strNameOnCard: 			 " + strNameOnCard) ;
+			logger.info("strAddress1: 			 " + strAddress1) ;
+			logger.info("strAddress2: 			 " + strAddress2) ;
+			logger.info("strCity: 			 " + strCity) ;
+			logger.info("strProvince: 			 " + strProvince) ;
+			logger.info("strPostalCode: 			 " + strPostalCode) ;
+			logger.info("strReason: 			 " + strReason) ;
+			logger.info("strTransaction: 			 " + strTransactionId) ;
+
+			StringBuffer msg = new StringBuffer() ;
+			
+			rc = Dao.processRechargeTransactionCC( strSubscriberPhone, 
+					strServiceProviderName, 
+					strUserId, strClientId, 
+					strCardType, strCardNumber, strExpiryDate, Double.valueOf( strAmount ), 
+					strNameOnCard, 
+					strAddress1, strAddress2, strCity, 
+					strProvince, strPostalCode, strTransactionId, 
+					strAuthorizationCode, resultCode, strResultDescription, strAvsCode, strAvsDescription, strInquiryId, msg) ;
+			
+			
+			logger.info("END***********ProvisioningService: ProcessRechargePaymentTech") ;
+			logger.info("code: " + rc ) ;
+			logger.info("msg: " + msg.toString() ) ;
+			logger.info("authorizationCode: " + strAuthorizationCode.toString() ) ;
+			logger.info("resultCode: " + resultCode.getInt() ) ;
+			logger.info("resultDescription: " + strResultDescription.toString() ) ;
+			logger.info("inquiryId: " + strInquiryId.toString() ) ;
+			logger.info("avsResultCode: " + strAvsCode.toString() ) ;
+			logger.info("avsResultDescription: " + strAvsDescription.toString() ) ;
+		
+		} catch (Exception ex) {
+			Framework.getInstance().getLogger().error("Caught exception in XtmlApi.ProcessRechargePaymentTech", ex);
+		} finally {
+		}			
+
+
+		return rc ;
+	}
+
+	/*
 	private static void Test() throws MalformedURLException {
 		
 		String xtmlSessionId = "test@test" ;
@@ -674,28 +445,10 @@ public class XtmlApi {
 		StringBuffer message = new StringBuffer() ;
 		MutableInteger statusCode = new MutableInteger() ;
 		
-		//GetPrepaidBalance(xtmlSessionId, strSubscriberPhone, balance, status, statusCode, message) ;
 		
 		Framework framework = Framework.getInstance("") ;
 		Config cfg = (Config) framework.getResource("wsConfig") ;
 		PrimusWS pws = new PrimusWS( cfg.getWebServiceEndoint(), cfg.getWsdlLocation() ) ;
-		/*		
-		try {
-			//Class cls = Class.forName("com.sun.xml.bind.ContextFactory") ;
-			Class cls = Class.forName("com.sun.xml.bind.v2.ContextFactory") ;
-			ClassLoader loader = cls.getClassLoader() ;
-			System.out.println("class loader: " + loader.toString() ) ;
-			Thread.currentThread().setContextClassLoader(ClassLoader.getSystemClassLoader() ) ;
-			JAXBContext bindingContext = JAXBContext.newInstance(com.soaplite.namespaces.perl.ECare.class);
-			
-		} catch (ClassNotFoundException e2) {
-			// TODO Auto-generated catch block
-			e2.printStackTrace();
-		} catch (JAXBException e) {
-			// TODO Auto-generated catch block
-			//e.printStackTrace();
-		}
-		*/
 		
 		String strDnis = "2005001004" ;
 		MutableLong mlSubscriberId = new MutableLong() ;
@@ -706,6 +459,7 @@ public class XtmlApi {
 		MutableFloat mfMaxRechargeAmount = new MutableFloat() ;
 		MutableFloat mfMinRechargeAmount = new MutableFloat() ;
 		StringBuffer strBusinessUnit = new StringBuffer() ;
+		StringBuffer strServiceProviderName = new StringBuffer() ;
 
 		int rc = InitializeRechargeSession(xtmlSessionId, 
 				strDnis, 
@@ -717,7 +471,8 @@ public class XtmlApi {
 				mbPlayAsUnits, 
 				mfMaxRechargeAmount,
 				mfMinRechargeAmount, 
-				strBusinessUnit) ;
+				strBusinessUnit, 
+				strServiceProviderName) ;
 		
 		
 		SimpleDateFormat sdf = new SimpleDateFormat("yy-mm-dd-HHmmss") ;
@@ -766,10 +521,8 @@ public class XtmlApi {
 		try {
 			ukashResult = pws.prepaidUkashPayment("userId", "clientId", "win", "5083084809", "9999991530094712388", 50.0f, "CAD", "123456") ;
 		} catch (SOAPFaultException e1) {
-			// TODO Auto-generated catch block
 			e1.printStackTrace();
 		} catch (Exception e1) {
-			// TODO Auto-generated catch block
 			e1.printStackTrace();
 		}
 		System.out.println("ukash result: " + ukashResult.getErrorcode() ) ;
@@ -777,10 +530,11 @@ public class XtmlApi {
         //Thread.currentThread().setContextClassLoader(existing);
 
 	}
+	*/
 	public static void main(String[] args) {
 		
-		
-		//XtmlApi.Init() ;
+		/*
+		XtmlApi.Init() ;
 		
 		try {
 			XtmlApi.Test() ;
@@ -790,7 +544,7 @@ public class XtmlApi {
 		}
 		
 		return ;
-		
+		*/
 	}
 	
 }

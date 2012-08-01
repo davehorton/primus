@@ -3,7 +3,6 @@ package com.beachdog.primusCore;
 public class Config {
 
 	private String webServiceEndoint ;
-	
 	private String wsdlLocation ;
 	private String m6Address ;
 	private String m6User ;
