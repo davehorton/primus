@@ -1,11 +1,34 @@
 package com.beachdog.primusCore;
 
+import java.io.File;
 import java.net.InetAddress;
 import java.net.UnknownHostException;
 import java.sql.Timestamp;
+import java.util.Properties;
+
+import javax.activation.DataHandler;
+import javax.activation.DataSource;
+import javax.activation.FileDataSource;
+import javax.mail.Address;
+import javax.mail.BodyPart;
+import javax.mail.Message;
+import javax.mail.MessagingException;
+import javax.mail.Multipart;
+import javax.mail.Session;
+import javax.mail.Transport;
+import javax.mail.internet.InternetAddress;
+import javax.mail.internet.MimeBodyPart;
+import javax.mail.internet.MimeMessage;
+import javax.mail.internet.MimeMultipart;
+
+import org.apache.log4j.Logger;
 
 public class Utilities {
-    /*
+
+	protected static Logger logger = Logger.getLogger(Utilities.class) ;
+
+	
+	/*
      * This method parses the prepaid serial number passed in into 
      * the lot_control_number and lot_seq_number.  The last 8 digits are
      * assumed to be the lot_seq_number, remaining digits are the lot_control_number.
@@ -44,5 +67,53 @@ public class Utilities {
 		}
 		return host ;
 	}
-
+	
+	public static boolean sendMail(String emailRecipients, String emailServerAddress, String subject, String body, File attachment)  {
+		Properties props = new Properties();
+		
+		Session session = Session.getDefaultInstance(props, null);
+		session.setDebug(true) ;
+		MimeMessage message = new MimeMessage(session);
+		
+		try {
+			message.setSubject(subject);
+			
+			Address from = new InternetAddress("crm-noreply@sugartest.com");
+			message.setFrom(from) ;
+			
+			String[] people = emailRecipients.split(",");
+			for( String s : people ) {
+				Address to = new InternetAddress(s) ;
+				message.addRecipient(Message.RecipientType.TO, to) ;
+			}
+			
+			if( null != attachment ) {
+				BodyPart messageBodyPart = new MimeBodyPart();
+				messageBodyPart.setText(body);
+				Multipart multipart = new MimeMultipart();
+				multipart.addBodyPart(messageBodyPart);
+				messageBodyPart = new MimeBodyPart();
+				DataSource source = new FileDataSource(attachment.getAbsolutePath());
+				messageBodyPart.setDataHandler(new DataHandler(source));
+				messageBodyPart.setFileName(attachment.getName());
+				multipart.addBodyPart(messageBodyPart);
+				message.setContent(multipart);
+			}
+			else {
+				message.setContent(body, "text/plain");				
+			}
+			
+			message.saveChanges(); 
+			Transport transport = session.getTransport("smtp");
+			transport.connect(emailServerAddress, "", "");
+			transport.sendMessage(message, message.getAllRecipients());
+			transport.close();
+			
+		} catch (MessagingException e) {
+			logger.error("Error sending mail message") ;
+			logger.error( e ) ;
+			return false ;
+		}	
+		return true ;
+	}
 }

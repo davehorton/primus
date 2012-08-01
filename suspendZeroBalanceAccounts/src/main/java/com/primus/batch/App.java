@@ -275,7 +275,7 @@ public class App {
 	        		    logger.info("   The maintenance fee rate is: $" + fmt.format( rateApplied.getDefaultAmount().abs().doubleValue() ) + 
 	        		    		", the rate id is " + rateApplied.getRateId().longValue() + " and the fee is collected every " + nDays + " days" ) ;
 
-        				if( daysInArrears > nDays ) {
+        				if( daysInArrears >= nDays ) {
         					logger.info("   Suspending the account since a maintenance fee has recently run and was unable to collect anything from this account") ;
         				}
         				else {
@@ -285,6 +285,9 @@ public class App {
 		        				/* we got the total fee on our last attempt....probably we'll expire them tomorrow after the next one fails (if they don't recharge) */
 		            			logger.info("   Not suspending -- the most recent maintenance fee got the full amount and it appears no ; subscriber id: " + sub.getSubscriberId().longValue() ) ;
 		        				continue ;
+		        			}
+		        			else {
+	        					logger.info("   Suspending the account since a maintenance fee has recently run and was unable to collect the full amount") ;		        				
 		        			}
         				}
         			}

@@ -8,6 +8,8 @@ public class Config {
 	private String m6Address ;
 	private String m6User ;
 	private String m6Password ;
+	private String emailServer ;
+	private String emailRecipients ;
 
 	public String getWebServiceEndoint() {
 		return webServiceEndoint;
@@ -47,6 +49,22 @@ public class Config {
 
 	public void setM6Password(String m6Password) {
 		this.m6Password = m6Password;
+	}
+
+	public String getEmailServer() {
+		return emailServer;
+	}
+
+	public void setEmailServer(String emailServer) {
+		this.emailServer = emailServer;
+	}
+
+	public String getEmailRecipients() {
+		return emailRecipients;
+	}
+
+	public void setEmailRecipients(String emailRecipients) {
+		this.emailRecipients = emailRecipients;
 	}
 
 	

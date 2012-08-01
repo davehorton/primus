@@ -80,6 +80,8 @@ public class Dao {
 	public static final int OTHER_ERROR = -98 ;
 	public static final int DB_ERROR = -99 ;
 	
+	public static Boolean bypassRechargeTransaction = false ;
+	
 	protected static String sqlCreateActivationGroup = "INSERT INTO  evt_prepaid_activation " + 
 			"(activation_id,total_pins,status,lot_id,start_lot_seq,end_lot_seq,initial_balance,offering_id, time_stamp, description) " + 
 			"select ?, 1, 1, ?, min( pe.lot_seq_number ), min( pe.lot_seq_number ),20.0, ?, ?, ? " +
@@ -92,7 +94,7 @@ public class Dao {
 	
 	protected static PreparedStatement stmtCreateActivationGroup = null ;
 
-	protected static Logger logger =Logger.getLogger(Dao.class) ;
+	protected static Logger logger = Logger.getLogger(Dao.class) ;
 	
 
 
@@ -535,10 +537,22 @@ public class Dao {
 			/* now call the web service */
 			Config cfg = (Config) framework.getResource("wsConfig") ;
 			PrimusWS pws = new PrimusWS( cfg.getWebServiceEndoint(), cfg.getWsdlLocation() ) ;
-			Thread.currentThread().setContextClassLoader(ClassLoader.getSystemClassLoader() ) ;
-			ECarePrepaidPaymentechResponse res = pws.prepaidPaymentTechPayment( userId, clientId, businessUnit, 
-				phone, cardNumber, expiryDate, cardType, amount.floatValue(), cardHolderName,
-				address1, address2, city, province,  postalCode, "purchase", transactionId ) ;
+			ECarePrepaidPaymentechResponse res  ;
+			if( bypassRechargeTransaction ) {
+				res = new ECarePrepaidPaymentechResponse() ;
+				res.setResultcode("0") ;
+				res.setAuthorizationcode("") ;
+				res.setAvsresultcode("Accepted (no transaction sent)") ;
+				res.setAvsresultdescription("") ;
+				res.setInquiryid("") ;
+				
+			}
+			else {
+				Thread.currentThread().setContextClassLoader(ClassLoader.getSystemClassLoader() ) ;
+				res = pws.prepaidPaymentTechPayment( userId, clientId, businessUnit, 
+					phone, cardNumber, expiryDate, cardType, amount.floatValue(), cardHolderName,
+					address1, address2, city, province,  postalCode, "purchase", transactionId ) ;
+			}
 			
 			authorizationCode.append( res.getAuthorizationcode() ) ;
 			if( null != res.getResultcode() ) resultCode.setInteger( Integer.valueOf( res.getResultcode() ) ) ;
@@ -550,7 +564,8 @@ public class Dao {
 			if( SUCCESS == resultCode.getInteger() ) {
 				CurrencyRef currency = (CurrencyRef) session.load(CurrencyRef.class, sub.getCurrencyId() ) ;
 				Dao.updateSubscriberWithSuccessfulRecharge(session, sub, amount.floatValue(),
-						cfg.getM6Address(), cfg.getM6User(), cfg.getM6Password(), phone) ;
+						cfg.getM6Address(), cfg.getM6User(), cfg.getM6Password(), phone, cfg, 
+						res.getAuthorizationcode(), businessUnit, "P") ;
 				logger.info("credit card recharge approved") ;
 				msg.append("Credit card recharge approved") ;
 				rc = SUCCESS ;
@@ -677,9 +692,17 @@ public class Dao {
 				/* now call the web service */
 				Config cfg = (Config) framework.getResource("wsConfig") ;
 				PrimusWS pws = new PrimusWS( cfg.getWebServiceEndoint(), cfg.getWsdlLocation() ) ;
-				Thread.currentThread().setContextClassLoader(ClassLoader.getSystemClassLoader() ) ;
-				ECarePrepaidUkashResponse res = pws.prepaidUkashPayment(userId, clientId, businessUnit, phone, voucherNumber, 
-						amount.floatValue(), currency.getIsoCurrencyCode(), transactionId) ;
+				ECarePrepaidUkashResponse res  ;
+				if( bypassRechargeTransaction ) {
+					res = new ECarePrepaidUkashResponse() ;
+					res.setTransactioncode("0") ;
+					res.setErrorcode("0") ;
+				}
+				else {
+					Thread.currentThread().setContextClassLoader(ClassLoader.getSystemClassLoader() ) ;
+					res = pws.prepaidUkashPayment(userId, clientId, businessUnit, phone, voucherNumber, 
+							amount.floatValue(), currency.getIsoCurrencyCode(), transactionId) ;
+				}
 				
 				Integer ec = null ;
 				Integer txnCode = null ;
@@ -703,7 +726,8 @@ public class Dao {
 
 				if( 0 == txnCode ) {
 					Dao.updateSubscriberWithSuccessfulRecharge(session, sub, 
-							Float.valueOf( res.getSettleamount() ), cfg.getM6Address(), cfg.getM6User(), cfg.getM6Password(), phone ) ;					
+							Float.valueOf( res.getSettleamount() ), cfg.getM6Address(), cfg.getM6User(), cfg.getM6Password(), phone, cfg, 
+							res.getUkashtransactionid(), businessUnit, "U"  ) ;					
 					rc = SUCCESS ;
 				}
 				else {
@@ -784,7 +808,8 @@ public class Dao {
 		return lActivationId ;
 	}
 	static public void updateSubscriberWithSuccessfulRecharge( Session session, Subscriber sub, Float amount, 
-			String M6Address, String M6User, String M6Password, String phoneNumber ) throws HibernateException {
+			String M6Address, String M6User, String M6Password, String phoneNumber, Config cfg, 
+			String authorizationCode, String businessUnit, String rechargeType ) throws HibernateException {
 		
 		/* success - update the pactolus database */
 		logger.info("updateSubscriberWithSuccessfulRecharge, amount: " + amount) ;
@@ -814,6 +839,10 @@ public class Dao {
 				cmd.execute() ;
 			} catch( DBSOAPException e ) {
 				logger.info("Error trying to unsuspend the account with phone number " + phoneNumber + " on the M6, continuing anyways..", e) ;
+				if( cfg.getEmailServer() != null && cfg.getEmailRecipients() != null ) {
+					Utilities.sendMail(cfg.getEmailRecipients(), cfg.getEmailServer(), "M6 unsuspend failure", 
+							"failure attempting to unsuspend account with phone number " + phoneNumber + " on the M6 after successfully processing a payment", null) ;
+				}
 			}
 			
 			st.setUnsuspendedOn( new Date( System.currentTimeMillis() ) ) ;
@@ -861,6 +890,12 @@ public class Dao {
 		/* write an account activity record for the payment */
 		AccountActivity aa = Dao.createAccountActivity(session, sub, amount, Dao.POS_RECHARGE_EVENT_TYPE_ID) ;
 		session.save( aa ) ;
+		
+		CurrencyRef cr = (CurrencyRef) session.load(CurrencyRef.class, sub.getCurrencyId() ) ;
+		EvtPointOfSale epos = Dao.createEvtPointOfSale(session, sub, aa, cr, businessUnit, amount, PactolusPOSConstants.TRANS_CODE_RECHARGE, 
+				authorizationCode, rechargeType) ;	
+		session.save( epos ) ;
+
 		
 		if( owedMaintFees.compareTo(BigDecimal.ZERO) > 0 ) {
 			

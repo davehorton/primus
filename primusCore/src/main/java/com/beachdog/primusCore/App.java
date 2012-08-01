@@ -108,8 +108,11 @@ public class App {
 			    String clientId = bufferRead.readLine();
 				System.out.print("Enter a transaction id to use for the ukash transaction (must be unique against all previous transactions): ") ;
 			    String transactionId = bufferRead.readLine();
+				System.out.print("Enter 1 to bypass sending the ukash transaction and assume success, any other key to send the ukash transaction: ") ;
+			    String bypass = bufferRead.readLine();
 
 			    try {
+			    	if( "1".equalsIgnoreCase(bypass) ) Dao.bypassRechargeTransaction = true ;
 			    	int rc = Dao.processRechargeTransactionUkash(phone, sp.getName(), userId, clientId, voucher, fPayment.doubleValue(), 
 			    			transactionId, transactionCode, transactionDesc, 
 			    			settlementAmount, errorCode, errorDescription, ukashTransactionId, msg) ;
@@ -170,6 +173,8 @@ public class App {
 			    String postalCode = bufferRead.readLine();
 			    System.out.print("Enter the transaction id (must be unique): ") ;
 			    String transactionId = bufferRead.readLine();
+				System.out.print("Enter 1 to bypass sending the credit card transaction and assume success, any other key to send the transaction: ") ;
+			    String bypass = bufferRead.readLine();
 
 				StringBuffer avsCode = new StringBuffer() ;
 				StringBuffer avsDescription = new StringBuffer() ;
@@ -182,6 +187,7 @@ public class App {
 				StringBuffer msg = new StringBuffer() ;
 
 				try {
+			    	if( "1".equalsIgnoreCase(bypass) ) Dao.bypassRechargeTransaction = true ;
 					int rc = Dao.processRechargeTransactionCC(phone, sp.getName(), userId, clientId, cardType, cardNumber, expiryDate, fPayment.doubleValue(), 
 							cardHolderName, address1, address2, city, province, postalCode, 
 							transactionId, authorizationCode, resultCode, resultDescription, avsCode, avsDescription, inquiryId, msg) ;
