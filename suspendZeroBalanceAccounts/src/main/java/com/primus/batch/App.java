@@ -31,6 +31,7 @@ import org.hibernate.criterion.Subqueries;
 import org.sipdev.framework.Framework;
 import org.sipdev.framework.Log;
 
+import com.beachdog.primusCore.Config;
 import com.beachdog.primusCore.model.AccountActivity;
 import com.beachdog.primusCore.model.Rate;
 import com.beachdog.primusCore.model.ServiceProvider;
@@ -87,6 +88,12 @@ public class App {
 			
 			sessionFactory = (SessionFactory)framework.getResource("sessionFactory");    	
     		session = sessionFactory.openSession() ;
+    		
+    		Config cfg = (Config) framework.getResource("wsConfig") ;
+    		m6Address = cfg.getM6Address() ;
+    		m6User = cfg.getM6User() ;
+    		m6Password = cfg.getM6Password() ;
+    		
 			Calendar now = Calendar.getInstance();
  		
     		if( null != purgeDays ) {
@@ -138,10 +145,10 @@ public class App {
 
         		Criteria criteria = session.createCriteria(Subscriber.class, "sub")
         				.add(Restrictions.eq("disabledFlag", "F")) 
+        				.add(Restrictions.isNotNull("nextMaintFeeDate"))
         				.add(Restrictions.le("currPrepaidBalance", BigDecimal.valueOf(0.0)))
         				.add(Restrictions.eq("serviceProviderId", sp.getServiceProviderId())) ;
-        		
-        		
+        		      		
         		criteria.add(Subqueries.exists(authAniCriteria.setProjection(Projections.property("subscriberId")))) ;
         		
         		List<Subscriber> list = criteria.list() ;
@@ -213,6 +220,7 @@ public class App {
         			Criterion cr2 = Restrictions.or( Restrictions.eq("eventTypeId", MAINT_FEE2_EVENT), Restrictions.eq("eventTypeId", MAINT_FEE3_EVENT) ) ;
         			
         			List<Rate> maintenanceFeeRates = session.createCriteria(Rate.class)
+        					.add(Restrictions.isNotNull("maintFeeFrequency"))
         					.createAlias("ratedEvents", "re")
         					.add(Restrictions.or( cr1, cr2 ) )
         					.add(Restrictions.eq("re.productOfferingId", sub.getPrimaryOfferingId()))
@@ -243,52 +251,45 @@ public class App {
         			
         			if( !bFoundAA ) {
         				
-        				/* no account activity records exist; this can happen in two cases:
-        				 * (1) The batch maintenance job has never been run for this account (in which case, we do not suspend the account)
-        				 * (2) The batch maintenance job ran, but there was zero balance so it did not deduct anything (in which case we DO want to suspend the account)
+        				/* if there are no Account Activity records, then this subscriber should be suspended.
         				 * 
-        				 * Case #2 can be detected by the fact that the next_maint_fee_date field will be non-null, whereas in case #2 it 
+        				 * The reason is that since we know next_maint_fee is not null, the batch maintenance job must have run.
+        				 * The fact that there isn't an AA record can only mean that there was no money to take.
         				 */
- 
+        				logger.info("  Suspending this subscriber because the first maintenance fee for this subscriber failed to take any money") ;
         				
-        				if( null != sub.getNextMaintFeeDate() ) {
-        					logger.info("   No account activity records have been written for this account, but next_maint_fee_date is non-null, " +
-        							"indicating batch maintenance ran previously and could not collect from this zero balance account") ;
-        				}
-        				else {
-        					logger.info("   Not suspending -- there are no account activity records for maintenance fees and next_maint_fee_date is null for subscriber id: " + sub.getSubscriberId().longValue() ) ;
-        					continue ;
-        				}
-        			}
+         			}
         			else {
         				
         				/* now we have the most recent maintenance fee account activity record.  Check to see when it occurred --
         				 * if there was a maintenance fee run in the meantime, that means we did not write an AA record because the balance
         				 * was zero, and in that case we DO want to suspend them.
         				 */
-        				Long nDays = rateApplied.getMaintFeeFrequency().longValue() ;
-         				Calendar then = Calendar.getInstance() ;
-        				then.setTime( aa.getTimeDateStamp() ) ;
-        				Long daysInArrears = (now.getTimeInMillis() - then.getTimeInMillis())/(1000*60*60*24);
-
-	        			logger.info("   Last maintenance fee was collected " + daysInArrears + " days ago and was for an amount of $" + fmt.format( aa.getTotalAmount().abs().doubleValue() ) + ", the activity id was " + aa.getActivityId() ) ;
-	        		    logger.info("   The maintenance fee rate is: $" + fmt.format( rateApplied.getDefaultAmount().abs().doubleValue() ) + 
-	        		    		", the rate id is " + rateApplied.getRateId().longValue() + " and the fee is collected every " + nDays + " days" ) ;
-
-        				if( daysInArrears >= nDays ) {
-        					logger.info("   Suspending the account since a maintenance fee has recently run and was unable to collect anything from this account") ;
+        				if( aa.getTotalAmount().abs().compareTo( rateApplied.getDefaultAmount()) < 0 ) {
+            				logger.info("  Suspending this subscriber because the last maintenance fee was only able to take a partial amount; activity id was " + aa.getActivityId() +
+            						" and amount taken was $" + fmt.format(aa.getTotalAmount().abs().doubleValue())) ;        					
         				}
         				else {
-     			
-		        			/* now we have the most recent maintenance fee account activity record.  Check whether we got the full amount */
-		        			if( rateApplied.getDefaultAmount().abs().compareTo( aa.getTotalAmount().abs() ) <= 0 ) {
-		        				/* we got the total fee on our last attempt....probably we'll expire them tomorrow after the next one fails (if they don't recharge) */
+        				
+        					/* ok, we have a situation where the last AA record got the full amount.
+        					 * However, it may be that there was a more recent attempt that got nothing...
+        					 */
+	        				Long nDays = rateApplied.getMaintFeeFrequency().longValue() ;
+	         				Calendar then = Calendar.getInstance() ;
+	        				then.setTime( aa.getTimeDateStamp() ) ;
+	        				Long daysInArrears = (now.getTimeInMillis() - then.getTimeInMillis())/(1000*60*60*24);
+	
+		        			logger.info("   Last maintenance fee was collected " + daysInArrears + " days ago and was for an amount of $" + fmt.format( aa.getTotalAmount().abs().doubleValue() ) + ", the activity id was " + aa.getActivityId() ) ;
+		        		    logger.info("   The maintenance fee rate is: $" + fmt.format( rateApplied.getDefaultAmount().abs().doubleValue() ) + 
+		        		    		", the rate id is " + rateApplied.getRateId().longValue() + " and the fee is collected every " + nDays + " days" ) ;
+	
+	        				if( daysInArrears >= nDays ) {
+	        					logger.info("   Suspending the account because the most recent maintenance fee failed to collect anything from this account") ;
+	        				}
+	        				else {	     			
 		            			logger.info("   Not suspending -- the most recent maintenance fee got the full amount and it appears no ; subscriber id: " + sub.getSubscriberId().longValue() ) ;
 		        				continue ;
-		        			}
-		        			else {
-	        					logger.info("   Suspending the account since a maintenance fee has recently run and was unable to collect the full amount") ;		        				
-		        			}
+	        				}
         				}
         			}
         			logger.info("   Attempting to suspend subscriber with subscriber id: " + sub.getSubscriberId().longValue() + "...." ) ;
@@ -342,14 +343,9 @@ public class App {
         				dbe.printStackTrace() ;
         				logger.error("Error attempting to suspend subscriber on M6, program will terminate", dbe) ;
         				throw dbe ;
-        			}
-
-        			
-        			
+        			}			
         		}
     		}
-    		
-     		
 
 			
 		} catch( Exception e ) {
@@ -369,10 +365,6 @@ public class App {
 	
 	protected boolean parseCommandLine( String[] args ) {
 		boolean processingServiceProviderList = false ;
-		boolean processingLogfile = false ;
-		boolean processingM6User = false ;
-		boolean processingM6Pass = false ;
-		boolean processingM6Address = false ;
 		boolean processingPurge = false ;
 		
 		
@@ -387,35 +379,11 @@ public class App {
 					spNames.add( s ) ;
 				}
 			}
-			if( processingM6User ) {
-				this.m6User = s ;
-				processingM6User = false ;
-			}
-			else if( processingM6Pass ) {
-				this.m6Password = s ;
-				processingM6Pass = false ;
-			}
-			else if( processingM6Address ) {
-				this.m6Address = s ;
-				processingM6Address = false ;
-			}
 			else if( processingPurge ) {
 				this.purgeDays = Integer.valueOf(s) ;
 			}
 			else if( s.equalsIgnoreCase("-serviceProviders") ) {
 				processingServiceProviderList = true ;
-			}
-			else if( s.equalsIgnoreCase("-logFile")) {
-				processingLogfile = true ;
-			}
-			else if( s.equalsIgnoreCase("-M6User")) {
-				processingM6User = true ;
-			}
-			else if( s.equalsIgnoreCase("-M6Password")) {
-				processingM6Pass = true ;
-			}
-			else if( s.equalsIgnoreCase("-M6Address")) {
-				processingM6Address = true ;
 			}
 			else if( s.equalsIgnoreCase("-purge")) {
 				processingPurge = true ;
@@ -425,9 +393,6 @@ public class App {
        	if( spNames.isEmpty() ) {
        		System.err.println("Missing parameter: -serviceProviders") ;
        		return false ;
-       	}
-       	if( null == m6User || null == m6Password ) {
-       		System.err.println("M6 user id and password are required parameters: -M6User username -M6Password password") ;       		
        	}
       
 		
