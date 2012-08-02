@@ -913,7 +913,7 @@ public class Dao {
 			session.update( sub ) ;
 
 			/* write an account activity record for the payment in arrears */
-			AccountActivity aa2 = Dao.createAccountActivity(session, sub, owedMaintFees.floatValue(), PactolusConstants.MAINT_FEE_EVENT) ;
+			AccountActivity aa2 = Dao.createAccountActivity(session, sub, -owedMaintFees.floatValue(), PactolusConstants.MAINT_FEE_EVENT) ;
 			session.save( aa2 ) ;
 		}
 	}
