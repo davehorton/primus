@@ -23,6 +23,11 @@
   	<artifactId>java_framework</artifactId>
    	<version>2.0</version>
    </dependency>
+<dependency>
+    <groupId>com.pactolus</groupId>
+    <artifactId>pcs_mutables</artifactId>
+    <version>1.0</version>
+</dependency>
     <dependency>
       <groupId>commons-dbcp</groupId>
       <artifactId>commons-dbcp</artifactId>

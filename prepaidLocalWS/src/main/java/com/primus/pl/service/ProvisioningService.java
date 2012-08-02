@@ -4,8 +4,8 @@ package com.primus.pl.service;
 import java.math.BigDecimal;
 
 import org.apache.log4j.Logger;
-import org.sipdev.commons.mutables.MutableFloat;
-import org.sipdev.commons.mutables.MutableInt;
+
+import com.pactolus.java.*;
 
 import com.beachdog.primusCore.Dao;
 
@@ -77,7 +77,7 @@ public class ProvisioningService {
 		resp.setCode(0) ;
 		resp.setMessage("Successfully processed voucher request") ;
 		
-		MutableInt errorCode = new MutableInt() ;
+		MutableInteger errorCode = new MutableInteger() ;
 		StringBuffer errorDescription = new StringBuffer() ;
 		StringBuffer transactionCode = new StringBuffer() ;
 		StringBuffer transactionDescription = new StringBuffer() ;
@@ -140,7 +140,7 @@ public class ProvisioningService {
 		res.setMessage("Successfully processed credit card request") ;
 		
 		StringBuffer authorizationCode = new StringBuffer() ;
-		MutableInt resultCode = new MutableInt() ;
+		MutableInteger resultCode = new MutableInteger() ;
 		StringBuffer resultDescription = new StringBuffer() ;
 		StringBuffer avsCode = new StringBuffer() ;
 		StringBuffer avsDescription = new StringBuffer() ;
@@ -184,7 +184,7 @@ public class ProvisioningService {
 		v.setAuthorizationCode( authorizationCode.toString() ) ;
 		v.setAvsResultCode( avsCode.toString() ) ;
 		v.setAvsResultDescription( avsDescription.toString() ) ;
-		v.setResultCode( Integer.toString(resultCode.getInt(), 10 ) ) ;
+		v.setResultCode( Integer.toString(resultCode.getInteger(), 10 ) ) ;
 		v.setResultDescription( resultDescription.toString() ) ;
 		v.setInquiryId( inquiryId.toString() ) ;
 

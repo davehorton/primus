@@ -1,6 +1,6 @@
 <?xml version="1.0"?>
 <xtml version="1.0" xmlns="urn:www.pactolus.com:xtml" >
-  <version sce-version="1" prev-sce-version="1" last-mod-time="Wednesday, August 01, 2012 14:41:40"/>
+  <version sce-version="1" prev-sce-version="1" last-mod-time="Wednesday, August 01, 2012 23:39:17"/>
   <global-handlers >
     <handler event="Pactolus.EveSessionTerminate.1" function="OnSipDialogTerminated" public="0" always-on="0"/>
     <handler event="Standard.OnServiceLoad.1" function="OnServiceLoad" public="0" always-on="0"/>
@@ -200,6 +200,7 @@ Server.logInfo("units card?: " + Session.g_bPlayAsUnits ) ;
 Server.logInfo("max recharge: " + Session.g_fMaxRechargeAmount ) ;
 Server.logInfo("min recharge: " + Session.g_fMinRechargeAmount ) ;
 Server.logInfo("business unit: " + Session.g_strBusinessUnit ) ;
+Server.logInfo("service provider name: " + Session.g_strServiceProviderName ) ;
 
 ]]></script>
           </scripts>
@@ -371,7 +372,7 @@ Server.logInfo("business unit: " + Session.g_strBusinessUnit ) ;
           </results>
           <scripts >
             <script language="javascript" timing="last" ><![CDATA[Server.logInfo("Client Id for web service will be: " + Session.s_strWSClientId ) ;
-Server.logInfo("User Id for web service will be: " + Session.s_strWSUserID ) ;
+Server.logInfo("User Id for web service will be: " + Session.s_strWSUserId ) ;
 ]]></script>
           </scripts>
         </action>
@@ -712,9 +713,10 @@ Session.nReturnCode = Session.DB_ERROR ;]]></script>
             <parameter type="inout" var-type="float" >g_fMaxRechargeAmount</parameter>
             <parameter type="inout" var-type="float" >g_fMinRechargeAmount</parameter>
             <parameter type="inout" var-type="string" >g_strBusinessUnit</parameter>
+            <parameter type="inout" var-type="string" >g_strServiceProviderName</parameter>
           </java>
           <results >
-            <result name="Default" link="19" stubbed="0"/>
+            <result name="Default" link="23" stubbed="0"/>
             <result name="Success"/>
             <result name="Error"/>
             <result name="Timeout"/>
@@ -783,14 +785,14 @@ Server.logInfo("business unit: " + Session.g_strBusinessUnit ) ;
 ]]></script>
           </scripts>
         </action>
-        <action id="18" plug-in="Standard.FunctionReturn.1" ><?xtml-editor x=942 y=844 ?>
+        <action id="18" plug-in="Standard.FunctionReturn.1" ><?xtml-editor x=1034 y=939 ?>
           <!--toplevel IVR-->
           <return xmlns="www.pactolus.com:xtml:application" value="ACTION_TOPLEVEL_IVR"/>
         </action>
-        <action id="19" plug-in="Standard.FunctionCall.1" ><?xtml-editor x=649 y=728 ?>
-          <!--transfer was successful..-->
+        <action id="19" plug-in="Standard.FunctionCall.1" ><?xtml-editor x=760 y=728 ?>
+          <!--Goodbye-->
           <function xmlns="www.pactolus.com:xtml:application" name="&quot;PlayErrorMsg&quot;" return="" external-function="0" library="" >
-            <parameter >IDX_VOUCHER_SUCCESS</parameter>
+            <parameter >0</parameter>
             <parameter >true</parameter>
             <parameter >true</parameter>
           </function>
@@ -824,7 +826,7 @@ Server.logInfo("business unit: " + Session.g_strBusinessUnit ) ;
             <result name="First Digit Timeout" ><?xtml-editor visible=no?></result>
           </results>
         </action>
-        <action id="22" plug-in="Pactolus.Play.2" ><?xtml-editor x=657 y=829 ?>
+        <action id="22" plug-in="Pactolus.Play.2" ><?xtml-editor x=637 y=925 ?>
           <!--new balance is..-->
           <collect-play xmlns="www.pactolus.com:xtml:media" play-on-endpoint="1" media-endpoint="g_ep" conference="" timeout="" played-length="" digits="strVoucherValue" terminating-char="" rc="" returns="" start-play="1" return-immediate="0" play-offset="" language="g_strLanguage" retry-count="1" time-to-play="" interrupt="0" repeat="0" clear-digits="0" digit-map="" fdt="" idt="" ict="" terminating-digit="" >
             <audio type="index" >IDX_VOUCHER_SUCCESS</audio>
@@ -833,6 +835,20 @@ Server.logInfo("business unit: " + Session.g_strBusinessUnit ) ;
           </collect-play>
           <results >
             <result name="Default" link="18" stubbed="0"/>
+            <result name="Success" ><?xtml-editor visible=no?></result>
+            <result name="Error" ><?xtml-editor visible=no?></result>
+            <result name="Timeout" ><?xtml-editor visible=no?></result>
+            <result name="No/Impossible Match" ><?xtml-editor visible=no?></result>
+            <result name="First Digit Timeout" ><?xtml-editor visible=no?></result>
+          </results>
+        </action>
+        <action id="23" plug-in="Pactolus.Play.2" ><?xtml-editor x=581 y=807 ?>
+          <!--transfer was successful..-->
+          <collect-play xmlns="www.pactolus.com:xtml:media" play-on-endpoint="1" media-endpoint="g_ep" conference="" timeout="" played-length="" digits="" terminating-char="" rc="" returns="" start-play="1" return-immediate="0" play-offset="" language="g_strLanguage" retry-count="1" time-to-play="" interrupt="0" repeat="0" clear-digits="0" digit-map="" fdt="" idt="" ict="" terminating-digit="" >
+            <audio type="index" >IDX_VOUCHER_SUCCESS</audio>
+          </collect-play>
+          <results >
+            <result name="Default" link="19" stubbed="0"/>
             <result name="Success" ><?xtml-editor visible=no?></result>
             <result name="Error" ><?xtml-editor visible=no?></result>
             <result name="Timeout" ><?xtml-editor visible=no?></result>

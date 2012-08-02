@@ -1,5 +1,6 @@
 package com.beachdog.primusCallflow;
 
+import java.util.Iterator;
 import java.util.List;
 import java.util.Properties;
 
@@ -12,8 +13,6 @@ import org.hibernate.criterion.Restrictions;
 
 import com.pactolus.java.*;
 
-import org.sipdev.commons.mutables.MutableFloat;
-import org.sipdev.commons.mutables.MutableInt;
 import org.sipdev.framework.Framework;
 import org.sipdev.framework.Log;
 
@@ -137,20 +136,39 @@ public class XtmlApi {
 			logger.info("subscriber phone number: " + strSubscriberPhone) ;
 			
 			/* look up subscriber by phone number */
-			Criteria c = session.createCriteria(Subscriber.class) ;
-			Criteria subAuthAnisCriteria = c.createCriteria("subAuthAnis") ;
-			subAuthAnisCriteria.add(Restrictions.eq("phoneNumber", strSubscriberPhone)) ;
-			List<Subscriber> listSubs = c.list() ;
-			if( null == listSubs || listSubs.isEmpty() ) {
-				logger.warn("Subscriber phone number not found: " + strSubscriberPhone) ;
-				return rc = UNKNOWN_SUB ;
+			Iterator<Subscriber> itSub = session.createCriteria(Subscriber.class) 
+					.add( Restrictions.ne("disabledFlag", 'T'))
+			        .createCriteria("subAuthAnis") 
+			        	.add(Restrictions.eq("phoneNumber", strSubscriberPhone)) 
+			        	.add(Restrictions.eq("status", "0")) 
+			        .list()
+			        .iterator() ;
+			
+			
+			while( itSub.hasNext() ) {
+				Subscriber s = itSub.next() ;
+				ServiceProvider sp = (ServiceProvider) session.load(ServiceProvider.class, s.getServiceProviderId() ) ;
+				logger.info("Evaluating sub with service provider id " + sp.getServiceProviderId()) ;
+				if( 'T' == sp.getDisabledFlag() || 'T' == sp.getDeletedFlag() ) {
+					logger.info("Discarding sub because service provider is either disabled or deleted") ;
+					continue ;
+				}
+				
+				if( null == sub ) {
+					logger.info("Found active sub with that phone number") ;
+					sub = s ;
+				}
+				else {
+					logger.error("Subscriber phone number " + strSubscriberPhone + " is associated to multiple subscribers") ;
+					return rc = AMBIGIOUS_SUB ;					
+				}
 			}
-			else if( listSubs.size() > 1 ) {
-				logger.error("Subscriber phone number " + strSubscriberPhone + " is associated to " + listSubs.size() + " subscribers") ;
-				return rc = AMBIGIOUS_SUB ;
+			if( null == sub ) {
+				logger.warn("Subscriber phone number not found: " + strSubscriberPhone) ;
+				return rc = UNKNOWN_SUB ;				
 			}
 			
-			sub = listSubs.get(0)  ;
+			
 			ProductOffering po = (ProductOffering) session.get(ProductOffering.class, sub.getPrimaryOfferingId() ) ;
 			ServiceProvider sp = (ServiceProvider) session.get( ServiceProvider.class, sub.getServiceProviderId() ) ;
 			logger.debug("Service provider: " + sp.getName() ) ;
@@ -296,7 +314,7 @@ public class XtmlApi {
 			StringBuffer strTransactionCode,
 			StringBuffer strTransactionDesc,
 			MutableFloat fSettlementAmount,
-			MutableInt errorCode,
+			MutableInteger errorCode,
 			StringBuffer strErrorDesc,
 			StringBuffer strUkashTransactionId)   {
 		
@@ -369,7 +387,7 @@ public class XtmlApi {
 			String strReason,
 			String strTransactionId,
 			StringBuffer strAuthorizationCode,
-			MutableInt resultCode,
+			MutableInteger resultCode,
 			StringBuffer strResultDescription,
 			StringBuffer strAvsCode,
 			StringBuffer strAvsDescription,
@@ -420,7 +438,7 @@ public class XtmlApi {
 			logger.info("code: " + rc ) ;
 			logger.info("msg: " + msg.toString() ) ;
 			logger.info("authorizationCode: " + strAuthorizationCode.toString() ) ;
-			logger.info("resultCode: " + resultCode.getInt() ) ;
+			logger.info("resultCode: " + resultCode.getInteger() ) ;
 			logger.info("resultDescription: " + strResultDescription.toString() ) ;
 			logger.info("inquiryId: " + strInquiryId.toString() ) ;
 			logger.info("avsResultCode: " + strAvsCode.toString() ) ;

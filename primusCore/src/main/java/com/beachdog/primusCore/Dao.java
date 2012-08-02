@@ -25,8 +25,9 @@ import org.hibernate.Session;
 import org.hibernate.SessionFactory;
 import org.hibernate.Transaction;
 import org.hibernate.criterion.Restrictions;
-import org.sipdev.commons.mutables.*;
 import org.sipdev.framework.Framework;
+
+import com.pactolus.java.*;
 
 import uri.ecare.PrepaidPaymentechPaymentDlResponse.ECarePrepaidPaymentechResponse;
 import uri.ecare.PrepaidUkashPaymentDlResponse.ECarePrepaidUkashResponse;
@@ -434,7 +435,7 @@ public class Dao {
 		String postalCode,
 		String transactionId,
 		StringBuffer authorizationCode,
-		MutableInt resultCode,
+		MutableInteger resultCode,
 		StringBuffer resultDescription,
 		StringBuffer avsCode,
 		StringBuffer avsDescription,
@@ -444,7 +445,7 @@ public class Dao {
 		int rc = DB_ERROR ;
 		int ccType ;
 		
-		resultCode.setInt(0) ;
+		resultCode.setInteger(0) ;
 		resultDescription.setLength(0) ;
 		avsCode.setLength(0) ;
 		avsDescription.setLength(0) ;
@@ -613,14 +614,14 @@ public class Dao {
 			StringBuffer transactionCode,
 			StringBuffer transactionDesc,
 			MutableFloat settlementAmount,
-			MutableInt errorCode,
+			MutableInteger errorCode,
 			StringBuffer errorDescription,
 			StringBuffer ukashTransactionId, 
 			StringBuffer msg)  {
 
 			int rc = DB_ERROR ;
 			
-			errorCode.setInt(0) ;
+			errorCode.setInteger(0) ;
 			errorDescription.setLength(0) ;
 			transactionCode.setLength(0) ;
 			transactionDesc.setLength(0) ;
@@ -640,7 +641,7 @@ public class Dao {
 				/* make sure the subscriber and service provider exists, and is not disabled */
 				ServiceProvider sp = (ServiceProvider) session.createCriteria(ServiceProvider.class)
 						.add(Restrictions.eq("name", spName))
-						.add(Restrictions.eq("deletedFlag", 'F'))
+						.add(Restrictions.ne("deletedFlag", 'T'))
 						.uniqueResult() ;
 				
 				if( null == sp ) {

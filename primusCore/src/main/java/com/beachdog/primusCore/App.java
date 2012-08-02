@@ -6,6 +6,7 @@ import java.math.BigDecimal;
 import java.text.DecimalFormat;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
+import java.util.Iterator;
 import java.util.List;
 
 import javax.xml.ws.soap.SOAPFaultException;
@@ -14,9 +15,9 @@ import org.hibernate.Session;
 import org.hibernate.SessionFactory;
 import org.hibernate.Transaction;
 import org.hibernate.criterion.Restrictions;
-import org.sipdev.commons.mutables.MutableFloat;
-import org.sipdev.commons.mutables.MutableInt;
 import org.sipdev.framework.Framework;
+
+import com.pactolus.java.*;
 
 import com.beachdog.primusCore.model.AccountActivity;
 import com.beachdog.primusCore.model.Rate;
@@ -49,20 +50,37 @@ public class App {
 			System.out.print("Enter the subscriber phone number: ") ;
 		    String phone = bufferRead.readLine();
 
-			List<Subscriber> list = session.createCriteria(Subscriber.class)
-					.createCriteria("subAuthAnis")
-						.add(Restrictions.eq("phoneNumber", phone))
-						.add(Restrictions.eq("status", "0") )
-					.list() ;
-			if( list.isEmpty() ) {
-				System.out.println("No subscriber with that phone number was found in the database") ;
-				return  ;
+			/* look up subscriber by phone number */
+		    Subscriber sub = null ;
+			Iterator<Subscriber> itSub = session.createCriteria(Subscriber.class) 
+					.add( Restrictions.ne("disabledFlag", 'T'))
+			        .createCriteria("subAuthAnis") 
+			        	.add(Restrictions.eq("phoneNumber", phone)) 
+			        	.add(Restrictions.eq("status", "0")) 
+			        .list()
+			        .iterator() ;
+			
+			
+			while( itSub.hasNext() ) {
+				Subscriber s = itSub.next() ;
+				ServiceProvider sp = (ServiceProvider) session.load(ServiceProvider.class, s.getServiceProviderId() ) ;
+				if( 'T' == sp.getDisabledFlag() || 'T' == sp.getDeletedFlag() ) {
+					continue ;
+				}
+				
+				if( null == sub ) {
+					sub = s ;
+				}
+				else {
+					System.out.println("Subscriber phone number " + phone + " is associated to multiple subscribers") ;
+					return  ;					
+				}
 			}
-			else if( list.size() > 1 ) {
-				System.out.println("There is more than one subscriber with that phone number in the database") ;
-				return ;
+			if( null == sub ) {
+				System.out.println("Subscriber phone number not found: " + phone) ;
+				return ;				
 			}
-			Subscriber sub = list.get(0) ;
+
 			ServiceProvider sp = (ServiceProvider) session.load(ServiceProvider.class, sub.getServiceProviderId() ) ;
 			
 			/* check whether the subscriber needs to be unsuspended on the M6 */
@@ -97,7 +115,7 @@ public class App {
 				StringBuffer transactionCode = new StringBuffer() ;
 				StringBuffer transactionDesc = new StringBuffer() ;
 				MutableFloat settlementAmount = new MutableFloat(0f) ;
-				MutableInt errorCode = new MutableInt(0) ;
+				MutableInteger errorCode = new MutableInteger(0) ;
 				StringBuffer errorDescription  = new StringBuffer() ;
 				StringBuffer ukashTransactionId = new StringBuffer() ; 
 				StringBuffer msg = new StringBuffer() ;
@@ -138,7 +156,7 @@ public class App {
 			    System.out.println("transaction code: " + transactionCode.toString()) ;
 			    System.out.println("transaction description: " + transactionDesc.toString()) ;
 			    System.out.println("settlement amount: " + settlementAmount.floatValue()) ;
-			    System.out.println("error code: " + errorCode.getInt()) ;
+			    System.out.println("error code: " + errorCode.getInteger()) ;
 			    System.out.println("errorDescription: " + errorDescription.toString()) ;
 			    System.out.println("ukash transaction id: " + ukashTransactionId.toString() ) ;
 				    				    
@@ -181,7 +199,7 @@ public class App {
 				StringBuffer inquiryId = new StringBuffer() ;
 				StringBuffer authorizationCode = new StringBuffer() ;
 				StringBuffer transactionDesc = new StringBuffer() ;
-				MutableInt resultCode = new MutableInt(0) ;
+				MutableInteger resultCode = new MutableInteger(0) ;
 				StringBuffer resultDescription  = new StringBuffer() ;
 				StringBuffer ukashTransactionId = new StringBuffer() ; 
 				StringBuffer msg = new StringBuffer() ;
@@ -211,7 +229,7 @@ public class App {
 			    System.out.println("Transaction completed, results as follows:") ;
 			    System.out.println("authorization code: " + authorizationCode.toString()) ;
 			    System.out.println("inquiry id: " + inquiryId.toString()) ;
-			    System.out.println("result code: " + resultCode.getInt()) ;
+			    System.out.println("result code: " + resultCode.getInteger()) ;
 			    System.out.println("result description: " + resultDescription.toString()) ;
 			    System.out.println("avs code: " + avsCode.toString()) ;
 			    System.out.println("avs description: " + avsDescription.toString()) ;
@@ -239,13 +257,6 @@ public class App {
 		    		System.out.println("Subscriber is still suspended on the M6") ;				    		
 		    	}		    	
 		    }
-
-			Subscriber subNow = (Subscriber) session.createCriteria(Subscriber.class)
-					.createCriteria("subAuthAnis")
-						.add(Restrictions.eq("phoneNumber", phone))
-						.add(Restrictions.eq("status", "0") )
-					.uniqueResult() ;
-			System.out.println("Subscriber's prepaid balance is now: $" + fmt.format(subNow.getCurrPrepaidBalance().doubleValue() ) ) ;
 
 		    
 		} catch (SOAPFaultException e1) {
