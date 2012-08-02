@@ -7,6 +7,7 @@
 		<property name="webServiceEndoint"><value>http://saturn.ca.primus:80/ECare</value></property>
 		<property name="wsdlLocation"><value>file:///Users/dhorton/beachdog-enterprises/beachdog-networks/git/primus/primusCore/src/main/resources/PrimusWS.wsdl</value></property>
 		<property name="m6Address"><value>10.201.176.6</value></property>
+		<property name="m6Password"><value>e89552d0</value></property>		
 		<property name="m6User"><value>ppl_api_user</value></property>
 		<property name="emailRecipients"><value>CTimbang@primustel.ca,SHumbert@primustel.ca,dave@dchorton.com</value></property>		
 		<property name="emailServer"><value>Mail.vipsvc.primus.ca</value></property>		
