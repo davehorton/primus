@@ -145,6 +145,7 @@ public class Dao {
 		epos.setCurrencyRef(cr) ;
 		epos.setSubscriberId(sub.getSubscriberId()) ;
 		epos.setUserName(userName) ;
+		epos.setProductOffering(  (ProductOffering) session.load(ProductOffering.class, sub.getPrimaryOfferingId()) ) ;
 		epos.setInterfaceCode("IVR") ;
 
 		return epos ;
@@ -858,9 +859,16 @@ public class Dao {
 			then.setTime( st.getSuspendedOn() ) ;
 			Long daysInArrears = (now.getTimeInMillis() - then.getTimeInMillis())/(1000*60*60*24);
 			logger.info("Subscriber was suspended on: " + sdf.format( st.getSuspendedOn() ) + " which was " + daysInArrears + " days ago." ) ;
-			AccountActivity aa = (AccountActivity) session.load(AccountActivity.class, st.getAaActivityId() ); 
-			if( null != aa ) {
-				Rate rate = (Rate) session.load(Rate.class, aa.getRateId1() ) ;
+			
+			/* get the maintenance fee rate for this subscriber */
+			Rate rate = Dao.getSubscriberMaintenanceFeeRate(session, sub.getPrimaryOfferingId()) ;
+			if( null != rate && ( null == rate.getMaintFeeFrequency() || 0 == rate.getMaintFeeFrequency().longValue())) {
+				logger.error("Subscriber has a maintenance fee rate, but frequency has not been set so payment in arrears will not be taken; rate id is: " + rate.getRateId().longValue()) ;
+			}
+
+  			if( null != rate && null != rate.getMaintFeeFrequency() && 0 != rate.getMaintFeeFrequency().longValue() ) {
+  				logger.info("Maintenance fee for this subscriber has rate_id: " + rate.getRateId() + " amount " + fmt.format(rate.getDefaultAmount().doubleValue()) + 
+  						" frequency: " + rate.getMaintFeeFrequency() ) ;
 				if( daysInArrears > 0 ) {
 					owedMaintFees = rate.getDefaultAmount().multiply( BigDecimal.valueOf(daysInArrears) ).divide( rate.getMaintFeeFrequency() ) ;
 					logger.info("Charging $" + fmt.format( owedMaintFees.doubleValue() ) + " for " + daysInArrears + " days of missed maintenance fees") ;
@@ -868,7 +876,9 @@ public class Dao {
 							" days and a fee of $" + fmt.format(rate.getDefaultAmount() ) ) ;
 				}
 				if( daysInArrears >= 0 ) {
-					BigDecimal partialMissedFee = rate.getDefaultAmount().add( aa.getTotalAmount() ) ;
+					AccountActivity aa = null ;
+					if( null != st.getAaActivityId() ) aa = (AccountActivity) session.load(AccountActivity.class, st.getAaActivityId() ) ;
+					BigDecimal partialMissedFee = rate.getDefaultAmount().add( null == aa ? BigDecimal.ZERO : aa.getTotalAmount() ) ;
 					logger.info("Charging $" + fmt.format( partialMissedFee.doubleValue() )  + " for the partial maintenance fee collected that resulted in suspension") ;
 					owedMaintFees = owedMaintFees.add( partialMissedFee ) ;
 				}
@@ -914,9 +924,23 @@ public class Dao {
 			session.update( sub ) ;
 
 			/* write an account activity record for the payment in arrears */
-			AccountActivity aa2 = Dao.createAccountActivity(session, sub, -owedMaintFees.floatValue(), PactolusConstants.MAINT_FEE_EVENT) ;
+			AccountActivity aa2 = Dao.createAccountActivity(session, sub, -(owedMaintFees.floatValue()), PactolusConstants.MAINT_FEE_EVENT) ;
 			session.save( aa2 ) ;
 		}
+	}
+	
+	public static Rate getSubscriberMaintenanceFeeRate( Session session, BigDecimal offeringId ) {
+			
+		Timestamp dtNow = new java.sql.Timestamp((new java.util.Date()).getTime());
+		Rate rate = (Rate) session.createCriteria(Rate.class)
+			.add( Restrictions.eq("eventTypeId", BigDecimal.valueOf( (long) PactolusConstants.MAINT_FEE_EVENT) ) )
+			.add(Restrictions.le("effectiveDate", dtNow))
+			.add(Restrictions.ge("endDate", dtNow))
+			.createAlias("ratedEvents", "re")
+				.add(Restrictions.eq("re.productOfferingId", offeringId) ) 
+			.uniqueResult() ;
+
+		return rate ;
 	}
 
 }

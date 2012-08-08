@@ -8,6 +8,7 @@ import java.math.BigDecimal;
 import java.net.InetAddress;
 import java.net.UnknownHostException;
 import java.sql.Date;
+import java.sql.Timestamp;
 import java.text.DecimalFormat;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
@@ -32,6 +33,8 @@ import org.sipdev.framework.Framework;
 import org.sipdev.framework.Log;
 
 import com.beachdog.primusCore.Config;
+import com.beachdog.primusCore.Dao;
+import com.beachdog.primusCore.PactolusConstants;
 import com.beachdog.primusCore.model.AccountActivity;
 import com.beachdog.primusCore.model.Rate;
 import com.beachdog.primusCore.model.ServiceProvider;
@@ -43,15 +46,16 @@ import com.vocaldata.AdminSOAP.*;
 
 public class App {
 
-	final protected static BigDecimal MAINT_FEE_EVENT = BigDecimal.valueOf(10) ;
-	final protected static BigDecimal MAINT_FEE2_EVENT = BigDecimal.valueOf(30) ;
-	final protected static BigDecimal MAINT_FEE3_EVENT = BigDecimal.valueOf(31) ;
+	//final protected static BigDecimal MAINT_FEE_EVENT = BigDecimal.valueOf(10) ;
+	//final protected static BigDecimal MAINT_FEE2_EVENT = BigDecimal.valueOf(30) ;
+	//final protected static BigDecimal MAINT_FEE3_EVENT = BigDecimal.valueOf(31) ;
 
 	protected String hostName = "localhost" ;
 	protected String m6User ;
 	protected String m6Password ;
 	protected String m6Address ;
 	protected Integer purgeDays ;
+	protected Integer sleep ;
 	
 	protected File outFile = null ;
 	protected BufferedWriter writer = null ;
@@ -84,6 +88,10 @@ public class App {
 				return ;
 			}
 
+			if( null != sleep ) {
+				Thread.currentThread();
+				Thread.sleep( sleep * 1000 ) ;
+			}
 			getHostAndIP() ;
 			
 			sessionFactory = (SessionFactory)framework.getResource("sessionFactory");    	
@@ -95,6 +103,8 @@ public class App {
     		m6Password = cfg.getM6Password() ;
     		
 			Calendar now = Calendar.getInstance();
+			Timestamp dtNow = new java.sql.Timestamp((new java.util.Date()).getTime());
+
  		
     		if( null != purgeDays ) {
     			
@@ -156,6 +166,8 @@ public class App {
         		while( itSubscriber.hasNext() ) {
         			Subscriber sub = itSubscriber.next() ;
         			
+        			java.util.Date dtLastUnsuspend = null ;
+        			
         			/* make sure they are not already suspended */
         			SuspendTracking exst = (SuspendTracking) session.createCriteria(SuspendTracking.class)
         					.add(Restrictions.eq("subscriberId", sub.getSubscriberId() ) )
@@ -167,6 +179,7 @@ public class App {
         					logger.info("Ignoring subscriber with id " + sub.getSubscriberId() + " because they are already suspended") ;
         					continue ;
         				}
+        				dtLastUnsuspend = exst.getUnsuspendedOn() ;
         				
         				/* they are in suspend tracking, but were unsuspended at some point in the past, and now we are re-suspending them (possibly).
         				 * clear the old record
@@ -216,40 +229,41 @@ public class App {
         			 * 		(2) the last time that maintenance fee ran it must have taken less than the configured amount
         			 */
         			
-        			Criterion cr1 = Restrictions.eq("eventTypeId", MAINT_FEE_EVENT) ;
-        			Criterion cr2 = Restrictions.or( Restrictions.eq("eventTypeId", MAINT_FEE2_EVENT), Restrictions.eq("eventTypeId", MAINT_FEE3_EVENT) ) ;
-        			
-        			List<Rate> maintenanceFeeRates = session.createCriteria(Rate.class)
-        					.add(Restrictions.isNotNull("maintFeeFrequency"))
-        					.createAlias("ratedEvents", "re")
-        					.add(Restrictions.or( cr1, cr2 ) )
-        					.add(Restrictions.eq("re.productOfferingId", sub.getPrimaryOfferingId()))
-        					.list() ;
-        			if( null == maintenanceFeeRates || maintenanceFeeRates.isEmpty() ) {
-            			logger.info("   Not suspending -- product offering has no maintenance fees; subscriber id: " + sub.getSubscriberId().longValue() ) ;
+        			Rate maintFeeRate = Dao.getSubscriberMaintenanceFeeRate(session, sub.getPrimaryOfferingId()) ;
+
+        		
+        			if( null == maintFeeRate  ) {
+            			logger.info("   Not suspending -- product offering has no maintenance fee rate; subscriber id: " + sub.getSubscriberId().longValue() ) ;
         				continue ;
         			}
+        			else if( null == maintFeeRate.getMaintFeeFrequency() || 0 == maintFeeRate.getMaintFeeFrequency().longValue() ){
+            			logger.error("   Not suspending -- product offering has a maintenance fee rate but no frequency has been set; subscriber id: " + sub.getSubscriberId().longValue() ) ;
+        				continue ;        				
+        			}
         							
-        			/* find the most recent account activity record for one of the product offering's maintenance fees */		      			
-        			boolean bFoundAA = false ;
+        			/* find the most recent account activity record for this maintenance fees */		      			
         			Iterator<AccountActivity> itAA = sub.getAccountActivities().iterator() ;
         			AccountActivity aa = null ;
-        			Rate rateApplied = null ;
-        			while( itAA.hasNext() && !bFoundAA ) {
-        				aa = itAA.next() ;
-        				if( null == aa.getRateId1() )
-        					continue ;
-        				
-        				for( Rate rate : maintenanceFeeRates ) {
-        					if( null != rate.getRateId() && rate.getRateId().compareTo( aa.getRateId1() ) == 0 ) {
-        						bFoundAA = true ;
-        						rateApplied = rate ;
-        					}
-            				if( bFoundAA ) break ;
+        			//Rate rateApplied = null ;
+        			while( itAA.hasNext()  ) {
+        				AccountActivity aaTemp = itAA.next() ;
+        				if( null != dtLastUnsuspend && aaTemp.getTimeDateStamp().before( dtLastUnsuspend ) ) {
+             				logger.info("     account activity with activity_id " + aaTemp.getActivityId() + " is old -- before their last unsuspension, so ignore it") ;
+        					break ;
         				}
-        			}
+        				if( null != aaTemp.getEventTypeId() && 
+        						aaTemp.getEventTypeId().longValue() == (long) PactolusConstants.MAINT_FEE_EVENT && 
+        						null != aaTemp.getRateId1() && 
+        						0 == maintFeeRate.getRateId().compareTo( aaTemp.getRateId1() ) ) {
+        					
+        					aa = aaTemp ; 
+             				logger.info("     account activity with activity_id " + aaTemp.getActivityId() + " is the most recent maintenance fee") ;
+           					break ;
+        				}
+        				logger.info("     account activity with activity_id " + aaTemp.getActivityId() + " is not a maintenance fee") ;
+         			}
         			
-        			if( !bFoundAA ) {
+        			if( null == aa ) {
         				
         				/* if there are no Account Activity records, then this subscriber should be suspended.
         				 * 
@@ -265,7 +279,7 @@ public class App {
         				 * if there was a maintenance fee run in the meantime, that means we did not write an AA record because the balance
         				 * was zero, and in that case we DO want to suspend them.
         				 */
-        				if( aa.getTotalAmount().abs().compareTo( rateApplied.getDefaultAmount()) < 0 ) {
+        				if( aa.getTotalAmount().abs().compareTo( maintFeeRate.getDefaultAmount()) < 0 ) {
             				logger.info("  Suspending this subscriber because the last maintenance fee was only able to take a partial amount; activity id was " + aa.getActivityId() +
             						" and amount taken was $" + fmt.format(aa.getTotalAmount().abs().doubleValue())) ;        					
         				}
@@ -274,14 +288,14 @@ public class App {
         					/* ok, we have a situation where the last AA record got the full amount.
         					 * However, it may be that there was a more recent attempt that got nothing...
         					 */
-	        				Long nDays = rateApplied.getMaintFeeFrequency().longValue() ;
+	        				Long nDays = maintFeeRate.getMaintFeeFrequency().longValue() ;
 	         				Calendar then = Calendar.getInstance() ;
 	        				then.setTime( aa.getTimeDateStamp() ) ;
 	        				Long daysInArrears = (now.getTimeInMillis() - then.getTimeInMillis())/(1000*60*60*24);
 	
 		        			logger.info("   Last maintenance fee was collected " + daysInArrears + " days ago and was for an amount of $" + fmt.format( aa.getTotalAmount().abs().doubleValue() ) + ", the activity id was " + aa.getActivityId() ) ;
-		        		    logger.info("   The maintenance fee rate is: $" + fmt.format( rateApplied.getDefaultAmount().abs().doubleValue() ) + 
-		        		    		", the rate id is " + rateApplied.getRateId().longValue() + " and the fee is collected every " + nDays + " days" ) ;
+		        		    logger.info("   The maintenance fee rate is: $" + fmt.format( maintFeeRate.getDefaultAmount().abs().doubleValue() ) + 
+		        		    		", the rate id is " + maintFeeRate.getRateId().longValue() + " and the fee is collected every " + nDays + " days" ) ;
 	
 	        				if( daysInArrears >= nDays ) {
 	        					logger.info("   Suspending the account because the most recent maintenance fee failed to collect anything from this account") ;
@@ -321,7 +335,7 @@ public class App {
 			        	        st.setSubscriberId(sub.getSubscriberId()) ;
 			        	        st.setPhoneNumber(cli) ;
 			        	        st.setSuspendedOn( new Date( System.currentTimeMillis() ) ) ;
-			        	        st.setAaActivityId( aa.getActivityId() ) ;
+			        	        if( null != aa ) st.setAaActivityId( aa.getActivityId() ) ;
 			        	        
 			        	        session.save(st) ;
 			        	        transaction.commit() ;
@@ -366,6 +380,7 @@ public class App {
 	protected boolean parseCommandLine( String[] args ) {
 		boolean processingServiceProviderList = false ;
 		boolean processingPurge = false ;
+		boolean processingSleep = false ;
 		
 		
        	for( String s : args ) {
@@ -381,12 +396,20 @@ public class App {
 			}
 			else if( processingPurge ) {
 				this.purgeDays = Integer.valueOf(s) ;
+				processingPurge = false ;
+			}
+			else if( processingSleep ) {
+				this.sleep = Integer.valueOf(s) ;
+				processingSleep = false; 
 			}
 			else if( s.equalsIgnoreCase("-serviceProviders") ) {
 				processingServiceProviderList = true ;
 			}
 			else if( s.equalsIgnoreCase("-purge")) {
 				processingPurge = true ;
+			}
+			else if( s.equalsIgnoreCase("-sleep")) {
+				processingSleep = true ;
 			}
 		}
        	
