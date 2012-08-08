@@ -26,22 +26,51 @@ import com.beachdog.primusCore.model.Subscriber;
 import com.beachdog.primusCore.model.SuspendTracking;
 
 public class App {
+	
+	static protected Integer sleep = null ;
+	static protected String emailAddress = null ;
 
 	/**
 	 * @param args
+	 * @throws InterruptedException 
 	 */
-	public static void main(String[] args) {
+	public static void main(String[] args)  {
 
 		Framework framework = null ;
 		Session session = null ;
 
+		if( !parseCommandLine( args ) ) {
+			return ;
+		}
+		if( null != sleep ) {
+			Thread.currentThread();
+			try {
+				Thread.sleep( sleep * 1000 ) ;
+			} catch (InterruptedException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+		}
+
 		try {
+			framework = Framework.getInstance("beans.xml") ;
+			Config cfg = (Config) framework.getResource("wsConfig") ;
+
+			if( null != emailAddress ) {
+				System.out.println("Sending test email to: " + emailAddress ) ;
+				boolean bOK = Utilities.sendMail(emailAddress, cfg.getEmailServer(), "test", "test", null) ;
+				if( bOK ) {
+					System.out.println("Success") ;
+				}
+				else {
+					System.out.println("Success") ;					
+				}
+				return ;
+			}
 			Boolean bSuspended = false ;
 			DecimalFormat fmt = new DecimalFormat("#####.00") ;
 			SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd") ;
 
-			framework = Framework.getInstance("beans.xml") ;
-			Config cfg = (Config) framework.getResource("wsConfig") ;
 			SessionFactory sf = (SessionFactory)framework.getResource("sessionFactory");    	
 			session = sf.openSession() ;
 			
@@ -264,6 +293,30 @@ public class App {
 		} catch (Exception e1) {
 			e1.printStackTrace();
 		}		
+	}
+	static protected boolean parseCommandLine( String[] args ) {
+		boolean processingSleep = false ;
+		boolean processingMailTest = false ;
+		
+		
+       	for( String s : args ) {
+       		s = s.trim() ;
+       		if( processingSleep ) {
+				sleep = Integer.valueOf(s) ;
+				processingSleep = false; 
+			}
+       		else if( processingMailTest ) {
+       			emailAddress = s ;
+       			processingMailTest = false ;
+       		}
+			else if( s.equalsIgnoreCase("-sleep")) {
+				processingSleep = true ;
+			}
+			else if( s.equalsIgnoreCase("-emailTest") ) {
+				processingMailTest = true ;
+			}
+		}
+		return true ;
 	}
 
 }

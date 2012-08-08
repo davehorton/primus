@@ -71,6 +71,10 @@ public class Utilities {
 	public static boolean sendMail(String emailRecipients, String emailServerAddress, String subject, String body, File attachment)  {
 		Properties props = new Properties();
 		
+		props.setProperty("mail.transport.protocol", "smtp"); 
+		props.setProperty("mail.smtp.host", emailServerAddress); 
+		props.setProperty("mail.smtp.auth", "false") ;
+		
 		Session session = Session.getDefaultInstance(props, null);
 		session.setDebug(true) ;
 		MimeMessage message = new MimeMessage(session);
@@ -78,7 +82,7 @@ public class Utilities {
 		try {
 			message.setSubject(subject);
 			
-			Address from = new InternetAddress("crm-noreply@sugartest.com");
+			Address from = new InternetAddress("crm-noreply@primustel.ca");
 			message.setFrom(from) ;
 			
 			String[] people = emailRecipients.split(",");
@@ -105,7 +109,7 @@ public class Utilities {
 			
 			message.saveChanges(); 
 			Transport transport = session.getTransport("smtp");
-			transport.connect(emailServerAddress, "", "");
+			transport.connect(emailServerAddress, null, null);
 			transport.sendMessage(message, message.getAllRecipients());
 			transport.close();
 			
