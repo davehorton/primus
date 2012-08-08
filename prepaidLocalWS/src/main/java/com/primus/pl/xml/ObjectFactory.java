@@ -68,27 +68,19 @@ public class ObjectFactory {
     }
 
     /**
+     * Create an instance of {@link Subscriber }
+     * 
+     */
+    public Subscriber createSubscriber() {
+        return new Subscriber();
+    }
+
+    /**
      * Create an instance of {@link VoucherPaymentRequest }
      * 
      */
     public VoucherPaymentRequest createVoucherPaymentRequest() {
         return new VoucherPaymentRequest();
-    }
-
-    /**
-     * Create an instance of {@link SubscriberUpdateRequest }
-     * 
-     */
-    public SubscriberUpdateRequest createSubscriberUpdateRequest() {
-        return new SubscriberUpdateRequest();
-    }
-
-    /**
-     * Create an instance of {@link ActivationRequest }
-     * 
-     */
-    public ActivationRequest createActivationRequest() {
-        return new ActivationRequest();
     }
 
     /**
@@ -100,19 +92,19 @@ public class ObjectFactory {
     }
 
     /**
-     * Create an instance of {@link M6ModifyRequest }
-     * 
-     */
-    public M6ModifyRequest createM6ModifyRequest() {
-        return new M6ModifyRequest();
-    }
-
-    /**
      * Create an instance of {@link Voucher }
      * 
      */
     public Voucher createVoucher() {
         return new Voucher();
+    }
+
+    /**
+     * Create an instance of {@link SubscriberUpdateRequest }
+     * 
+     */
+    public SubscriberUpdateRequest createSubscriberUpdateRequest() {
+        return new SubscriberUpdateRequest();
     }
 
     /**
@@ -123,12 +115,13 @@ public class ObjectFactory {
         return new VoucherPaymentResponse();
     }
 
+
     /**
-     * Create an instance of {@link Requestor }
+     * Create an instance of {@link SubscriberQueryRequest }
      * 
      */
-    public Requestor createRequestor() {
-        return new Requestor();
+    public SubscriberQueryRequest createSubscriberQueryRequest() {
+        return new SubscriberQueryRequest();
     }
 
     /**
@@ -148,27 +141,11 @@ public class ObjectFactory {
     }
 
     /**
-     * Create an instance of {@link ActivationResponse }
+     * Create an instance of {@link Requestor }
      * 
      */
-    public ActivationResponse createActivationResponse() {
-        return new ActivationResponse();
-    }
-
-    /**
-     * Create an instance of {@link SubscriberQueryRequest }
-     * 
-     */
-    public SubscriberQueryRequest createSubscriberQueryRequest() {
-        return new SubscriberQueryRequest();
-    }
-
-    /**
-     * Create an instance of {@link Subscriber }
-     * 
-     */
-    public Subscriber createSubscriber() {
-        return new Subscriber();
+    public Requestor createRequestor() {
+        return new Requestor();
     }
 
     /**
