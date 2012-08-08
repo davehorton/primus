@@ -1,6 +1,8 @@
 package com.primus.pl.ws; 
 
 
+import java.math.BigInteger;
+
 import javax.annotation.Resource;
 
 import com.primus.pl.service.ProvisioningService;
@@ -41,7 +43,7 @@ public class CreditCardPaymentRequestEndpoint  {
     		logger.error(e) ;
     		e.printStackTrace() ;
     		CreditCardPaymentResponse resFail = new CreditCardPaymentResponse() ;
-    		resFail.setCode( -99)  ;
+    		resFail.setCode( -99 )  ;
     		resFail.setMessage("credit card payment request failed") ;
     		return resFail ;
     	}

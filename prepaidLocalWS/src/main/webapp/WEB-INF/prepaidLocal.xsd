@@ -7,7 +7,7 @@
 
 	<xs:annotation>
 		<xs:documentation xml:lang="en">
-			Schema for prepaid local web service.
+			Schema for primus prepaid local web service.
 		</xs:documentation>
 	</xs:annotation>
 
@@ -20,6 +20,9 @@
 
 	<xs:element name="creditCardPaymentRequest" type="pl:CreditCardPaymentRequest"/>
 	<xs:element name="creditCardPaymentResponse" type="pl:CreditCardPaymentResponse"/>
+
+	<xs:element name="subscriberQueryRequest" type="pl:SubscriberQueryRequest"/>
+	<xs:element name="subscriberUpdateRequest" type="pl:SubscriberUpdateRequest"/>
 
 	<!--  Data Types  -->
 	<xs:complexType name="ActivationRequest">
@@ -241,6 +244,84 @@
 			<xs:element name="avsResultCode" type="xs:string"/>
 			<xs:element name="avsResultDescription" type="xs:string"/>
 			<xs:element name="inquiryId" type="xs:string"/>
+		</xs:all>
+	</xs:complexType>
+
+	<xs:complexType name="SubscriberQueryRequest">
+		<xs:all>
+			<xs:element name="subscriber" type="pl:Subscriber"/>
+			<xs:element name="attribute" type="xs:string"/>
+		</xs:all>
+	</xs:complexType>
+
+	<xs:complexType name="SubscriberQueryResponse">
+		<xs:all>
+			<xs:element name="code">
+				<xs:simpleType>
+					<xs:restriction base="xs:integer">
+						<xs:annotation>
+							<xs:documentation>
+								0 = Success
+								-3 = Invalid service provider id
+								-4 = Unknown phone number
+								-5 = Subscriber is disabled
+								-6 = Service provider is disabled
+								-7 = Invalid attribute name
+								-98 = An unexpected system error has occurred
+								-99 = A database access error has occurred; possibly the database is down or unreachable
+							</xs:documentation>
+						</xs:annotation>
+						<xs:enumeration value="0"/> 
+						<xs:enumeration value="-1"/>
+						<xs:enumeration value="-2"/>
+						<xs:enumeration value="-3"/>
+						<xs:enumeration value="-4"/>
+						<xs:enumeration value="-5"/>
+						<xs:enumeration value="-98"/> 
+						<xs:enumeration value="-99"/>	
+					</xs:restriction>
+				</xs:simpleType>
+			</xs:element>
+			<xs:element name="value" type="xs:string"/>
+		</xs:all>
+	</xs:complexType>
+
+	<xs:complexType name="SubscriberUpdateRequest">
+		<xs:all>
+			<xs:element name="subscriber" type="pl:Subscriber"/>
+			<xs:element name="attribute" type="xs:string"/>
+			<xs:element name="value" type="xs:string"/>
+		</xs:all>
+	</xs:complexType>
+
+	<xs:complexType name="SubscriberUpdateResponse">
+		<xs:all>
+			<xs:element name="code">
+				<xs:simpleType>
+					<xs:restriction base="xs:integer">
+						<xs:annotation>
+							<xs:documentation>
+								0 = Success
+								-3 = Invalid service provider id
+								-4 = Unknown phone number
+								-5 = Subscriber is disabled
+								-6 = Service provider is disabled
+								-7 = Invalid attribute name
+								-98 = An unexpected system error has occurred
+								-99 = A database access error has occurred; possibly the database is down or unreachable
+							</xs:documentation>
+						</xs:annotation>
+						<xs:enumeration value="0"/> 
+						<xs:enumeration value="-1"/>
+						<xs:enumeration value="-2"/>
+						<xs:enumeration value="-3"/>
+						<xs:enumeration value="-4"/>
+						<xs:enumeration value="-5"/>
+						<xs:enumeration value="-98"/> 
+						<xs:enumeration value="-99"/>	
+					</xs:restriction>
+				</xs:simpleType>
+			</xs:element>
 		</xs:all>
 	</xs:complexType>
 
