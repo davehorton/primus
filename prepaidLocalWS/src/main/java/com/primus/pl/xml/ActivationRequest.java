@@ -26,11 +26,7 @@ import javax.xml.bind.annotation.XmlType;
  *       &lt;all>
  *         &lt;element name="lotId" type="{http://www.w3.org/2001/XMLSchema}long"/>
  *         &lt;element name="subscriberPhone" type="{http://www.w3.org/2001/XMLSchema}string"/>
-<<<<<<< HEAD
- *         &lt;element name="initialBalance" type="{http://www.w3.org/2001/XMLSchema}decimal"/>
-=======
  *         &lt;element name="initialBalance" type="{http://www.w3.org/2001/XMLSchema}double"/>
->>>>>>> final changes that solved saaj problem with vocaldata jar
  *       &lt;/all>
  *     &lt;/restriction>
  *   &lt;/complexContent>
