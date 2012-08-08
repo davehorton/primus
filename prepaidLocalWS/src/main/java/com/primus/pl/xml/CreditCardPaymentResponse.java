@@ -26,7 +26,11 @@ import javax.xml.bind.annotation.XmlType;
  *       &lt;all>
  *         &lt;element name="code">
  *           &lt;simpleType>
+<<<<<<< HEAD
  *             &lt;restriction base="{http://www.w3.org/2001/XMLSchema}int">
+=======
+ *             &lt;restriction base="{http://www.w3.org/2001/XMLSchema}integer">
+>>>>>>> change request to query / set subscriber first use/first call date
  *               &lt;enumeration value="0"/>
  *               &lt;enumeration value="-1"/>
  *               &lt;enumeration value="-2"/>
@@ -69,6 +73,13 @@ public class CreditCardPaymentResponse {
     /**
      * Gets the value of the code property.
      * 
+<<<<<<< HEAD
+=======
+     * @return
+     *     possible object is
+     *     {@link BigInteger }
+     *     
+>>>>>>> change request to query / set subscriber first use/first call date
      */
     public int getCode() {
         return code;
@@ -77,6 +88,13 @@ public class CreditCardPaymentResponse {
     /**
      * Sets the value of the code property.
      * 
+<<<<<<< HEAD
+=======
+     * @param value
+     *     allowed object is
+     *     {@link BigInteger }
+     *     
+>>>>>>> change request to query / set subscriber first use/first call date
      */
     public void setCode(int value) {
         this.code = value;

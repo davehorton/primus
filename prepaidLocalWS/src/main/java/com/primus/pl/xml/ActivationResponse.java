@@ -26,7 +26,11 @@ import javax.xml.bind.annotation.XmlType;
  *       &lt;all>
  *         &lt;element name="code">
  *           &lt;simpleType>
+<<<<<<< HEAD
  *             &lt;restriction base="{http://www.w3.org/2001/XMLSchema}int">
+=======
+ *             &lt;restriction base="{http://www.w3.org/2001/XMLSchema}integer">
+>>>>>>> change request to query / set subscriber first use/first call date
  *               &lt;enumeration value="0"/>
  *               &lt;enumeration value="-1"/>
  *               &lt;enumeration value="-2"/>
