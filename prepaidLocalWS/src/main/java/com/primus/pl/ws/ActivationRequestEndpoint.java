@@ -1,6 +1,8 @@
 package com.primus.pl.ws; 
 
 
+import java.math.BigInteger;
+
 import javax.annotation.Resource;
 
 import com.primus.pl.service.ProvisioningService;
@@ -37,7 +39,7 @@ public class ActivationRequestEndpoint  {
     		logger.error(e) ;
     		e.printStackTrace() ;
     		ActivationResponse resFail = new ActivationResponse() ;
-    		resFail.setCode( -99)  ;
+    		resFail.setCode( -99 )  ;
     		resFail.setMessage("activation request failed") ;
     		return resFail ;
     	}

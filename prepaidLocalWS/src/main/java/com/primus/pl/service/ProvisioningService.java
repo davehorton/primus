@@ -2,6 +2,7 @@ package com.primus.pl.service;
 
 
 import java.math.BigDecimal;
+import java.math.BigInteger;
 
 import org.apache.log4j.Logger;
 
@@ -32,8 +33,8 @@ public class ProvisioningService {
 
 	public ActivationResponse activateAccount( ActivationRequest req ) {
 		
-		Long lotId = req.getLotId() ;
-		Double initialBalance = req.getInitialBalance() ;
+		Long lotId = req.getLotId().longValue() ;
+		Double initialBalance = req.getInitialBalance().doubleValue() ;
 		String phone = req.getSubscriberPhone() ;
 		
 		logger.info("START***********ProvisioningService: activateAccount") ;
@@ -53,13 +54,13 @@ public class ProvisioningService {
 		int rc = Dao.activateSinglePinFromLot(lotId, phone, initialBalance, msg, subscriberId, pin) ;
 		if( SUCCESS != rc ) {
 			logger.info("activateAccount failed: " + msg.toString() + " (" + rc + ")" ) ;
-			resp.setCode(rc) ;
+			resp.setCode( rc ) ;
 			resp.setMessage(msg.toString()) ;
 			return resp ;
 		}
 				
 		if( subscriberId.length() > 0 ) {
-			resp.setSubscriberId(Long.valueOf(subscriberId.toString())) ;
+			resp.setSubscriberId(subscriberId.toString()) ;
 		}
 		if( pin.length() > 0 ) {
 			resp.setSubscriberPin( pin.toString() ) ;
@@ -74,7 +75,7 @@ public class ProvisioningService {
 
 	public VoucherPaymentResponse processVoucherPaymentRequest( VoucherPaymentRequest req ) {
 		VoucherPaymentResponse resp = new VoucherPaymentResponse() ;
-		resp.setCode(0) ;
+		resp.setCode(SUCCESS) ;
 		resp.setMessage("Successfully processed voucher request") ;
 		
 		MutableInteger errorCode = new MutableInteger() ;
@@ -99,7 +100,7 @@ public class ProvisioningService {
 				req.getRequestor().getUserId(), 
 				req.getRequestor().getClientId(), 
 				req.getVoucher().getVoucherNumber(), 
-				req.getVoucher().getVoucherValue(),
+				req.getVoucher().getVoucherValue().doubleValue(),
 				req.getRequestor().getTransactionId(), 
 				transactionCode, transactionDescription, 
 				settlementAmount, errorCode, errorDescription, 
@@ -111,7 +112,7 @@ public class ProvisioningService {
 		v.setTransactionCode( transactionCode.toString() ) ;
 		v.setTransactionDescription( transactionDescription.toString() ) ;
 		Float f = settlementAmount.floatValue() ;
-		v.setSettleAmount( f.doubleValue()) ;
+		v.setSettleAmount( BigDecimal.valueOf( f.doubleValue() ) ) ;
 		v.setVendorTransactionId( ukashTransactionId.toString() ) ;
 		
 		resp.setDetails(v) ;
@@ -136,7 +137,7 @@ public class ProvisioningService {
 	public CreditCardPaymentResponse processCreditCardPaymentRequest( CreditCardPaymentRequest req ) {
 
 		CreditCardPaymentResponse res = new CreditCardPaymentResponse() ;
-		res.setCode(0) ;
+		res.setCode(SUCCESS) ;
 		res.setMessage("Successfully processed credit card request") ;
 		
 		StringBuffer authorizationCode = new StringBuffer() ;
@@ -171,7 +172,7 @@ public class ProvisioningService {
 		int rc = Dao.processRechargeTransactionCC(req.getSubscriber().getPhone(), 
 				req.getSubscriber().getServiceProviderName(), 
 				req.getRequestor().getUserId(), req.getRequestor().getClientId(), 
-				req.getCard().getCardType(), req.getCard().getCardNumber(), req.getCard().getExpiryDate(), req.getCard().getAmount(), 
+				req.getCard().getCardType(), req.getCard().getCardNumber(), req.getCard().getExpiryDate(), req.getCard().getAmount().doubleValue(), 
 				req.getCard().getNameOnCard(), 
 				req.getCard().getAddressLine1(), req.getCard().getAddressLine2(), req.getCard().getCity(), 
 				req.getCard().getProvince(), req.getCard().getPostalCode(), req.getRequestor().getTransactionId(), 
@@ -199,6 +200,52 @@ public class ProvisioningService {
 		logger.info("inquiryId: " + v.getInquiryId()) ;
 		logger.info("avsResultCode: " + v.getAvsResultCode()) ;
 		logger.info("avsResultDescription: " + v.getAvsResultDescription() ) ;
+		
+
+		return res ;
+	}
+
+	public SubscriberQueryResponse querySubscriberAttribute( SubscriberQueryRequest req ) {
+
+		SubscriberQueryResponse res = new SubscriberQueryResponse() ;
+		res.setCode(SUCCESS) ;
+		
+		logger.info("START***********ProvisioningService: querySubscriberAttribute") ;
+		logger.info("SP name: " + req.getSubscriber().getServiceProviderName() ) ;
+		logger.info("sub phone: " + req.getSubscriber().getPhone()) ;
+		logger.info("attribute: " + req.getAttribute() ) ;
+
+		StringBuffer value = new StringBuffer() ;
+		int rc = Dao.querySubscriberAttribute(req.getSubscriber().getServiceProviderName(), req.getSubscriber().getPhone(), req.getAttribute(), value) ;
+		
+		res.setCode(rc) ;
+		res.setValue( value.toString() ) ;
+		
+		
+		logger.info("END***********ProvisioningService: querySubscriberAttribute") ;
+		logger.info("code: " + res.getCode() ) ;
+		logger.info("value: " + res.getValue() ) ;
+		
+
+		return res ;
+	}
+	public SubscriberUpdateResponse updateSubscriberAttribute( SubscriberUpdateRequest req ) {
+
+		SubscriberUpdateResponse res = new SubscriberUpdateResponse() ;
+		res.setCode(SUCCESS) ;
+		
+		logger.info("START***********ProvisioningService: updateSubscriberAttribute") ;
+		logger.info("SP name: " + req.getSubscriber().getServiceProviderName() ) ;
+		logger.info("sub phone: " + req.getSubscriber().getPhone()) ;
+		logger.info("attribute: " + req.getAttribute() ) ;
+
+		int rc = Dao.updateSubscriberAttribute(req.getSubscriber().getServiceProviderName(), req.getSubscriber().getPhone(), req.getAttribute(), req.getValue() ) ;
+		
+		res.setCode(rc) ;
+		
+		
+		logger.info("END***********ProvisioningService: updateSubscriberAttribute") ;
+		logger.info("code: " + res.getCode() ) ;
 		
 
 		return res ;

@@ -1,6 +1,8 @@
 package com.primus.pl.ws; 
 
 
+import java.math.BigInteger;
+
 import javax.annotation.Resource;
 
 import com.primus.pl.service.ProvisioningService;
@@ -39,7 +41,7 @@ public class VoucherPaymentRequestEndpoint  {
     		logger.error(e) ;
     		e.printStackTrace() ;
     		VoucherPaymentResponse resFail = new VoucherPaymentResponse() ;
-    		resFail.setCode( -99)  ;
+    		resFail.setCode( -99 )  ;
     		resFail.setMessage("voucher payment request failed") ;
     		return resFail ;
     	}

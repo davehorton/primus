@@ -933,6 +933,176 @@ public class Dao {
 		}
 	}
 	
+	public static int querySubscriberAttribute( String spName, String phone, String attribute, StringBuffer value ) {
+		
+		int rc = SUCCESS ;
+		Session session = null ;
+		Transaction transaction = null ;
+		value.setLength(0) ;
+		try {
+			Framework framework = Framework.getInstance("beans.xml") ;
+			SessionFactory sf = (SessionFactory)framework.getResource("sessionFactory");    	
+			session = sf.openSession() ;
+			transaction = session.beginTransaction() ;
+			
+			/* make sure the subscriber and service provider exists, and is not disabled */
+			ServiceProvider sp = (ServiceProvider) session.createCriteria(ServiceProvider.class)
+					.add(Restrictions.eq("name", spName))
+					.add(Restrictions.eq("deletedFlag", 'F'))
+					.uniqueResult() ;
+			
+			if( null == sp ) {
+				logger.error("Unable to find service provider with name: " + spName ) ;
+				return UNKNOWN_SERVICE_PROVIDER ;			
+			}
+
+			if( 'T' == sp.getDisabledFlag() ) {
+				logger.error("Service provider " + sp.getName() + " is disabled") ;
+				return SP_DISABLED ;							
+			}
+
+			Subscriber sub = (Subscriber) session.createCriteria(Subscriber.class)
+					.add(Restrictions.eq("serviceProviderId",sp.getServiceProviderId()))
+					.createCriteria("subAuthAnis")
+						.add(Restrictions.eq("phoneNumber", phone))
+						.add(Restrictions.eq("status", "0") )
+					.uniqueResult() ;
+			
+			if( null == sub ) {
+				logger.error("Unable to find sub_auth_ani with active phone number " + phone) ;
+				return UNKNOWN_PHONE_NBR ;
+			}
+			
+			if( 'T' == sub.getDisabledFlag() ) {
+				logger.error("Subscriber with phone number " + phone + " is disabled") ;
+				return SUB_DISABLED ;				
+			}
+			
+			SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd") ;
+			DecimalFormat fmt = new DecimalFormat("###0.00") ;
+			if( "firstCallDate".equalsIgnoreCase(attribute) ) {
+				if( null != sub.getFirstCallDate() ) value.append( sdf.format( sub.getFirstCallDate() ) ) ;
+			}
+			else if( "firstUseDate".equalsIgnoreCase(attribute) ) {
+				if( null != sub.getFirstUseDate() ) value.append( sdf.format( sub.getFirstUseDate() ) ) ;
+			}
+			else if( "currPrepaidBalance".equalsIgnoreCase(attribute) ) {
+				if( null != sub.getCurrPrepaidBalance() ) value.append( fmt.format( sub.getCurrPrepaidBalance().doubleValue() ) ) ;
+			}
+			
+			transaction.commit() ;
+			
+			return rc ;
+			
+		} catch( HibernateException he ) {
+			logger.error("Hibernate exception: ", he) ;
+			if( null != transaction ) transaction.rollback() ;	
+			return DB_ERROR ;
+		} catch( SOAPFaultException sfe ) {
+			logger.error("SOAP Fault calling prepaidPaymentTechPayment: ", sfe ) ;
+			if( null != transaction ) transaction.rollback() ;
+			return WS_FAILURE ;
+		} catch( Exception e ) {
+			if( null != transaction ) transaction.rollback() ;
+			logger.error("Exception: ", e) ;
+			if( null != transaction ) transaction.rollback() ;	
+			return OTHER_ERROR ;
+			
+		} finally {
+			if( null != session ) session.close() ;
+		}
+	}
+
+	public static int updateSubscriberAttribute( String spName, String phone, String attribute, String value ) {
+		
+		int rc = SUCCESS ;
+		Session session = null ;
+		Transaction transaction = null ;
+		try {
+			Framework framework = Framework.getInstance("beans.xml") ;
+			SessionFactory sf = (SessionFactory)framework.getResource("sessionFactory");    	
+			session = sf.openSession() ;
+			transaction = session.beginTransaction() ;
+			
+			/* make sure the subscriber and service provider exists, and is not disabled */
+			ServiceProvider sp = (ServiceProvider) session.createCriteria(ServiceProvider.class)
+					.add(Restrictions.eq("name", spName))
+					.add(Restrictions.eq("deletedFlag", 'F'))
+					.uniqueResult() ;
+			
+			if( null == sp ) {
+				logger.error("Unable to find service provider with name: " + spName ) ;
+				return UNKNOWN_SERVICE_PROVIDER ;			
+			}
+
+			if( 'T' == sp.getDisabledFlag() ) {
+				logger.error("Service provider " + sp.getName() + " is disabled") ;
+				return SP_DISABLED ;							
+			}
+
+			Subscriber sub = (Subscriber) session.createCriteria(Subscriber.class)
+					.add(Restrictions.eq("serviceProviderId",sp.getServiceProviderId()))
+					.createCriteria("subAuthAnis")
+						.add(Restrictions.eq("phoneNumber", phone))
+						.add(Restrictions.eq("status", "0") )
+					.uniqueResult() ;
+			
+			if( null == sub ) {
+				logger.error("Unable to find sub_auth_ani with active phone number " + phone) ;
+				return UNKNOWN_PHONE_NBR ;
+			}
+			
+			if( 'T' == sub.getDisabledFlag() ) {
+				logger.error("Subscriber with phone number " + phone + " is disabled") ;
+				return SUB_DISABLED ;				
+			}
+			
+			SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd") ;
+			DecimalFormat fmt = new DecimalFormat("###0.00") ;
+			if( "firstCallDate".equalsIgnoreCase(attribute) ) {
+				sub.setFirstCallDate( value.length() > 0 ? sdf.parse(value) : null ) ;
+			}
+			else if( "firstUseDate".equalsIgnoreCase(attribute) ) {
+				sub.setFirstUseDate( value.length() > 0 ? sdf.parse(value) : null ) ;
+			}
+			
+			PsAudit audit = new PsAudit() ;
+			Long lAuditId = Dao.getOID(session, "audit_event") ;
+			audit.setAuditId(BigDecimal.valueOf(lAuditId)) ;
+			audit.setAuditEventId(BigDecimal.valueOf(PactolusConstants.PRPD_SUBSCRIBER_MODIFY_AUDIT)) ;
+			audit.setSubscriberId(sub.getSubscriberId()) ;
+			audit.setServiceProviderId( sp.getServiceProviderId() ) ;
+			audit.setAcdUserFlag('F') ;
+			audit.setTimestamp( Utilities.getCurrentTimestamp() ) ;
+			audit.setDataCol1( attribute ) ;
+			audit.setDataCol2( value ) ;
+			audit.setUserId( BigDecimal.valueOf(PactolusConstants.PROVISIONING_API_USER_ID ) );
+						
+			session.save( audit ) ;
+
+			transaction.commit() ;
+			
+			return rc ;
+			
+		} catch( HibernateException he ) {
+			logger.error("Hibernate exception: ", he) ;
+			if( null != transaction ) transaction.rollback() ;	
+			return DB_ERROR ;
+		} catch( SOAPFaultException sfe ) {
+			logger.error("SOAP Fault calling prepaidPaymentTechPayment: ", sfe ) ;
+			if( null != transaction ) transaction.rollback() ;
+			return WS_FAILURE ;
+		} catch( Exception e ) {
+			if( null != transaction ) transaction.rollback() ;
+			logger.error("Exception: ", e) ;
+			if( null != transaction ) transaction.rollback() ;	
+			return OTHER_ERROR ;
+			
+		} finally {
+			if( null != session ) session.close() ;
+		}
+	}
+	
 	public static Rate getSubscriberMaintenanceFeeRate( Session session, BigDecimal offeringId ) {
 			
 		Timestamp dtNow = new java.sql.Timestamp((new java.util.Date()).getTime());
