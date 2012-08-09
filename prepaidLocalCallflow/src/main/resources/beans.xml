@@ -13,7 +13,7 @@
 		<property name="m6Address2"><value>colo2-db01.voiss.primus.ca</value></property>
 		<property name="m6Password2"><value>e89552d0</value></property>		
 		<property name="m6User2"><value>ppl_api_user</value></property>
-		<property name="emailRecipients"><value>CTimbang@primustel.ca,SHumbert@primustel.ca,dave@dchorton.com</value></property>		
+		<property name="emailRecipients"><value>mecamphausen@primustel.ca,mgamble@primustel.ca</value></property>		
 		<property name="emailServer"><value>Mail.vipsvc.primus.ca</value></property>		
 	</bean>
         <bean id="psprd1" class="org.sipdev.framework.CommonsPoolableDataSource"

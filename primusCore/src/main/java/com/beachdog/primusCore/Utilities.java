@@ -88,7 +88,7 @@ public class Utilities {
 		try {
 			message.setSubject(subject);
 			
-			Address from = new InternetAddress("crm-noreply@primustel.ca");
+			Address from = new InternetAddress("noreply@primustel.ca");
 			message.setFrom(from) ;
 			
 			String[] people = emailRecipients.split(",");
