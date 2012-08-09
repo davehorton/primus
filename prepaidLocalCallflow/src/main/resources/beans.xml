@@ -3,25 +3,27 @@
 	<bean id="logger" class="org.sipdev.framework.Log4jLogger"  init-method="init">
 	</bean>
 
-        <bean id="wsConfig" class="com.beachdog.primusCore.Config">
-                <property name="webServiceEndoint"><value>http://saturn.ca.primus:80/ECare</value></property>
-                <!-- 
-        		<property name="wsdlLocation"><value>file:///export/home/pcs1/pactolus_applications/java/PrimusWS.wsdl</value></property>
-        		-->
-        		<property name="wsdlLocation"><value>file:///Users/dhorton/beachdog-enterprises/beachdog-networks/workspaces/primus/primusCore/src/main/resources/PrimusWS.wsdl</value></property>        		
-				<property name="m6Address"><value>10.201.176.6</value></property>
-				<property name="m6User"><value>ppl_api_user</value></property>
-				<property name="m6Password"><value>e89552d0</value></property>
-		  		<property name="emailRecipients"><value>CTimbang@primustel.ca,SHumbert@primustel.ca,dave@dchorton.com</value></property>		
-				<property name="emailServer"><value>Mail.vipsvc.primus.ca</value></property>		
-        </bean>    
+	<bean id="wsConfig" class="com.beachdog.primusCore.Config">
+	<!--<property name="webServiceEndoint"><value>http://saturn.ca.primus:80/ECare</value></property> -->
+	 	<property name="webServiceEndoint"><value>http://phobos.ca.primus:80/ECare</value></property>
+		<property name="wsdlLocation"><value>file:////usr/local/apache-tomcat/webapps/prepaidLocal-3.0/WEB-INF/PrimusWS.wsdl</value></property>
+		<property name="m6Address"><value>colo1-db01.voiss.primus.ca.</value></property>
+		<property name="m6Password"><value>e89552d0</value></property>		
+		<property name="m6User"><value>ppl_api_user</value></property>
+		<property name="m6Address2"><value>colo2-db01.voiss.primus.ca</value></property>
+		<property name="m6Password2"><value>e89552d0</value></property>		
+		<property name="m6User2"><value>ppl_api_user</value></property>
+		<property name="emailRecipients"><value>CTimbang@primustel.ca,SHumbert@primustel.ca,dave@dchorton.com</value></property>		
+		<property name="emailServer"><value>Mail.vipsvc.primus.ca</value></property>		
+	</bean>
         <bean id="psprd1" class="org.sipdev.framework.CommonsPoolableDataSource"
                         destroy-method="close" init-method="createPool">
                         <property name="driverName">
                                 <value>oracle.jdbc.driver.OracleDriver</value>
                         </property>
                         <property name="connectionURL">
-                                <value>jdbc:oracle:thin:@10.201.170.95:1521:psprd1</value> 
+              <!--          <value>jdbc:oracle:thin:@10.201.170.95:1521:psprd1</value>   -->
+                            <value>jdbc:oracle:thin:@10.201.174.136:1521:psprd1</value>   
                         </property>
                         <property name="username">
                                 <value>pcsprod</value>

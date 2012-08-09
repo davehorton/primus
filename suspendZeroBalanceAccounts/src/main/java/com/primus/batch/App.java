@@ -34,7 +34,9 @@ import org.sipdev.framework.Log;
 
 import com.beachdog.primusCore.Config;
 import com.beachdog.primusCore.Dao;
+import com.beachdog.primusCore.M6ModifyUserCommand;
 import com.beachdog.primusCore.PactolusConstants;
+import com.beachdog.primusCore.Utilities;
 import com.beachdog.primusCore.model.AccountActivity;
 import com.beachdog.primusCore.model.Rate;
 import com.beachdog.primusCore.model.ServiceProvider;
@@ -46,14 +48,7 @@ import com.vocaldata.AdminSOAP.*;
 
 public class App {
 
-	//final protected static BigDecimal MAINT_FEE_EVENT = BigDecimal.valueOf(10) ;
-	//final protected static BigDecimal MAINT_FEE2_EVENT = BigDecimal.valueOf(30) ;
-	//final protected static BigDecimal MAINT_FEE3_EVENT = BigDecimal.valueOf(31) ;
-
 	protected String hostName = "localhost" ;
-	protected String m6User ;
-	protected String m6Password ;
-	protected String m6Address ;
 	protected Integer purgeDays ;
 	protected Integer sleep ;
 	
@@ -98,9 +93,6 @@ public class App {
     		session = sessionFactory.openSession() ;
     		
     		Config cfg = (Config) framework.getResource("wsConfig") ;
-    		m6Address = cfg.getM6Address() ;
-    		m6User = cfg.getM6User() ;
-    		m6Password = cfg.getM6Password() ;
     		
 			Calendar now = Calendar.getInstance();
 			Timestamp dtNow = new java.sql.Timestamp((new java.util.Date()).getTime());
@@ -306,54 +298,44 @@ public class App {
 	        				}
         				}
         			}
-        			logger.info("   Attempting to suspend subscriber with subscriber id: " + sub.getSubscriberId().longValue() + "...." ) ;
-        			
+
+        			Utilities.M6Credential c = Utilities.getM6Credential(cfg, cli) ;
+        			logger.info("Attempting to unsuspend phone number " + cli + " on M6: " + c.address + " user/pass: " + c.username + "/" + c.password ) ;
+       			
+					Transaction transaction = null ;
         			try {
-	        			VDAdmin vdadmin = new VDAdmin(m6Address) ;
-	        			String sessionOid = vdadmin.authenticate(m6User, m6Password, hostName);
-	        			if( null == sessionOid ) {
-	        				logger.error("Failure logging into M6 using username '" + m6User + "' and password '" + m6Password + "'; program will terminate") ;
-	        				System.err.println("Failure logging into M6 using username '" + m6User + "' and password '" + m6Password + "'; program will terminate");
-	        				throw new Exception("Failure logging into M6 using username '" + m6User + "' and password '" + m6Password + "'") ;
-	        			}
-	        			
-	        			try {
-		        			String customerOid = vdadmin.getUserByExtension(sessionOid, "", cli) ;
-		        			if( null == customerOid ) {
-		               			logger.info("   Not suspending -- subscriber lookup failed on M6 by phone number: " + cli ) ;	        				
-		        			}
-		        			
-		        	        Hashtable values = new Hashtable() ;
-		        	        values.put( UserKeys.SUSPEND_SERVICE, true);
-		        	        vdadmin.modify(sessionOid, WizardTypeCode.USER, customerOid, values);
-		        	        
-		        	        Transaction transaction = null ;
-		        	        try {
-			        	        transaction = session.beginTransaction() ;
-			        	        
-			        			SuspendTracking st = new SuspendTracking() ;
-			        	        st.setSubscriberId(sub.getSubscriberId()) ;
-			        	        st.setPhoneNumber(cli) ;
-			        	        st.setSuspendedOn( new Date( System.currentTimeMillis() ) ) ;
-			        	        if( null != aa ) st.setAaActivityId( aa.getActivityId() ) ;
-			        	        
-			        	        session.save(st) ;
-			        	        transaction.commit() ;
-		        	        } catch( HibernateException he ) {
-		        	        	logger.error("Error saving record to suspend_tracking for subscriber with subscriber id: " + sub.getSubscriberId() +
-		        	        			" and phone number " + cli, he ) ;
-		        	        	if( null != transaction ) transaction.rollback() ;
-		        	        }
-	        			} catch( DBSOAPException dbe ) {
-	        				logger.error("Error attempting to suspend subscriber with phone number " + cli + ", continuing", dbe) ;
-	        				dbe.printStackTrace() ;
-	        			}
+        				
+    					M6ModifyUserCommand cmd;
+    					cmd = new M6ModifyUserCommand(c.address, c.username, c.password, Utilities.getLocalHost(), cli);
+    					cmd.setValue(UserKeys.SUSPEND_SERVICE, true ) ;
+    					cmd.execute() ;
+    					logger.info("Successfully suspended phone number " + cli ) ;   				
+        						        	        
+	        	        transaction = session.beginTransaction() ;
+	        	        
+	        			SuspendTracking st = new SuspendTracking() ;
+	        	        st.setSubscriberId(sub.getSubscriberId()) ;
+	        	        st.setPhoneNumber(cli) ;
+	        	        st.setSuspendedOn( new Date( System.currentTimeMillis() ) ) ;
+	        	        if( null != aa ) st.setAaActivityId( aa.getActivityId() ) ;
+	        	        
+	        	        session.save(st) ;
+	        	        transaction.commit() ;
 
 	        			logger.info("   Successfully suspendend subscriber with subscriber id: " + sub.getSubscriberId().longValue() ) ;
 	        			
-        			
+        	        } catch( HibernateException he ) {
+        	        	logger.error("Error saving record to suspend_tracking for subscriber with subscriber id: " + sub.getSubscriberId() +
+        	        			" and phone number " + cli, he ) ;
+        	        	if( null != transaction ) transaction.rollback() ;
+        	        	throw he ;
+	
         			} catch (DBSOAPException dbe ) {
-        				System.err.println("Error attempting to suspend subscriber on M6, program will terminate") ;
+    					if( cfg.getEmailServer() != null && cfg.getEmailRecipients() != null ) {
+    						Utilities.sendMail(cfg.getEmailRecipients(), cfg.getEmailServer(), "M6 suspend failure", 
+    								"failure attempting to suspend account with phone number " + cli + " on the M6", null) ;
+    					}
+    					System.err.println("Error attempting to suspend subscriber on M6, program will terminate") ;
         				dbe.printStackTrace() ;
         				logger.error("Error attempting to suspend subscriber on M6, program will terminate", dbe) ;
         				throw dbe ;
@@ -374,7 +356,7 @@ public class App {
 	}
 
 	protected void usage() {
-		System.out.println("java -cp:<classpath> -serviceProviders \"sp 1, sp 2\" -M6User username -M6Password password -M6Address ip-address") ;
+		System.out.println("java -cp:<classpath> -serviceProviders \"sp 1, sp 2\"") ;
 	}
 	
 	protected boolean parseCommandLine( String[] args ) {

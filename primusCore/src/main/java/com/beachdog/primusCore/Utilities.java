@@ -25,6 +25,12 @@ import org.apache.log4j.Logger;
 
 public class Utilities {
 
+	public static class M6Credential {
+		public String address ;
+		public String password ;
+		public String username ;
+	}
+	
 	protected static Logger logger = Logger.getLogger(Utilities.class) ;
 
 	
@@ -52,7 +58,7 @@ public class Utilities {
     	return new java.sql.Timestamp((new java.util.Date()).getTime()) ;
     }
     
-	protected static String getHost() {
+	public static String getLocalHost() {
 		String host = null ;
 		try {
 		    InetAddress addr = InetAddress.getLocalHost();
@@ -119,5 +125,22 @@ public class Utilities {
 			return false ;
 		}	
 		return true ;
+	}
+	
+	public static M6Credential getM6Credential( Config cfg, String phoneNumber ) {
+		M6Credential c = new M6Credential() ;
+		
+		if( 0 == phoneNumber.indexOf("416") || 0 == phoneNumber.indexOf("647") ) {
+			c.address = cfg.getM6Address() ;
+			c.username = cfg.getM6User() ;
+			c.password = cfg.getM6Password() ;
+		}
+		else {
+			c.address = cfg.getM6Address2() ;
+			c.username = cfg.getM6User2() ;
+			c.password = cfg.getM6Password2() ;			
+		}
+		
+		return c ;
 	}
 }

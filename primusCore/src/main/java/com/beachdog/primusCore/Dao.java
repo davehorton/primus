@@ -833,12 +833,16 @@ public class Dao {
 			/* unsuspend the account first.  If we can't unsuspend the account, continue since we have already processed the payment with ukash */		
 			SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd") ;
 			logger.info("Subscriber has been suspended on the M6, attempting to unsuspend....") ;
+			
+			Utilities.M6Credential c = Utilities.getM6Credential(cfg, phoneNumber) ;
+			logger.info("Attempting to unsuspend phone number " + phoneNumber + " on M6: " + c.address + " user/pass: " + c.username + "/" + c.password ) ;
 
 			try {
 				M6ModifyUserCommand cmd;
-				cmd = new M6ModifyUserCommand(cfg.getM6Address(), cfg.getM6User(), cfg.getM6Password(), Utilities.getHost(), phoneNumber);
+				cmd = new M6ModifyUserCommand(c.address, c.username, c.password, Utilities.getLocalHost(), phoneNumber);
 				cmd.setValue(UserKeys.SUSPEND_SERVICE, false ) ;
 				cmd.execute() ;
+				logger.info("Successfully unsuspended phone number " + phoneNumber ) ;
 			} catch( DBSOAPException e ) {
 				logger.info("Error trying to unsuspend the account with phone number " + phoneNumber + " on the M6, continuing anyways..", e) ;
 				if( cfg.getEmailServer() != null && cfg.getEmailRecipients() != null ) {
