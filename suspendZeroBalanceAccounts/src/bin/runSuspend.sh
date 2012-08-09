@@ -1,9 +1,8 @@
 #!/usr/bin/bash
-#usage: runSuspend.sh -M6User user -M6Password pass -M6Address address  [-purge N]
 
 usage () {
         cat <<EOF 
-        Usage: `basename $0` -M6User user -M6Password pass -M6Address address  -serviceProviders sp name 1, sp name 2 [-purge N]
+        Usage: `basename $0` -serviceProviders sp name 1, sp name 2 [-purge N]
 EOF
 exit -1
 }
