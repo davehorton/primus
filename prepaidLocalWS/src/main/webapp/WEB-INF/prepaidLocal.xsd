@@ -22,12 +22,18 @@
 	<xs:element name="creditCardPaymentResponse" type="pl:CreditCardPaymentResponse"/>
 
 	<xs:element name="subscriberQueryRequest" type="pl:SubscriberQueryRequest"/>
+	<xs:element name="subscriberQueryResponse" type="pl:SubscriberQueryResponse"/>
+	
 	<xs:element name="subscriberUpdateRequest" type="pl:SubscriberUpdateRequest"/>
+	<xs:element name="subscriberUpdateResponse" type="pl:SubscriberUpdateResponse"/>
+
+	<xs:element name="m6ModifyRequest" type="pl:M6ModifyRequest"/>
+	<xs:element name="m6ModifyResponse" type="pl:M6ModifyResponse"/>
 
 	<!--  Data Types  -->
 	<xs:complexType name="ActivationRequest">
 		<xs:all>
-			<xs:element name="lotId" type="xs:positiveInteger"/>
+			<xs:element name="lotId" type="xs:long"/>
 			<xs:element name="subscriberPhone" type="xs:string"/>
 			<xs:element name="initialBalance" type="xs:decimal"/>
 		</xs:all>

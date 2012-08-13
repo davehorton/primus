@@ -36,7 +36,7 @@ public class ProvisioningService {
 
 	public ActivationResponse activateAccount( ActivationRequest req ) {
 		
-		Long lotId = req.getLotId().longValue() ;
+		Long lotId = req.getLotId() ;
 		Double initialBalance = req.getInitialBalance().doubleValue() ;
 		String phone = req.getSubscriberPhone() ;
 		
