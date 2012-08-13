@@ -3,7 +3,6 @@ package com.beachdog.primusCore;
 import java.math.BigDecimal;
 import java.net.InetAddress;
 import java.net.UnknownHostException;
-import java.security.acl.Owner;
 import java.sql.CallableStatement;
 import java.sql.Connection;
 import java.sql.Date;
@@ -843,13 +842,25 @@ public class Dao {
 			}
 			/*
 			try {
+<<<<<<< HEAD
 				Thread.currentThread().setContextClassLoader(ClassLoader.getSystemClassLoader() ) ;
+=======
+				Class cl = Class.forName("com.sun.xml.rpc.client.ServiceFactoryImpl");
+				Thread.currentThread().setContextClassLoader(cl.getClassLoader());
+
+>>>>>>> fix for M6 suspend/unsuspend exception
 				M6ModifyUserCommand cmd;
 				cmd = new M6ModifyUserCommand(c.address, c.username, c.password, Utilities.getLocalHost(), phoneNumber);
 				cmd.setValue(UserKeys.SUSPEND_SERVICE, false ) ;
 				cmd.execute() ;
 				logger.info("Successfully unsuspended phone number " + phoneNumber ) ;
 			} catch( DBSOAPException e ) {
+				logger.info("Error trying to unsuspend the account with phone number " + phoneNumber + " on the M6, continuing anyways..", e) ;
+				if( cfg.getEmailServer() != null && cfg.getEmailRecipients() != null ) {
+					Utilities.sendMail(cfg.getEmailRecipients(), cfg.getEmailServer(), "M6 unsuspend failure", 
+							"failure attempting to unsuspend account with phone number " + phoneNumber + " on the M6 after successfully processing a payment", null) ;
+				}
+			} catch (ClassNotFoundException e) {
 				logger.info("Error trying to unsuspend the account with phone number " + phoneNumber + " on the M6, continuing anyways..", e) ;
 				if( cfg.getEmailServer() != null && cfg.getEmailRecipients() != null ) {
 					Utilities.sendMail(cfg.getEmailRecipients(), cfg.getEmailServer(), "M6 unsuspend failure", 
