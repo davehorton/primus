@@ -838,6 +838,7 @@ public class Dao {
 			logger.info("Attempting to unsuspend phone number " + phoneNumber + " on M6: " + c.address + " user/pass: " + c.username + "/" + c.password ) ;
 
 			try {
+				Thread.currentThread().setContextClassLoader(ClassLoader.getSystemClassLoader() ) ;
 				M6ModifyUserCommand cmd;
 				cmd = new M6ModifyUserCommand(c.address, c.username, c.password, Utilities.getLocalHost(), phoneNumber);
 				cmd.setValue(UserKeys.SUSPEND_SERVICE, false ) ;
@@ -1116,5 +1117,24 @@ public class Dao {
 
 		return rate ;
 	}
+	public static int modifyM6Subscriber(String phone, boolean bSuspend, String m6Address, String m6Username, String m6Password, StringBuffer msg ) {
+		int rc = SUCCESS ;
+		
+		try {
+			logger.info("Trying to " + (bSuspend ? "suspend" : "unsuspend") + " phone number " + phone + " on M6 " + m6Address + 
+					" with username " + m6Username + " and password " + m6Password ) ;
+			Thread.currentThread().setContextClassLoader(ClassLoader.getSystemClassLoader() ) ;
+			M6ModifyUserCommand cmd;
+			cmd = new M6ModifyUserCommand(m6Address, m6Username, m6Password, Utilities.getLocalHost(), phone);
+			cmd.setValue(UserKeys.SUSPEND_SERVICE, bSuspend ) ;
+			cmd.execute() ;
+			msg.append("Successfully " + (bSuspend ? "suspended" : "unsuspended") + " phone number " + phone ) ;
+			logger.info("Successfully " + (bSuspend ? "suspended" : "unsuspended") + " phone number " + phone ) ;
+		} catch( DBSOAPException e ) {
+			logger.info("Error trying to unsuspend the account with phone number " + phone + " on the M6", e) ;
+			msg.append( e.getLocalizedMessage() ) ;
+		}
 
+		return SUCCESS ;
+	}
 }

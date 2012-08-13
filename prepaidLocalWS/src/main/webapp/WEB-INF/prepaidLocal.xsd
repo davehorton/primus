@@ -45,7 +45,7 @@
 		<xs:all>
 			<xs:element name="code">
 				<xs:simpleType>
-					<xs:restriction base="xs:integer">
+					<xs:restriction base="xs:int">
 						<xs:annotation>
 							<xs:documentation>
 								0 = Success
@@ -109,7 +109,7 @@
 		<xs:all>
 			<xs:element name="code">
 				<xs:simpleType>
-					<xs:restriction base="xs:integer">
+					<xs:restriction base="xs:int">
 						<xs:annotation>
 							<xs:documentation>
 								0 = Success
@@ -197,7 +197,7 @@
 		<xs:all>
 			<xs:element name="code">
 				<xs:simpleType>
-					<xs:restriction base="xs:integer">
+					<xs:restriction base="xs:int">
 						<xs:annotation>
 							<xs:documentation>
 								0 = Success
@@ -258,7 +258,7 @@
 		<xs:all>
 			<xs:element name="code">
 				<xs:simpleType>
-					<xs:restriction base="xs:integer">
+					<xs:restriction base="xs:int">
 						<xs:annotation>
 							<xs:documentation>
 								0 = Success
@@ -272,11 +272,11 @@
 							</xs:documentation>
 						</xs:annotation>
 						<xs:enumeration value="0"/> 
-						<xs:enumeration value="-1"/>
-						<xs:enumeration value="-2"/>
 						<xs:enumeration value="-3"/>
 						<xs:enumeration value="-4"/>
 						<xs:enumeration value="-5"/>
+						<xs:enumeration value="-6"/>
+						<xs:enumeration value="-7"/>
 						<xs:enumeration value="-98"/> 
 						<xs:enumeration value="-99"/>	
 					</xs:restriction>
@@ -298,7 +298,7 @@
 		<xs:all>
 			<xs:element name="code">
 				<xs:simpleType>
-					<xs:restriction base="xs:integer">
+					<xs:restriction base="xs:int">
 						<xs:annotation>
 							<xs:documentation>
 								0 = Success
@@ -312,16 +312,43 @@
 							</xs:documentation>
 						</xs:annotation>
 						<xs:enumeration value="0"/> 
-						<xs:enumeration value="-1"/>
-						<xs:enumeration value="-2"/>
 						<xs:enumeration value="-3"/>
 						<xs:enumeration value="-4"/>
 						<xs:enumeration value="-5"/>
+						<xs:enumeration value="-6"/>
+						<xs:enumeration value="-7"/>
 						<xs:enumeration value="-98"/> 
 						<xs:enumeration value="-99"/>	
 					</xs:restriction>
 				</xs:simpleType>
 			</xs:element>
+		</xs:all>
+	</xs:complexType>
+
+	<xs:complexType name="M6ModifyRequest">
+		<xs:all>
+			<xs:element name="phone" type="xs:string"/>
+			<xs:element name="suspend" type="xs:boolean"/>
+		</xs:all>
+	</xs:complexType>
+
+	<xs:complexType name="M6ModifyResponse">
+		<xs:all>
+			<xs:element name="code">
+				<xs:simpleType>
+					<xs:restriction base="xs:int">
+						<xs:annotation>
+							<xs:documentation>
+								0 = Success
+								-1 = Failure
+							</xs:documentation>
+						</xs:annotation>
+						<xs:enumeration value="0"/> 
+						<xs:enumeration value="-1"/>
+					</xs:restriction>
+				</xs:simpleType>
+			</xs:element>
+			<xs:element name="message" type="xs:string"/>
 		</xs:all>
 	</xs:complexType>
 

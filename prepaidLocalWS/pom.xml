@@ -5,7 +5,7 @@
     <groupId>com.primus</groupId>
     <artifactId>prepaidLocal</artifactId>
     <packaging>war</packaging>
-    <version>3.0</version>
+    <version>4.0</version>
     <name>Prepaid Local Web Service</name>
     <url>http://www.springframework.org/spring-ws</url>
     <build>

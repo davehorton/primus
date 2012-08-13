@@ -5,10 +5,13 @@ import java.math.BigDecimal;
 import java.math.BigInteger;
 
 import org.apache.log4j.Logger;
+import org.sipdev.framework.Framework;
 
 import com.pactolus.java.*;
 
+import com.beachdog.primusCore.Config;
 import com.beachdog.primusCore.Dao;
+import com.beachdog.primusCore.Utilities;
 
 import com.primus.pl.ws.*;
 import com.primus.pl.xml.*;
@@ -246,6 +249,34 @@ public class ProvisioningService {
 		
 		logger.info("END***********ProvisioningService: updateSubscriberAttribute") ;
 		logger.info("code: " + res.getCode() ) ;
+		
+
+		return res ;
+	}
+	public M6ModifyResponse modifyM6Subscriber(  M6ModifyRequest req ) {
+
+		M6ModifyResponse res = new M6ModifyResponse() ;
+		res.setCode(SUCCESS) ;
+		
+		logger.info("START***********ProvisioningService: querySubscriberAttribute") ;
+		logger.info("phone: " + req.getPhone() ) ;
+		logger.info("suspend: " + req.isSuspend() ) ;
+
+		Framework framework = Framework.getInstance("beans.xml") ;
+		Config cfg = (Config) framework.getResource("wsConfig") ;
+		Utilities.M6Credential c = Utilities.getM6Credential(cfg, req.getPhone() ) ;
+
+		StringBuffer msg = new StringBuffer() ;
+		
+		int rc = Dao.modifyM6Subscriber(req.getPhone() , req.isSuspend(), c.address, c.username, c.password, msg ) ;
+		
+		res.setCode(rc) ;
+		res.setMessage( msg.toString() ) ;
+		
+		
+		logger.info("END***********ProvisioningService: querySubscriberAttribute") ;
+		logger.info("code: " + res.getCode() ) ;
+		logger.info("msg: " + res.getMessage() ) ;
 		
 
 		return res ;
