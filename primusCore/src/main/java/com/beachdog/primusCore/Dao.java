@@ -1124,7 +1124,6 @@ public class Dao {
 			logger.info("Trying to " + (bSuspend ? "suspend" : "unsuspend") + " phone number " + phone + " on M6 " + m6Address + 
 					" with username " + m6Username + " and password " + m6Password ) ;
 			Class cl = Class.forName("com.sun.xml.rpc.client.ServiceFactoryImpl");
-			//Thread.currentThread().setContextClassLoader(ClassLoader.getSystemClassLoader() ) ;
 			Thread.currentThread().setContextClassLoader(cl.getClassLoader());
 			M6ModifyUserCommand cmd;
 			cmd = new M6ModifyUserCommand(m6Address, m6Username, m6Password, Utilities.getLocalHost(), phone);
