@@ -838,12 +838,21 @@ public class Dao {
 			logger.info("Attempting to unsuspend phone number " + phoneNumber + " on M6: " + c.address + " user/pass: " + c.username + "/" + c.password ) ;
 
 			try {
+				Class cl = Class.forName("com.sun.xml.rpc.client.ServiceFactoryImpl");
+				Thread.currentThread().setContextClassLoader(cl.getClassLoader());
+
 				M6ModifyUserCommand cmd;
 				cmd = new M6ModifyUserCommand(c.address, c.username, c.password, Utilities.getLocalHost(), phoneNumber);
 				cmd.setValue(UserKeys.SUSPEND_SERVICE, false ) ;
 				cmd.execute() ;
 				logger.info("Successfully unsuspended phone number " + phoneNumber ) ;
 			} catch( DBSOAPException e ) {
+				logger.info("Error trying to unsuspend the account with phone number " + phoneNumber + " on the M6, continuing anyways..", e) ;
+				if( cfg.getEmailServer() != null && cfg.getEmailRecipients() != null ) {
+					Utilities.sendMail(cfg.getEmailRecipients(), cfg.getEmailServer(), "M6 unsuspend failure", 
+							"failure attempting to unsuspend account with phone number " + phoneNumber + " on the M6 after successfully processing a payment", null) ;
+				}
+			} catch (ClassNotFoundException e) {
 				logger.info("Error trying to unsuspend the account with phone number " + phoneNumber + " on the M6, continuing anyways..", e) ;
 				if( cfg.getEmailServer() != null && cfg.getEmailRecipients() != null ) {
 					Utilities.sendMail(cfg.getEmailRecipients(), cfg.getEmailServer(), "M6 unsuspend failure", 
