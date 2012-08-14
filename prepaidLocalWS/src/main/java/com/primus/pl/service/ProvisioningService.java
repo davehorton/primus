@@ -268,9 +268,9 @@ public class ProvisioningService {
 
 		StringBuffer msg = new StringBuffer() ;
 		
-		int rc = Dao.modifyM6Subscriber(req.getPhone() , req.isSuspend(), c.address, c.username, c.password, msg ) ;
+		boolean rc = Dao.modifyM6Subscriber(req.getPhone() , req.isSuspend(), c.address, c.username, c.password, msg ) ;
 		
-		res.setCode(rc) ;
+		res.setCode(rc ? 0 : -1) ;
 		res.setMessage( msg.toString() ) ;
 		
 		
