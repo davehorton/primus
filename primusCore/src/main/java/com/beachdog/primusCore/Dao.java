@@ -911,6 +911,9 @@ public class Dao {
 				}
  			}	
 		}
+		else {
+			logger.info("This subscriber has not been suspended on the M6 (does not have an open record in suspend_tracking table) so unsuspend will not be necessary") ;
+		}
 		
 		
 		/* update the subscriber balance with the full amount of the payment */	
