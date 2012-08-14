@@ -35,7 +35,7 @@
 		<xs:all>
 			<xs:element name="lotId" type="xs:long"/>
 			<xs:element name="subscriberPhone" type="xs:string"/>
-			<xs:element name="initialBalance" type="xs:decimal"/>
+			<xs:element name="initialBalance" type="xs:double"/>
 		</xs:all>
 	</xs:complexType>
 
@@ -76,7 +76,7 @@
 				</xs:simpleType>
 			</xs:element>
 			<xs:element name="message" type="xs:string"/>
-			<xs:element name="subscriberId" type="xs:string" minOccurs="0"/>
+			<xs:element name="subscriberId" type="xs:long" minOccurs="0"/>
 			<xs:element name="subscriberPin" type="xs:string" minOccurs="0"/>
 		</xs:all>
 	</xs:complexType>
@@ -107,7 +107,7 @@
 	<xs:complexType name="Voucher">
 			<xs:all>
 				<xs:element name="voucherNumber" type="xs:string"/>
-				<xs:element name="voucherValue" type="xs:decimal"/>
+				<xs:element name="voucherValue" type="xs:double"/>
 			</xs:all>
 	</xs:complexType>
 
@@ -150,7 +150,7 @@
 		<xs:all>
 			<xs:element name="transactionCode" type="xs:string"/>
 			<xs:element name="transactionDescription" type="xs:string"/>
-			<xs:element name="settleAmount" type="xs:decimal"/>
+			<xs:element name="settleAmount" type="xs:double"/>
 			<xs:element name="vendorTransactionId" type="xs:string"/>
 			<xs:element name="errorCode" type="xs:string"/>
 			<xs:element name="errorDescription" type="xs:string"/>
@@ -190,7 +190,7 @@
 				</xs:simpleType>
 			</xs:element>
 			<xs:element name="nameOnCard" type="xs:string"/>
-			<xs:element name="amount" type="xs:decimal"/>
+			<xs:element name="amount" type="xs:double"/>
 			<xs:element name="addressLine1" type="xs:string" minOccurs="0"/>
 			<xs:element name="addressLine2" type="xs:string" minOccurs="0"/>
 			<xs:element name="city" type="xs:string" minOccurs="0"/>

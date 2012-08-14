@@ -8,7 +8,6 @@
 
 package com.primus.pl.xml;
 
-import java.math.BigDecimal;
 import javax.xml.bind.annotation.XmlAccessType;
 import javax.xml.bind.annotation.XmlAccessorType;
 import javax.xml.bind.annotation.XmlElement;
@@ -27,7 +26,11 @@ import javax.xml.bind.annotation.XmlType;
  *       &lt;all>
  *         &lt;element name="lotId" type="{http://www.w3.org/2001/XMLSchema}long"/>
  *         &lt;element name="subscriberPhone" type="{http://www.w3.org/2001/XMLSchema}string"/>
+<<<<<<< HEAD
  *         &lt;element name="initialBalance" type="{http://www.w3.org/2001/XMLSchema}decimal"/>
+=======
+ *         &lt;element name="initialBalance" type="{http://www.w3.org/2001/XMLSchema}double"/>
+>>>>>>> final changes that solved saaj problem with vocaldata jar
  *       &lt;/all>
  *     &lt;/restriction>
  *   &lt;/complexContent>
@@ -46,8 +49,8 @@ public class ActivationRequest {
     protected long lotId;
     @XmlElement(namespace = "http://primus.com/prepaidLocal/schemas", required = true)
     protected String subscriberPhone;
-    @XmlElement(namespace = "http://primus.com/prepaidLocal/schemas", required = true)
-    protected BigDecimal initialBalance;
+    @XmlElement(namespace = "http://primus.com/prepaidLocal/schemas")
+    protected double initialBalance;
 
     /**
      * Gets the value of the lotId property.
@@ -92,24 +95,16 @@ public class ActivationRequest {
     /**
      * Gets the value of the initialBalance property.
      * 
-     * @return
-     *     possible object is
-     *     {@link BigDecimal }
-     *     
      */
-    public BigDecimal getInitialBalance() {
+    public double getInitialBalance() {
         return initialBalance;
     }
 
     /**
      * Sets the value of the initialBalance property.
      * 
-     * @param value
-     *     allowed object is
-     *     {@link BigDecimal }
-     *     
      */
-    public void setInitialBalance(BigDecimal value) {
+    public void setInitialBalance(double value) {
         this.initialBalance = value;
     }
 

@@ -8,7 +8,6 @@
 
 package com.primus.pl.xml;
 
-import java.math.BigDecimal;
 import javax.xml.bind.annotation.XmlAccessType;
 import javax.xml.bind.annotation.XmlAccessorType;
 import javax.xml.bind.annotation.XmlElement;
@@ -26,7 +25,7 @@ import javax.xml.bind.annotation.XmlType;
  *     &lt;restriction base="{http://www.w3.org/2001/XMLSchema}anyType">
  *       &lt;all>
  *         &lt;element name="voucherNumber" type="{http://www.w3.org/2001/XMLSchema}string"/>
- *         &lt;element name="voucherValue" type="{http://www.w3.org/2001/XMLSchema}decimal"/>
+ *         &lt;element name="voucherValue" type="{http://www.w3.org/2001/XMLSchema}double"/>
  *       &lt;/all>
  *     &lt;/restriction>
  *   &lt;/complexContent>
@@ -43,8 +42,8 @@ public class Voucher {
 
     @XmlElement(namespace = "http://primus.com/prepaidLocal/schemas", required = true)
     protected String voucherNumber;
-    @XmlElement(namespace = "http://primus.com/prepaidLocal/schemas", required = true)
-    protected BigDecimal voucherValue;
+    @XmlElement(namespace = "http://primus.com/prepaidLocal/schemas")
+    protected double voucherValue;
 
     /**
      * Gets the value of the voucherNumber property.
@@ -73,24 +72,16 @@ public class Voucher {
     /**
      * Gets the value of the voucherValue property.
      * 
-     * @return
-     *     possible object is
-     *     {@link BigDecimal }
-     *     
      */
-    public BigDecimal getVoucherValue() {
+    public double getVoucherValue() {
         return voucherValue;
     }
 
     /**
      * Sets the value of the voucherValue property.
      * 
-     * @param value
-     *     allowed object is
-     *     {@link BigDecimal }
-     *     
      */
-    public void setVoucherValue(BigDecimal value) {
+    public void setVoucherValue(double value) {
         this.voucherValue = value;
     }
 

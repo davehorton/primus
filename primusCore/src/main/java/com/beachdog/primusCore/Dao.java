@@ -27,8 +27,6 @@ import org.hibernate.criterion.Restrictions;
 import org.sipdev.framework.Framework;
 
 import com.pactolus.java.*;
-import com.primus.pl.xml.M6ModifyRequest;
-import com.primus.pl.xml.M6ModifyResponse;
 
 import uri.ecare.PrepaidPaymentechPaymentDlResponse.ECarePrepaidPaymentechResponse;
 import uri.ecare.PrepaidUkashPaymentDlResponse.ECarePrepaidUkashResponse;
@@ -82,7 +80,7 @@ public class Dao {
 	public static final int OTHER_ERROR = -98 ;
 	public static final int DB_ERROR = -99 ;
 	
-	public static Boolean bypassRechargeTransaction = false ;
+	public static Boolean bypassRechargeTransaction = false ;	
 	
 	protected static String sqlCreateActivationGroup = "INSERT INTO  evt_prepaid_activation " + 
 			"(activation_id,total_pins,status,lot_id,start_lot_seq,end_lot_seq,initial_balance,offering_id, time_stamp, description) " + 
@@ -386,7 +384,7 @@ public class Dao {
 			
 			transaction.commit() ;
 
-			/* last thing,tie siubscriber to offering */
+			/* last thing,tie subscriber to offering */
 			String subOfferingXrefSql = "INSERT INTO sub_offering_xref (subscriber_id, offering_id, primary_flag) VALUES (?, ?, 'T')";
 			conn = framework.getConnection("psprd1") ;
 			CallableStatement stmt = conn.prepareCall(subOfferingXrefSql) ;
@@ -820,6 +818,7 @@ public class Dao {
 		BigDecimal newBalance ;
 		BigDecimal owedMaintFees = BigDecimal.ZERO ;
 		DecimalFormat fmt = new DecimalFormat("#####.00") ;
+		SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd") ;
 		BigDecimal balance = sub.getCurrPrepaidBalance()  ;
 		logger.info("Subscriber balance before voucher transfer is $" + fmt.format(balance)) ;
 				
@@ -832,7 +831,6 @@ public class Dao {
 		if( null != st ) {
 			
 			/* unsuspend the account first.  If we can't unsuspend the account, continue since we have already processed the payment with ukash */		
-			SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd") ;
 			logger.info("Subscriber has been suspended on the M6, attempting to unsuspend....") ;
 			
 			Utilities.M6Credential c = Utilities.getM6Credential(cfg, phoneNumber) ;
@@ -841,35 +839,12 @@ public class Dao {
 			StringBuffer msg = new StringBuffer() ;
 			if( !modifyM6Subscriber(phoneNumber, false, c.address, c.username, c.password, msg) ) {
 				logger.info("Error trying to unsuspend the account with phone number " + phoneNumber + " on the M6, continuing anyways..") ;				
-			}
-			/*
-			try {
-<<<<<<< HEAD
-				Thread.currentThread().setContextClassLoader(ClassLoader.getSystemClassLoader() ) ;
-=======
-				Class cl = Class.forName("com.sun.xml.rpc.client.ServiceFactoryImpl");
-				Thread.currentThread().setContextClassLoader(cl.getClassLoader());
 
->>>>>>> fix for M6 suspend/unsuspend exception
-				M6ModifyUserCommand cmd;
-				cmd = new M6ModifyUserCommand(c.address, c.username, c.password, Utilities.getLocalHost(), phoneNumber);
-				cmd.setValue(UserKeys.SUSPEND_SERVICE, false ) ;
-				cmd.execute() ;
-				logger.info("Successfully unsuspended phone number " + phoneNumber ) ;
-			} catch( DBSOAPException e ) {
-				logger.info("Error trying to unsuspend the account with phone number " + phoneNumber + " on the M6, continuing anyways..", e) ;
 				if( cfg.getEmailServer() != null && cfg.getEmailRecipients() != null ) {
 					Utilities.sendMail(cfg.getEmailRecipients(), cfg.getEmailServer(), "M6 unsuspend failure", 
 							"failure attempting to unsuspend account with phone number " + phoneNumber + " on the M6 after successfully processing a payment", null) ;
-				}
-			} catch (ClassNotFoundException e) {
-				logger.info("Error trying to unsuspend the account with phone number " + phoneNumber + " on the M6, continuing anyways..", e) ;
-				if( cfg.getEmailServer() != null && cfg.getEmailRecipients() != null ) {
-					Utilities.sendMail(cfg.getEmailRecipients(), cfg.getEmailServer(), "M6 unsuspend failure", 
-							"failure attempting to unsuspend account with phone number " + phoneNumber + " on the M6 after successfully processing a payment", null) ;
-				}
+				}				
 			}
-			*/
 			
 			st.setUnsuspendedOn( new Date( System.currentTimeMillis() ) ) ;
 			session.update(st) ;
@@ -1162,7 +1137,6 @@ public class Dao {
 			msg.append( e.getLocalizedMessage() ) ;
 			rc = false ;
 		}
-
 		return rc ;
 	}
 }
