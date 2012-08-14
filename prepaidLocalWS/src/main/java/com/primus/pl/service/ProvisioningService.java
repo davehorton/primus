@@ -1,15 +1,12 @@
 package com.primus.pl.service;
 
 
-import java.math.BigDecimal;
-
 import org.apache.log4j.Logger;
 
 import com.pactolus.java.*;
 
 import com.beachdog.primusCore.Dao;
 
-import com.primus.pl.ws.*;
 import com.primus.pl.xml.*;
 
 
@@ -17,13 +14,7 @@ public class ProvisioningService {
 
 	private final int SUCCESS = 0 ;
 	
-	private static final int INVALID_LOT_ID = -1;
-	private static final int INVALID_NUMBER_PINS = -2;
-	private static final int NO_AVAILABLE_GROUP = -3;
-	private static final int DB_ERROR = -98;
-	private static final int OTHER_ERROR = -99;
-
-	protected static Logger logger =Logger.getLogger(ActivationRequestEndpoint.class) ;
+	protected static Logger logger =Logger.getLogger(ProvisioningService.class) ;
 	
 
 	public ProvisioningService() {
@@ -111,7 +102,7 @@ public class ProvisioningService {
 		v.setTransactionCode( transactionCode.toString() ) ;
 		v.setTransactionDescription( transactionDescription.toString() ) ;
 		Float f = settlementAmount.floatValue() ;
-		v.setSettleAmount( f.doubleValue()) ;
+		v.setSettleAmount( f.doubleValue() ) ;
 		v.setVendorTransactionId( ukashTransactionId.toString() ) ;
 		
 		resp.setDetails(v) ;

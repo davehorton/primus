@@ -28,8 +28,6 @@ import org.hibernate.criterion.Restrictions;
 import org.sipdev.framework.Framework;
 
 import com.pactolus.java.*;
-import com.primus.pl.xml.M6ModifyRequest;
-import com.primus.pl.xml.M6ModifyResponse;
 
 import uri.ecare.PrepaidPaymentechPaymentDlResponse.ECarePrepaidPaymentechResponse;
 import uri.ecare.PrepaidUkashPaymentDlResponse.ECarePrepaidUkashResponse;
@@ -83,7 +81,7 @@ public class Dao {
 	public static final int OTHER_ERROR = -98 ;
 	public static final int DB_ERROR = -99 ;
 	
-	public static Boolean bypassRechargeTransaction = false ;
+	public static Boolean bypassRechargeTransaction = false ;	
 	
 	protected static String sqlCreateActivationGroup = "INSERT INTO  evt_prepaid_activation " + 
 			"(activation_id,total_pins,status,lot_id,start_lot_seq,end_lot_seq,initial_balance,offering_id, time_stamp, description) " + 
@@ -387,7 +385,7 @@ public class Dao {
 			
 			transaction.commit() ;
 
-			/* last thing,tie siubscriber to offering */
+			/* last thing,tie subscriber to offering */
 			String subOfferingXrefSql = "INSERT INTO sub_offering_xref (subscriber_id, offering_id, primary_flag) VALUES (?, ?, 'T')";
 			conn = framework.getConnection("psprd1") ;
 			CallableStatement stmt = conn.prepareCall(subOfferingXrefSql) ;
@@ -839,27 +837,12 @@ public class Dao {
 			Utilities.M6Credential c = Utilities.getM6Credential(cfg, phoneNumber) ;
 			logger.info("Attempting to unsuspend phone number " + phoneNumber + " on M6: " + c.address + " user/pass: " + c.username + "/" + c.password ) ;
 
-			try {
-				Class cl = Class.forName("com.sun.xml.rpc.client.ServiceFactoryImpl");
-				Thread.currentThread().setContextClassLoader(cl.getClassLoader());
-
-				M6ModifyUserCommand cmd;
-				cmd = new M6ModifyUserCommand(c.address, c.username, c.password, Utilities.getLocalHost(), phoneNumber);
-				cmd.setValue(UserKeys.SUSPEND_SERVICE, false ) ;
-				cmd.execute() ;
-				logger.info("Successfully unsuspended phone number " + phoneNumber ) ;
-			} catch( DBSOAPException e ) {
-				logger.info("Error trying to unsuspend the account with phone number " + phoneNumber + " on the M6, continuing anyways..", e) ;
+			StringBuffer msg = new StringBuffer() ;
+			if( !modifyM6Subscriber(phoneNumber, false, c.address, c.username, c.password, msg) ) {
 				if( cfg.getEmailServer() != null && cfg.getEmailRecipients() != null ) {
 					Utilities.sendMail(cfg.getEmailRecipients(), cfg.getEmailServer(), "M6 unsuspend failure", 
 							"failure attempting to unsuspend account with phone number " + phoneNumber + " on the M6 after successfully processing a payment", null) ;
-				}
-			} catch (ClassNotFoundException e) {
-				logger.info("Error trying to unsuspend the account with phone number " + phoneNumber + " on the M6, continuing anyways..", e) ;
-				if( cfg.getEmailServer() != null && cfg.getEmailRecipients() != null ) {
-					Utilities.sendMail(cfg.getEmailRecipients(), cfg.getEmailServer(), "M6 unsuspend failure", 
-							"failure attempting to unsuspend account with phone number " + phoneNumber + " on the M6 after successfully processing a payment", null) ;
-				}
+				}				
 			}
 			
 			st.setUnsuspendedOn( new Date( System.currentTimeMillis() ) ) ;
@@ -959,6 +942,33 @@ public class Dao {
 			.uniqueResult() ;
 
 		return rate ;
+	}
+	
+	public static boolean modifyM6Subscriber(String phone, boolean bSuspend, String m6Address, String m6Username, String m6Password, StringBuffer msg ) {
+		boolean rc = true ;
+		
+		try {
+			logger.info("Trying to " + (bSuspend ? "suspend" : "unsuspend") + " phone number " + phone + " on M6 " + m6Address + 
+					" with username " + m6Username + " and password " + m6Password ) ;
+			Class cl = Class.forName("com.sun.xml.rpc.client.ServiceFactoryImpl");
+			Thread.currentThread().setContextClassLoader(cl.getClassLoader());
+			M6ModifyUserCommand cmd;
+			cmd = new M6ModifyUserCommand(m6Address, m6Username, m6Password, Utilities.getLocalHost(), phone);
+			cmd.setValue(UserKeys.SUSPEND_SERVICE, bSuspend ) ;
+			cmd.execute() ;
+			msg.append("Successfully " + (bSuspend ? "suspended" : "unsuspended") + " phone number " + phone ) ;
+			logger.info("Successfully " + (bSuspend ? "suspended" : "unsuspended") + " phone number " + phone ) ;
+		} catch( DBSOAPException e ) {
+			logger.info("Error trying to unsuspend the account with phone number " + phone + " on the M6", e) ;
+			msg.append( e.getLocalizedMessage() ) ;
+			rc = false ;
+		} catch (ClassNotFoundException e) {
+			logger.info("Error trying to unsuspend the account with phone number " + phone + " on the M6", e) ;
+			msg.append( e.getLocalizedMessage() ) ;
+			rc = false ;
+		}
+
+		return rc ;
 	}
 
 }
