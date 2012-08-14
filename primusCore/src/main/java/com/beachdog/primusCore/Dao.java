@@ -28,6 +28,8 @@ import org.hibernate.criterion.Restrictions;
 import org.sipdev.framework.Framework;
 
 import com.pactolus.java.*;
+import com.primus.pl.xml.M6ModifyRequest;
+import com.primus.pl.xml.M6ModifyResponse;
 
 import uri.ecare.PrepaidPaymentechPaymentDlResponse.ECarePrepaidPaymentechResponse;
 import uri.ecare.PrepaidUkashPaymentDlResponse.ECarePrepaidUkashResponse;
