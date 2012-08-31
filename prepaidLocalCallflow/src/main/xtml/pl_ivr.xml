@@ -1,6 +1,6 @@
 <?xml version="1.0"?>
 <xtml version="1.0" xmlns="urn:www.pactolus.com:xtml" >
-  <version sce-version="1" prev-sce-version="1" last-mod-time="Wednesday, August 01, 2012 23:39:17"/>
+  <version sce-version="1" prev-sce-version="1" last-mod-time="Tuesday, August 28, 2012 10:58:19"/>
   <global-handlers >
     <handler event="Pactolus.EveSessionTerminate.1" function="OnSipDialogTerminated" public="0" always-on="0"/>
     <handler event="Standard.OnServiceLoad.1" function="OnServiceLoad" public="0" always-on="0"/>
@@ -43,7 +43,6 @@
     <var name="IDX_UNKNOWN_CALLER" type="i4" >4109</var>
     <var name="ACTION_TOPLEVEL_IVR" type="i4" >1</var>
     <var name="ACTION_UKASH_IVR" type="i4" >2</var>
-    <var name="strDigits" type="string" ></var>
     <var name="IDX_PRESS_1" type="i4" >4104</var>
     <var name="IDX_TO_RECHARGE" type="i4" >4111</var>
     <var name="IDX_PRESS_2" type="i4" >4105</var>
@@ -215,7 +214,7 @@ Server.logInfo("service provider name: " + Session.g_strServiceProviderName ) ;
             <result name="Default" link="3" stubbed="0"/>
           </results>
         </action>
-        <action id="6" plug-in="Standard.FunctionCall.1" ><?xtml-editor x=646 y=328 ?>
+        <action id="6" plug-in="Standard.FunctionCall.1" ><?xtml-editor x=624 y=303 ?>
           <!--PlayErrorMsg-->
           <function xmlns="www.pactolus.com:xtml:application" name="&quot;PlayErrorMsg&quot;" return="" external-function="0" library="" >
             <parameter >IDX_UNKNOWN_CALLER</parameter>
@@ -385,6 +384,7 @@ Server.logInfo("User Id for web service will be: " + Session.s_strWSUserId ) ;
       <local-vars >
         <var name="nRetries" type="i4" >0</var>
         <var name="nAction" type="i4" >0</var>
+        <var name="strDigits" type="string" ></var>
       </local-vars>
       <actions >
         <action id="1" plug-in="Pactolus.Play.2" ><?xtml-editor x=69 y=83 ?>
@@ -481,9 +481,6 @@ Server.logInfo("Digits collected from toplevel IVR: " + Session.strDigits + " ne
             <result name="No/Impossible Match" ><?xtml-editor visible=no?></result>
             <result name="First Digit Timeout" ><?xtml-editor visible=no?></result>
           </results>
-          <scripts >
-            <script language="javascript" timing="first" ><![CDATA[Session.strDigits = "" ;]]></script>
-          </scripts>
         </action>
         <action id="2" plug-in="Standard.FunctionReturn.1" ><?xtml-editor x=361 y=81 ?>
           <return xmlns="www.pactolus.com:xtml:application" value="ACTION_TOPLEVEL_IVR"/>

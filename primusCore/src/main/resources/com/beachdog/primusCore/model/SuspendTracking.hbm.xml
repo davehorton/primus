@@ -17,7 +17,7 @@
             <column name="PHONE_NUMBER" length="20" not-null="true" />
         </property>
         <property name="aaActivityId" type="string">
-            <column name="AA_ACTIVITY_ID" length="20" not-null="true" />
+            <column name="AA_ACTIVITY_ID" length="20" />
         </property>
         <property name="suspendedOn" type="date">
             <column name="SUSPENDED_ON" length="7" not-null="true" />
