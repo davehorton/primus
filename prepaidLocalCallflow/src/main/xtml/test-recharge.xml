@@ -1,0 +1,184 @@
+<?xml version="1.0"?>
+<xtml version="1.0" xmlns="urn:www.pactolus.com:xtml" >
+  <version sce-version="1" prev-sce-version="1" last-mod-time="Tuesday, September 04, 2012 17:31:25"/>
+  <global-handlers >
+    <handler event="Standard.OnSessionStart.1" function="OnSessionStart" public="0" always-on="0"/>
+  </global-handlers>
+  <global-vars >
+    <var name="g_strSessionId" type="string" ></var>
+    <var name="g_strCalledNumber" type="string" >2005001004</var>
+    <var name="g_strCallingNumber" type="string" >4162388444</var>
+    <var name="g_lSubscriberId" type="i8" >0</var>
+    <var name="g_nSubscriberStatus" type="i4" >0</var>
+    <var name="g_strLanguage" type="string" ></var>
+    <var name="g_fAccountBalance" type="float" >0</var>
+    <var name="g_bPlayAsUnits" type="boolean" >0</var>
+    <var name="g_fMaxRechargeAmount" type="float" >0</var>
+    <var name="g_fMinRechargeAmount" type="float" >0</var>
+    <var name="g_strBusinessUnit" type="string" ></var>
+    <var name="g_strServiceProviderName" type="string" ></var>
+  </global-vars>
+  <shared-vars >
+    <var name="s_strJavaClass" type="string" >com.beachdog.primusCallflow.XtmlApi</var>
+    <var name="s_strWSUserId" type="string" >PCS-AS</var>
+    <var name="s_strWSClientId" type="string" ></var>
+  </shared-vars>
+  <functions >
+    <function name="OnSessionStart" start="1" event="SessionStart" returns="void" >
+      <parameters >
+        <parameter name="strSessionId" type="string" pass="byref"/>
+        <parameter name="nIteration" type="i4" pass="byref"/>
+      </parameters>
+      <local-vars >
+        <var name="nReturnCode" type="i4" >0</var>
+        <var name="SUCCESS" type="i4" >0</var>
+        <var name="DB_ERROR" type="i4" >-99</var>
+        <var name="strVoucherNumber" type="string" >1234567890123456789</var>
+        <var name="strVoucherValue" type="string" >50.00</var>
+        <var name="strTransactionId" type="string" ></var>
+        <var name="strTransactionCode" type="string" ></var>
+        <var name="strTransactionDesc" type="string" ></var>
+        <var name="fSettlementAmount" type="float" >0</var>
+        <var name="nErrorCode" type="i4" >-99</var>
+        <var name="strErrorDesc" type="string" ></var>
+        <var name="strUkashTransactionId" type="string" ></var>
+        <var name="WS_ERROR" type="i4" >-98</var>
+      </local-vars>
+      <actions >
+        <action id="1" plug-in="Pactolus.JavaStaticMethod.1" ><?xtml-editor x=40 y=53 ?>
+          <!--InitializeRechargeSession-->
+          <java xmlns="www.pactolus.com:xtml:application" class="s_strJavaClass" method="&quot;InitializeRechargeSession&quot;" timeout="10" return="" method-return-var="nReturnCode" method-return-type="0" >
+            <parameter type="in" var-type="string" >g_strSessionId</parameter>
+            <parameter type="in" var-type="string" >g_strCalledNumber</parameter>
+            <parameter type="in" var-type="string" >g_strCallingNumber</parameter>
+            <parameter type="inout" var-type="i8" >g_lSubscriberId</parameter>
+            <parameter type="inout" var-type="i4" >g_nSubscriberStatus</parameter>
+            <parameter type="inout" var-type="string" >g_strLanguage</parameter>
+            <parameter type="inout" var-type="float" >g_fAccountBalance</parameter>
+            <parameter type="inout" var-type="boolean" >g_bPlayAsUnits</parameter>
+            <parameter type="inout" var-type="float" >g_fMaxRechargeAmount</parameter>
+            <parameter type="inout" var-type="float" >g_fMinRechargeAmount</parameter>
+            <parameter type="inout" var-type="string" >g_strBusinessUnit</parameter>
+            <parameter type="inout" var-type="string" >g_strServiceProviderName</parameter>
+          </java>
+          <results >
+            <result name="Default" link="3" stubbed="0"/>
+            <result name="Success"/>
+            <result name="Error"/>
+            <result name="Timeout"/>
+            <result name="valid customer" link="2" stubbed="0" >nReturnCode == SUCCESS
+AND g_nSubscriberStatus == SUCCESS</result>
+          </results>
+          <scripts >
+            <script language="javascript" timing="first" ><![CDATA[Session.g_strSessionId = Session._sessionId ;
+]]></script>
+            <script language="javascript" timing="last" ><![CDATA[Server.logInfo("Return values from InitializeRechargeSession for calling number " + Session.g_strCallingNumber ) ;
+Server.logInfo("subscriber id: " + Session.g_lSubscriberId ) ;
+Server.logInfo("language: " + Session.g_strLanguage ) ;
+Server.logInfo("account balance: " + Session.g_fAccountBalance ) ;
+Server.logInfo("units card?: " + Session.g_bPlayAsUnits ) ;
+Server.logInfo("max recharge: " + Session.g_fMaxRechargeAmount ) ;
+Server.logInfo("min recharge: " + Session.g_fMinRechargeAmount ) ;
+Server.logInfo("business unit: " + Session.g_strBusinessUnit ) ;
+Server.logInfo("service provider name: " + Session.g_strServiceProviderName ) ;
+
+]]></script>
+          </scripts>
+        </action>
+        <action id="2" plug-in="Pactolus.JavaStaticMethod.1" ><?xtml-editor x=402 y=160 ?>
+          <!--ProcessRechargeUkash-->
+          <java xmlns="www.pactolus.com:xtml:application" class="s_strJavaClass" method="&quot;ProcessRechargeUkash&quot;" timeout="20" return="" method-return-var="nReturnCode" method-return-type="0" >
+            <parameter type="in" var-type="string" >g_strSessionId</parameter>
+            <parameter type="in" var-type="i8" >g_lSubscriberId</parameter>
+            <parameter type="in" var-type="string" >g_strCallingNumber</parameter>
+            <parameter type="in" var-type="string" >g_strServiceProviderName</parameter>
+            <parameter type="in" var-type="string" >s_strWSUserId</parameter>
+            <parameter type="in" var-type="string" >s_strWSClientId</parameter>
+            <parameter type="in" var-type="string" >g_strBusinessUnit</parameter>
+            <parameter type="in" var-type="string" >strVoucherNumber</parameter>
+            <parameter type="in" var-type="string" >strVoucherValue</parameter>
+            <parameter type="in" var-type="string" >strTransactionId</parameter>
+            <parameter type="inout" var-type="string" >strTransactionCode</parameter>
+            <parameter type="inout" var-type="string" >strTransactionDesc</parameter>
+            <parameter type="inout" var-type="float" >fSettlementAmount</parameter>
+            <parameter type="inout" var-type="i4" >nErrorCode</parameter>
+            <parameter type="inout" var-type="string" >strErrorDesc</parameter>
+            <parameter type="inout" var-type="string" >strUkashTransactionId</parameter>
+          </java>
+          <results >
+            <result name="Default" link="3" stubbed="0"/>
+            <result name="Success"/>
+            <result name="Error"/>
+            <result name="Timeout"/>
+            <result name="recharge accepted" >nReturnCode == SUCCESS</result>
+            <result name="invalid voucher number" >nErrorCode == 219</result>
+            <result name="web service error" >nReturnCode == WS_ERROR</result>
+          </results>
+          <scripts >
+            <script language="javascript" timing="first" ><![CDATA[Session.strTransactionId = makeTransactionId() ;
+Session.nReturnCode = Session.DB_ERROR ;]]></script>
+            <script language="javascript" timing="middle" ><![CDATA[if( 2 == Result.id ) {
+	Server.logInfo("transaction code: " + Session.strTransactionCode ) ;
+	Server.logInfo("transaction desc: " + Session.strTransactionDesc ) ;
+	Server.logInfo("error code:       " + Session.nErrorCode ) ;
+	Server.logInfo("error desc:       " + Session.strErrorDesc ) ;
+	Server.logInfo("settlement amount: " + Session.fSettlementAmount ) ;
+	Server.logInfo("Ukash txn id:     " + Session.strUkashTransactionId ) ;
+	Server.logInfo("return code:      " + Session.nReturnCode ) ;
+	
+}]]></script>
+          </scripts>
+        </action>
+        <action id="3" plug-in="Standard.EndSession.1" ><?xtml-editor x=305 y=56 ?></action>
+      </actions>
+    </function>
+  </functions>
+  <script language="javascript" ><![CDATA[var formatDate = function (formatDate, formatString) {
+	if(formatDate instanceof Date) {
+		var months = new Array("Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec");
+		var yyyy = formatDate.getFullYear();
+		var yy = yyyy.toString().substring(2);
+		var m = formatDate.getMonth();
+		var mm = m < 10 ? "0" + m : m;
+		var mmm = months[m];
+		var d = formatDate.getDate();
+		var dd = d < 10 ? "0" + d : d;
+		
+		var h = formatDate.getHours();
+		var hh = h < 10 ? "0" + h : h;
+		var n = formatDate.getMinutes();
+		var nn = n < 10 ? "0" + n : n;
+		var s = formatDate.getSeconds();
+		var ss = s < 10 ? "0" + s : s;
+
+		formatString = formatString.replace(/yyyy/i, yyyy);
+		formatString = formatString.replace(/yy/i, yy);
+		formatString = formatString.replace(/mmm/i, mmm);
+		formatString = formatString.replace(/mm/i, mm);
+		formatString = formatString.replace(/m/i, m);
+		formatString = formatString.replace(/dd/i, dd);
+		formatString = formatString.replace(/d/i, d);
+		formatString = formatString.replace(/hh/i, hh);
+		formatString = formatString.replace(/h/i, h);
+		formatString = formatString.replace(/nn/i, nn);
+		formatString = formatString.replace(/n/i, n);
+		formatString = formatString.replace(/ss/i, ss);
+		formatString = formatString.replace(/s/i, s);
+
+		return formatString;
+	} else {
+		return "";
+	}
+}
+
+function makeTransactionId() {
+	Server.logInfo( "Cisco h323 conf id: " + Server.generateCiscoH323ConfId() ) ;
+
+	var dt = new Date() ;
+	return formatDate( dt, "yyyymmdd-hhnnss" ) ;
+	
+}]]></script>
+  <properties >
+    <property key="disable-logging" value=""/>
+  </properties>
+</xtml>
