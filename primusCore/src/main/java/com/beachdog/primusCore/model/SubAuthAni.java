@@ -15,7 +15,7 @@ public class SubAuthAni implements java.io.Serializable {
 	private String status;
 	private String phoneNumber;
 	private BigDecimal pinId;
-	private BigDecimal subscriberId ;
+	//private BigDecimal subscriberId ;
 
 	public SubAuthAni() {
 	}
@@ -87,7 +87,7 @@ public class SubAuthAni implements java.io.Serializable {
 	public void setPinId(BigDecimal pinId) {
 		this.pinId = pinId;
 	}
-
+/*
 	public BigDecimal getSubscriberId() {
 		return subscriberId;
 	}
@@ -95,5 +95,5 @@ public class SubAuthAni implements java.io.Serializable {
 	public void setSubscriberId(BigDecimal subscriberId) {
 		this.subscriberId = subscriberId;
 	}
-
+*/
 }

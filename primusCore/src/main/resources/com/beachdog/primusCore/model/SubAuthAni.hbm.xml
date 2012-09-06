@@ -27,8 +27,10 @@
         <property name="pinId" type="big_decimal">
             <column name="PIN_ID" precision="22" scale="0" />
         </property>
+        <!-- 
         <property name="subscriberId" type="big_decimal">
             <column name="subscriber_id" precision="22" scale="0" />
         </property>
+        -->
     </class>
 </hibernate-mapping>
