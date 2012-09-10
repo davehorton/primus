@@ -71,6 +71,7 @@ public class App {
 		SessionFactory sessionFactory = null ;
 		
 		DecimalFormat fmt = new DecimalFormat("###.00") ;
+		SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd") ;
 
 		try {
 			framework =Framework.getInstance() ;
@@ -106,7 +107,6 @@ public class App {
     		    c.add(Calendar.DATE, -purgeDays );
     		    dt.setTime( c.getTime().getTime() ) ;
 
-    		    SimpleDateFormat sdf = new SimpleDateFormat( "yyyy-MM-dd" ) ;
     			logger.info("Purging old unsuspend records that occurred on or before " + sdf.format(dt) ) ;
 
     			int nrows = session.createSQLQuery("DELETE FROM SUSPEND_TRACKING WHERE UNSUSPENDED_ON <= ?")
@@ -142,21 +142,26 @@ public class App {
     			
     			logger.info("Processing service provider " + sp.getName() ) ;
     			
-        		DetachedCriteria authAniCriteria = DetachedCriteria.forClass(SubAuthAni.class, "authAni")
-        				.add(Property.forName("authAni.subscriberId").eqProperty( "sub.subscriberId") ) ;
+        		//DetachedCriteria authAniCriteria = DetachedCriteria.forClass(SubAuthAni.class, "authAni")
+        		//		.add(Property.forName("authAni.subscriberId").eqProperty( "sub.subscriberId") ) ;
 
         		Criteria criteria = session.createCriteria(Subscriber.class, "sub")
         				.add(Restrictions.eq("disabledFlag", "F")) 
-        				.add(Restrictions.isNotNull("nextMaintFeeDate"))
+        				.add(Restrictions.isNotNull("firstCallDate"))
+        				//.add(Restrictions.isNotNull("nextMaintFeeDate"))
         				.add(Restrictions.le("currPrepaidBalance", BigDecimal.valueOf(0.0)))
         				.add(Restrictions.eq("serviceProviderId", sp.getServiceProviderId())) ;
         		      		
-        		criteria.add(Subqueries.exists(authAniCriteria.setProjection(Projections.property("subscriberId")))) ;
+        		//criteria.add(Subqueries.exists(authAniCriteria.setProjection(Projections.property("subscriberId")))) ;
         		
         		List<Subscriber> list = criteria.list() ;
         		Iterator<Subscriber> itSubscriber = list.iterator() ;
         		while( itSubscriber.hasNext() ) {
         			Subscriber sub = itSubscriber.next() ;
+        			
+        			if( sub.getSubAuthAnis().isEmpty() ) {
+        				continue ;
+        			}
         			
         			java.util.Date dtLastUnsuspend = null ;
         			
@@ -191,14 +196,7 @@ public class App {
         			
         			
         			String cli = null ;
-        			List<SubAuthAni> authAnis = session.createCriteria(SubAuthAni.class)
-        					.add(Restrictions.eq("subscriberId", sub.getSubscriberId()))
-        					.list() ;
-        			if( authAnis.isEmpty() ) {
-        				throw new Exception("Auth anis list unexpectedly empty") ;
-        			}
-        			
-        			Iterator<SubAuthAni> itAuthAni = authAnis.iterator() ;
+        			Iterator<SubAuthAni> itAuthAni = sub.getSubAuthAnis().iterator() ;
         			while( null == cli && itAuthAni.hasNext() ) {
         				SubAuthAni ani = itAuthAni.next() ;
         				try {
@@ -207,6 +205,7 @@ public class App {
 	        				}
         				} catch( NumberFormatException nfe ) {}
         			}
+        			
         			
         			if( null == cli ) {
         				/* subscriber does not have an active auth ani */
@@ -232,75 +231,98 @@ public class App {
             			logger.error("   Not suspending -- product offering has a maintenance fee rate but no frequency has been set; subscriber id: " + sub.getSubscriberId().longValue() ) ;
         				continue ;        				
         			}
-        							
-        			/* find the most recent account activity record for this maintenance fees */		      			
-        			Iterator<AccountActivity> itAA = sub.getAccountActivities().iterator() ;
-        			AccountActivity aa = null ;
-        			//Rate rateApplied = null ;
-        			while( itAA.hasNext()  ) {
-        				AccountActivity aaTemp = itAA.next() ;
-        				if( null != dtLastUnsuspend && aaTemp.getTimeDateStamp().before( dtLastUnsuspend ) ) {
-             				logger.info("     account activity with activity_id " + aaTemp.getActivityId() + " is old -- before their last unsuspension, so ignore it") ;
-        					break ;
-        				}
-        				if( null != aaTemp.getEventTypeId() && 
-        						aaTemp.getEventTypeId().longValue() == (long) PactolusConstants.MAINT_FEE_EVENT && 
-        						null != aaTemp.getRateId1() && 
-        						0 == maintFeeRate.getRateId().compareTo( aaTemp.getRateId1() ) ) {
-        					
-        					aa = aaTemp ; 
-             				logger.info("     account activity with activity_id " + aaTemp.getActivityId() + " is the most recent maintenance fee") ;
-           					break ;
-        				}
-        				logger.info("     account activity with activity_id " + aaTemp.getActivityId() + " is not a maintenance fee") ;
-         			}
         			
-        			if( null == aa ) {
+           			/* special case: the subscriber does not have a 'next maintenance fee date' set.
+        			 * This occurs when a subscriber is in his or her initial days before maintenance fee.
+        			 * We need to suspend them if it has been more than initial days since their first call
+        			 */
+        			AccountActivity aa = null ;
+        			if( null == sub.getNextMaintFeeDate() ) {
+        				Long nDays = maintFeeRate.getFirstMaintFeeFrequency().longValue() ;
+        				logger.info("     subscriber with ani " + cli + " has null value for next_maint_fee_date, check if it has been more than " + nDays +
+        						" since the first call (" + sdf.format(sub.getFirstCallDate() ) + ")" ) ;
         				
-        				/* if there are no Account Activity records, then this subscriber should be suspended.
-        				 * 
-        				 * The reason is that since we know next_maint_fee is not null, the batch maintenance job must have run.
-        				 * The fact that there isn't an AA record can only mean that there was no money to take.
-        				 */
-        				logger.info("  Suspending this subscriber because the first maintenance fee for this subscriber failed to take any money") ;
+         				Calendar then = Calendar.getInstance() ;
+        				then.setTime( sub.getFirstCallDate() ) ;
+        				Long daysSinceFirstCall = (now.getTimeInMillis() - then.getTimeInMillis())/(1000*60*60*24);
         				
-         			}
-        			else {
-        				
-        				/* now we have the most recent maintenance fee account activity record.  Check to see when it occurred --
-        				 * if there was a maintenance fee run in the meantime, that means we did not write an AA record because the balance
-        				 * was zero, and in that case we DO want to suspend them.
-        				 */
-        				if( aa.getTotalAmount().abs().compareTo( maintFeeRate.getDefaultAmount()) < 0 ) {
-            				logger.info("  Suspending this subscriber because the last maintenance fee was only able to take a partial amount; activity id was " + aa.getActivityId() +
-            						" and amount taken was $" + fmt.format(aa.getTotalAmount().abs().doubleValue())) ;        					
+        				if( daysSinceFirstCall > nDays ) {
+        					logger.info("    suspending this subscriber because the first call was " + daysSinceFirstCall + " days ago") ;
         				}
         				else {
-        				
-        					/* ok, we have a situation where the last AA record got the full amount.
-        					 * However, it may be that there was a more recent attempt that got nothing...
-        					 */
-	        				Long nDays = maintFeeRate.getMaintFeeFrequency().longValue() ;
-	         				Calendar then = Calendar.getInstance() ;
-	        				then.setTime( aa.getTimeDateStamp() ) ;
-	        				Long daysInArrears = (now.getTimeInMillis() - then.getTimeInMillis())/(1000*60*60*24);
-	
-		        			logger.info("   Last maintenance fee was collected " + daysInArrears + " days ago and was for an amount of $" + fmt.format( aa.getTotalAmount().abs().doubleValue() ) + ", the activity id was " + aa.getActivityId() ) ;
-		        		    logger.info("   The maintenance fee rate is: $" + fmt.format( maintFeeRate.getDefaultAmount().abs().doubleValue() ) + 
-		        		    		", the rate id is " + maintFeeRate.getRateId().longValue() + " and the fee is collected every " + nDays + " days" ) ;
-	
-	        				if( daysInArrears >= nDays ) {
-	        					logger.info("   Suspending the account because the most recent maintenance fee failed to collect anything from this account") ;
-	        				}
-	        				else {	     			
-		            			logger.info("   Not suspending -- the most recent maintenance fee got the full amount and it appears no ; subscriber id: " + sub.getSubscriberId().longValue() ) ;
-		        				continue ;
-	        				}
+        					logger.info("    not suspending this subscriber because the first call was " + daysSinceFirstCall + " days ago") ;  
+        					continue ;
         				}
+        			}      			        			
+        			else {
+        							        			
+	        			/* find the most recent account activity record for this maintenance fees */		      			
+	        			Iterator<AccountActivity> itAA = sub.getAccountActivities().iterator() ;
+	        			while( itAA.hasNext()  ) {
+	        				AccountActivity aaTemp = itAA.next() ;
+	        				if( null != dtLastUnsuspend && aaTemp.getTimeDateStamp().before( dtLastUnsuspend ) ) {
+	             				logger.info("     account activity with activity_id " + aaTemp.getActivityId() + " is old -- before their last unsuspension, so ignore it") ;
+	        					break ;
+	        				}
+	        				if( null != aaTemp.getEventTypeId() && 
+	        						aaTemp.getEventTypeId().longValue() == (long) PactolusConstants.MAINT_FEE_EVENT && 
+	        						null != aaTemp.getRateId1() && 
+	        						0 == maintFeeRate.getRateId().compareTo( aaTemp.getRateId1() ) ) {
+	        					
+	        					aa = aaTemp ; 
+	             				logger.info("     account activity with activity_id " + aaTemp.getActivityId() + " is the most recent maintenance fee") ;
+	           					break ;
+	        				}
+	        				logger.info("     account activity with activity_id " + aaTemp.getActivityId() + " is not a maintenance fee") ;
+	         			}
+	        			
+	        			if( null == aa ) {
+	        				
+	        				/* if there are no Account Activity records, then this subscriber should be suspended.
+	        				 * 
+	        				 * The reason is that since we know next_maint_fee is not null, the batch maintenance job must have run.
+	        				 * The fact that there isn't an AA record can only mean that there was no money to take.
+	        				 */
+	        				logger.info("  Suspending this subscriber because the first maintenance fee for this subscriber failed to take any money (next_maint_fee_date is null)") ;
+	        				
+	         			}
+	        			else {
+	        				
+	        				/* now we have the most recent maintenance fee account activity record.  Check to see when it occurred --
+	        				 * if there was a maintenance fee run in the meantime, that means we did not write an AA record because the balance
+	        				 * was zero, and in that case we DO want to suspend them.
+	        				 */
+	        				if( aa.getTotalAmount().abs().compareTo( maintFeeRate.getDefaultAmount()) < 0 ) {
+	            				logger.info("  Suspending this subscriber because the last maintenance fee was only able to take a partial amount; activity id was " + aa.getActivityId() +
+	            						" and amount taken was $" + fmt.format(aa.getTotalAmount().abs().doubleValue())) ;        					
+	        				}
+	        				else {
+	        				
+	        					/* ok, we have a situation where the last AA record got the full amount.
+	        					 * However, it may be that there was a more recent attempt that got nothing...
+	        					 */
+		        				Long nDays = maintFeeRate.getMaintFeeFrequency().longValue() ;
+		         				Calendar then = Calendar.getInstance() ;
+		        				then.setTime( aa.getTimeDateStamp() ) ;
+		        				Long daysInArrears = (now.getTimeInMillis() - then.getTimeInMillis())/(1000*60*60*24);
+		
+			        			logger.info("   Last maintenance fee was collected " + daysInArrears + " days ago and was for an amount of $" + fmt.format( aa.getTotalAmount().abs().doubleValue() ) + ", the activity id was " + aa.getActivityId() ) ;
+			        		    logger.info("   The maintenance fee rate is: $" + fmt.format( maintFeeRate.getDefaultAmount().abs().doubleValue() ) + 
+			        		    		", the rate id is " + maintFeeRate.getRateId().longValue() + " and the fee is collected every " + nDays + " days" ) ;
+		
+		        				if( daysInArrears >= nDays ) {
+		        					logger.info("   Suspending the account because the most recent maintenance fee failed to collect anything from this account") ;
+		        				}
+		        				else {	     			
+			            			logger.info("   Not suspending -- the most recent maintenance fee got the full amount and it appears no ; subscriber id: " + sub.getSubscriberId().longValue() ) ;
+			        				continue ;
+		        				}
+	        				}
+	        			}
         			}
 
         			Utilities.M6Credential c = Utilities.getM6Credential(cfg, cli) ;
-        			logger.info("Attempting to unsuspend phone number " + cli + " on M6: " + c.address + " user/pass: " + c.username + "/" + c.password ) ;
+        			logger.info("Attempting to suspend phone number " + cli + " on M6: " + c.address + " user/pass: " + c.username + "/" + c.password ) ;
        			
 					Transaction transaction = null ;
         			try {
