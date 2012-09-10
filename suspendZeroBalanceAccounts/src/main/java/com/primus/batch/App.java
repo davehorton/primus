@@ -2,8 +2,6 @@ package com.primus.batch;
 
 import java.io.BufferedWriter;
 import java.io.File;
-import java.io.FileWriter;
-import java.io.IOException;
 import java.math.BigDecimal;
 import java.net.InetAddress;
 import java.net.UnknownHostException;
@@ -13,22 +11,15 @@ import java.text.DecimalFormat;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
-import java.util.Hashtable;
 import java.util.Iterator;
 import java.util.List;
 
 import org.hibernate.Criteria;
 import org.hibernate.HibernateException;
-import org.hibernate.SQLQuery;
 import org.hibernate.Session;
 import org.hibernate.SessionFactory;
 import org.hibernate.Transaction;
-import org.hibernate.criterion.Criterion;
-import org.hibernate.criterion.DetachedCriteria;
-import org.hibernate.criterion.Projections;
-import org.hibernate.criterion.Property;
 import org.hibernate.criterion.Restrictions;
-import org.hibernate.criterion.Subqueries;
 import org.sipdev.framework.Framework;
 import org.sipdev.framework.Log;
 
@@ -142,17 +133,13 @@ public class App {
     			
     			logger.info("Processing service provider " + sp.getName() ) ;
     			
-        		//DetachedCriteria authAniCriteria = DetachedCriteria.forClass(SubAuthAni.class, "authAni")
-        		//		.add(Property.forName("authAni.subscriberId").eqProperty( "sub.subscriberId") ) ;
 
         		Criteria criteria = session.createCriteria(Subscriber.class, "sub")
         				.add(Restrictions.eq("disabledFlag", "F")) 
         				.add(Restrictions.isNotNull("firstCallDate"))
-        				//.add(Restrictions.isNotNull("nextMaintFeeDate"))
         				.add(Restrictions.le("currPrepaidBalance", BigDecimal.valueOf(0.0)))
         				.add(Restrictions.eq("serviceProviderId", sp.getServiceProviderId())) ;
         		      		
-        		//criteria.add(Subqueries.exists(authAniCriteria.setProjection(Projections.property("subscriberId")))) ;
         		
         		List<Subscriber> list = criteria.list() ;
         		Iterator<Subscriber> itSubscriber = list.iterator() ;
