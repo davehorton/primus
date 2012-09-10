@@ -51,13 +51,6 @@ public class ObjectFactory {
     public ObjectFactory() {
     }
 
-    /**
-     * Create an instance of {@link VoucherProcessorResponse }
-     * 
-     */
-    public VoucherProcessorResponse createVoucherProcessorResponse() {
-        return new VoucherProcessorResponse();
-    }
 
     /**
      * Create an instance of {@link ActivationRequest }
@@ -73,14 +66,6 @@ public class ObjectFactory {
      */
     public M6ModifyRequest createM6ModifyRequest() {
         return new M6ModifyRequest();
-    }
-
-    /**
-     * Create an instance of {@link M6ModifyResponse }
-     * 
-     */
-    public M6ModifyResponse createM6ModifyResponse() {
-        return new M6ModifyResponse();
     }
 
     /**
@@ -120,14 +105,6 @@ public class ObjectFactory {
     }
 
     /**
-     * Create an instance of {@link ActivationResponse }
-     * 
-     */
-    public ActivationResponse createActivationResponse() {
-        return new ActivationResponse();
-    }
-
-    /**
      * Create an instance of {@link CreditCardPaymentResponse }
      * 
      */
@@ -136,11 +113,11 @@ public class ObjectFactory {
     }
 
     /**
-     * Create an instance of {@link CreditCardProcessorResponse }
+     * Create an instance of {@link ActivationResponse }
      * 
      */
-    public CreditCardProcessorResponse createCreditCardProcessorResponse() {
-        return new CreditCardProcessorResponse();
+    public ActivationResponse createActivationResponse() {
+        return new ActivationResponse();
     }
 
     /**
@@ -176,11 +153,11 @@ public class ObjectFactory {
     }
 
     /**
-     * Create an instance of {@link CreditCardPaymentRequest }
+     * Create an instance of {@link M6ModifyResponse }
      * 
      */
-    public CreditCardPaymentRequest createCreditCardPaymentRequest() {
-        return new CreditCardPaymentRequest();
+    public M6ModifyResponse createM6ModifyResponse() {
+        return new M6ModifyResponse();
     }
 
     /**
