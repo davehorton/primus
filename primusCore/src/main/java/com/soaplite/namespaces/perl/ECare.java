@@ -4,12 +4,14 @@ package com.soaplite.namespaces.perl;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.logging.Logger;
+
+import javax.jws.HandlerChain;
 import javax.xml.namespace.QName;
 import javax.xml.ws.Service;
 import javax.xml.ws.WebEndpoint;
 import javax.xml.ws.WebServiceClient;
 import javax.xml.ws.WebServiceFeature;
-import javax.jws.HandlerChain;
+
 
 /**
  * gSOAP 2.3.8 generated service definition
@@ -19,7 +21,7 @@ import javax.jws.HandlerChain;
  * Generated source version: 2.1
  * 
  */
-@WebServiceClient(name = "ECare", targetNamespace = "http://namespaces.soaplite.com/perl", wsdlLocation = "PrimusWS.wsdl")
+@WebServiceClient(name = "ECare", targetNamespace = "http://namespaces.soaplite.com/perl", wsdlLocation = "file:/Users/dhorton/beachdog-enterprises/beachdog-networks/git/primus/primusCore/src/main/resources/PrimusWS.wsdl")
 @HandlerChain(file="handler-chain.xml")
 public class ECare
     extends Service
@@ -33,9 +35,9 @@ public class ECare
         try {
             URL baseUrl;
             baseUrl = com.soaplite.namespaces.perl.ECare.class.getResource(".");
-            url = new URL(baseUrl, "PrimusWS.wsdl");
+            url = new URL(baseUrl, "file:/Users/dhorton/beachdog-enterprises/beachdog-networks/git/primus/primusCore/src/main/resources/PrimusWS.wsdl");
         } catch (MalformedURLException e) {
-            logger.warning("Failed to create URL for the wsdl Location: 'PrimusWS.wsdl', retrying as a local file");
+            logger.warning("Failed to create URL for the wsdl Location: 'file:/Users/dhorton/beachdog-enterprises/beachdog-networks/git/primus/primusCore/src/main/resources/PrimusWS.wsdl', retrying as a local file");
             logger.warning(e.getMessage());
         }
         ECARE_WSDL_LOCATION = url;

@@ -2,6 +2,7 @@ package com.beachdog.primusCore;
 
 import java.math.BigDecimal;
 import java.net.InetAddress;
+import java.net.MalformedURLException;
 import java.net.UnknownHostException;
 import java.sql.CallableStatement;
 import java.sql.Connection;
@@ -10,6 +11,7 @@ import java.sql.PreparedStatement;
 import java.sql.SQLException;
 import java.sql.Timestamp;
 import java.text.DecimalFormat;
+import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.Set;
@@ -28,6 +30,7 @@ import org.sipdev.framework.Framework;
 
 import com.pactolus.java.*;
 
+import uri.ecare.GetPrepaidServiceDetailsDlResponse.ECarePrepaidServiceDetailsResponse;
 import uri.ecare.PrepaidPaymentechPaymentDlResponse.ECarePrepaidPaymentechResponse;
 import uri.ecare.PrepaidUkashPaymentDlResponse.ECarePrepaidUkashResponse;
 
@@ -1139,4 +1142,39 @@ public class Dao {
 		}
 		return rc ;
 	}
+	
+	public static java.util.Date getPcsActivationDateForNumber( String phone ) {
+		java.util.Date dtActivated = null ;
+		
+		Framework framework = null ;
+		ECarePrepaidServiceDetailsResponse res = null ;
+		try {
+			framework = Framework.getInstance("beans.xml") ;
+			Config cfg = (Config) framework.getResource("wsConfig") ;
+			PrimusWS pws = new PrimusWS( cfg.getWebServiceEndoint(), cfg.getWsdlLocation() ) ;
+			Thread.currentThread().setContextClassLoader(ClassLoader.getSystemClassLoader() ) ;
+			res = pws.getServiceDetails(phone) ;
+			
+			int statusCode = Integer.valueOf( res.getStatuscode() ) ;
+			if( 100 == statusCode ) {
+				logger.info("Phone " + phone + " is not provisioned in the PCS database: " + res.getMessage() ) ;
+			}
+			else if( 0 != statusCode && 1 != statusCode ) {
+				logger.info("Error retrieving data for phone " + phone + " from PCS: (" + res.getStatus() + ":" + res.getStatuscode() + ") -  " + res.getMessage() ) ;
+			}
+			else {
+				SimpleDateFormat sdf = new SimpleDateFormat("yyyy/MM/dd") ;
+				dtActivated = sdf.parse( res.getStartdate() ) ;
+			}
+		} catch (MalformedURLException e) {
+			logger.error("Error retrieving service details from PCS", e ) ;
+			e.printStackTrace();
+		} catch (ParseException e) {
+			logger.error("Error retrieving service details from PCS; bad date format: " + res.getStartdate(), e ) ;
+			e.printStackTrace();
+		}
+		
+		return dtActivated ;
+	}
+	
 }

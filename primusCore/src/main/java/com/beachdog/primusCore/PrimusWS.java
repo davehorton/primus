@@ -17,6 +17,7 @@ import uri.ecare.PaymentechCcDl;
 import uri.ecare.PrepaidPaymentechPaymentDlResponse.ECarePrepaidPaymentechResponse;
 import uri.ecare.PrepaidUkashPaymentDlResponse.ECarePrepaidUkashResponse;
 import uri.ecare.UkashVoucherDl;
+import uri.ecare.GetPrepaidServiceDetailsDlResponse.ECarePrepaidServiceDetailsResponse;
 
 import com.soaplite.namespaces.perl.ECare;
 import com.soaplite.namespaces.perl.ECarePortType;
@@ -24,6 +25,8 @@ import com.sun.xml.rpc.client.ClientTransportException;
 
 @SuppressWarnings("restriction")
 public class PrimusWS {
+	
+	final private static String PREPAID_LOCAL_SERVICE_TYPE = "LCL" ;
 
 	private String endpoint ;
 	private URL url ;
@@ -38,6 +41,16 @@ public class PrimusWS {
 		this.qname = new QName("http://namespaces.soaplite.com/perl", "ECare") ;
 	}
 	
+	public ECarePrepaidServiceDetailsResponse getServiceDetails( String phone ) {
+
+		assert( null != this.endpoint ) ;
+		
+		ECarePortType ecp = new ECare( url, qname ).getECare() ;
+        ((BindingProvider)ecp).getRequestContext().put( BindingProvider.ENDPOINT_ADDRESS_PROPERTY, endpoint )  ;
+        
+		return ecp.getPrepaidServiceDetailsDl( PREPAID_LOCAL_SERVICE_TYPE, phone) ;
+		
+	}
     public ECarePrepaidPaymentechResponse prepaidPaymentTechPayment( String userId, String clientId, String businessUnit, 
 			String phoneNumber, String cardNumber, String expiryDate, String cardType, Float amount, String nameOnCard,
 			String address1, String address2, String city, String province,  String postalCode, 

@@ -113,6 +113,37 @@
 					</xsi:sequence>
 				</xsi:complexType>
 			</xsi:element>
+			<xsi:element name="get_prepaid_service_details_dl">
+				<xsi:complexType>
+					<xsi:sequence>
+						<xsi:element name="service_type" type="xsd:string"/>
+						<xsi:element name="phone_no" type="xsd:string"/>
+					</xsi:sequence>
+				</xsi:complexType>
+			</xsi:element>
+			<xsi:element name="get_prepaid_service_details_dlResponse">
+				<xsi:complexType>
+					<xsi:sequence>
+						<xsi:element name="ECare__PrepaidServiceDetailsResponse">
+							<xsi:complexType>
+								<xsi:all>
+									<xsi:element name="status" type="xsi:string"/>
+									<xsi:element name="statuscode" type="xsi:string"/>
+									<xsi:element name="message" type="xsi:string"/>
+									<xsi:element name="startdate" type="xsi:string"/>
+									<xsi:element name="servicestatus" type="xsi:string"/>
+									<xsi:element name="clientnumber" type="xsi:string"/>
+									<xsi:element name="servicenumber" type="xsi:string"/>
+									<xsi:element name="servicetype" type="xsi:string"/>
+									<xsi:element name="serviceidpin" type="xsi:string"/>
+									<xsi:element name="enddate" type="xsi:string"/>
+									<xsi:element name="statusdate" type="xsi:string"/>
+								</xsi:all>
+							</xsi:complexType>
+						</xsi:element>
+					</xsi:sequence>
+				</xsi:complexType>
+			</xsi:element>
 		</xsi:schema>
 	</WSDL:types>
 	
@@ -134,6 +165,12 @@
 	<WSDL:message name="prepaid_balanceResponse">
 		<WSDL:part name="parameters" element="ns1:get_prepaid_balance_dlResponse"/>
 	</WSDL:message>
+	<WSDL:message name="get_prepaid_service_detailsRequest">
+		<WSDL:part name="parameters" element="ns1:get_prepaid_service_details_dl"/>
+	</WSDL:message>
+	<WSDL:message name="get_prepaid_service_detailsResponse">
+		<WSDL:part name="parameters" element="ns1:get_prepaid_service_details_dlResponse"/>
+	</WSDL:message>
 	<portType name="ECarePortType">
 	<WSDL:operation name="prepaid_paymentech_payment_dl">
 		<WSDL:input message="tns:prepaid_paymentechRequest"/>
@@ -146,6 +183,10 @@
 		<WSDL:operation name="get_prepaid_balance_dl">
 			<WSDL:input message="tns:prepaid_balanceRequest"/>
 			<WSDL:output message="tns:prepaid_balanceResponse"/>
+		</WSDL:operation>
+		<WSDL:operation name="get_prepaid_service_details_dl">
+			<WSDL:input message="tns:get_prepaid_service_detailsRequest"/>
+			<WSDL:output message="tns:get_prepaid_service_detailsResponse"/>
 		</WSDL:operation>
 	</portType>
 	<binding name="ECareBinding" type="tns:ECarePortType">
@@ -169,6 +210,15 @@
 			</output>
 		</WSDL:operation>
 		<WSDL:operation name="get_prepaid_balance_dl">
+			<SOAP:operation soapAction="urn:ECare::Prepaid"/>
+			<input>
+				<SOAP:body use="literal"/>
+			</input>
+			<output>
+				<SOAP:body use="literal"/>
+			</output>
+		</WSDL:operation>
+		<WSDL:operation name="get_prepaid_service_details_dl">
 			<SOAP:operation soapAction="urn:ECare::Prepaid"/>
 			<input>
 				<SOAP:body use="literal"/>

@@ -92,4 +92,21 @@ public interface ECarePortType {
         @WebParam(name = "phone_no", targetNamespace = "")
         String phoneNo);
 
+    /**
+     * 
+     * @param phoneNo
+     * @param serviceType
+     * @return
+     *     returns uri.ecare.GetPrepaidServiceDetailsDlResponse.ECarePrepaidServiceDetailsResponse
+     */
+    @WebMethod(operationName = "get_prepaid_service_details_dl", action = "urn:ECare::Prepaid")
+    @WebResult(name = "ECare__PrepaidServiceDetailsResponse", targetNamespace = "")
+    @RequestWrapper(localName = "get_prepaid_service_details_dl", targetNamespace = "uri:ECare", className = "uri.ecare.GetPrepaidServiceDetailsDl")
+    @ResponseWrapper(localName = "get_prepaid_service_details_dlResponse", targetNamespace = "uri:ECare", className = "uri.ecare.GetPrepaidServiceDetailsDlResponse")
+    public uri.ecare.GetPrepaidServiceDetailsDlResponse.ECarePrepaidServiceDetailsResponse getPrepaidServiceDetailsDl(
+        @WebParam(name = "service_type", targetNamespace = "")
+        String serviceType,
+        @WebParam(name = "phone_no", targetNamespace = "")
+        String phoneNo);
+
 }
