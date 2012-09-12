@@ -114,6 +114,7 @@ public class App {
     		
     		/* now iterator through the service providers, processing each subscriber that is active and has an authorized ANI and a zero balance */
     		int nUpdates = 0 ;
+    		int nAccounts = 0 ;
     		for( ServiceProvider sp : serviceProviders ) {
     			
     			logger.info("Processing service provider " + sp.getName() ) ;
@@ -153,6 +154,7 @@ public class App {
         			}
 
         			logger.info("   Processing subscriber with phone number " + cli + " and subscriber_id " + sub.getSubscriberId() + " that has has not set first call date") ;
+        			nAccounts++ ;
         			
         			/* Check if this phone number exists on the M6, and if so when it was activated */
         			java.util.Date dtActivated = Dao.getPcsActivationDateForNumber(cli) ;
@@ -183,7 +185,7 @@ public class App {
         		}
     		}
 
-    		logger.info("Completed: " + nUpdates + " accounts had their first_call_date attribute set") ;
+    		logger.info("Completed: " + nAccounts + " accounts were checked; " + nUpdates + " accounts had their first_call_date attribute set") ;
     		if( nUpdates > 0 ) {
     			logger.info("The phone numbers updated were:") ;
     			for( String phone : listUpdates ) {
