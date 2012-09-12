@@ -5,9 +5,9 @@
 	</bean>
 
 	<bean id="wsConfig" class="com.beachdog.primusCore.Config">
-	    <property name="webServiceEndoint"><value>http://saturn.ca.primus:80/ECare</value></property>
-	<!--  <property name="webServiceEndoint"><value>http://phobos.ca.primus:80/ECare</value></property> -->
-		<property name="wsdlLocation"><value>file:////Users/dhorton/beachdog-enterprises/beachdog-networks/git/primus/setFirstUse/src/main/resources/PrimusWS.wsdl</value></property>
+	   <!--  <property name="webServiceEndoint"><value>http://saturn.ca.primus:80/ECare</value></property> -->
+	  <property name="webServiceEndoint"><value>http://phobos.ca.primus:80/ECare</value></property> 
+		<property name="wsdlLocation"><value>file:////usr/local/apache-tomcat/webapps/prepaidLocal-4.0/WEB-INF/PrimusWS.wsdl</value></property>
 		<property name="m6Address"><value>colo1-db01.voiss.primus.ca.</value></property>
 		<property name="m6Password"><value>e89552d0</value></property>		
 		<property name="m6User"><value>ppl_api_user</value></property>
@@ -23,8 +23,8 @@
                                 <value>oracle.jdbc.driver.OracleDriver</value>
                         </property>
                         <property name="connectionURL">
-                       <value>jdbc:oracle:thin:@10.201.170.95:1521:psprd1</value>   
-              <!--               <value>jdbc:oracle:thin:@10.201.174.136:1521:psprd1</value>  -->
+              <!--          <value>jdbc:oracle:thin:@10.201.170.95:1521:psprd1</value>  --> 
+                            <value>jdbc:oracle:thin:@10.201.174.136:1521:psprd1</value>
                         </property>
                         <property name="username">
                                 <value>pcsprod</value>
