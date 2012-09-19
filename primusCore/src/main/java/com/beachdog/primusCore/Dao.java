@@ -385,6 +385,24 @@ public class Dao {
 			session.save( ani ) ;
 			session.delete( pre ) ;
 			
+			/* write an account activity record for the payment */
+			Double d = initialBalance ;
+			AccountActivity aa = Dao.createAccountActivity(session, sub, d.floatValue(), Dao.POS_RECHARGE_EVENT_TYPE_ID) ;
+			session.save( aa ) ;
+			
+			CurrencyRef cr = (CurrencyRef) session.load(CurrencyRef.class, sub.getCurrencyId() ) ;
+			String businessUnit = null ;
+			ServiceProviderSettingsId spsid = new ServiceProviderSettingsId( Constants.BUSINESS_UNIT, sub.getServiceProviderId() ) ;
+			ServiceProviderSettings sps = (ServiceProviderSettings) session.createCriteria(ServiceProviderSettings.class)
+					.add(Restrictions.eq("id", spsid ))
+					.uniqueResult() ;
+			if( null != sps ) {
+				businessUnit = sps.getSpValue() ;
+			}
+
+			EvtPointOfSale epos = Dao.createEvtPointOfSale(session, sub, aa, cr, businessUnit, d.floatValue(), PactolusPOSConstants.TRANS_CODE_RECHARGE, "", "P") ;	
+			session.save( epos ) ;
+
 			transaction.commit() ;
 
 			/* last thing,tie subscriber to offering */
