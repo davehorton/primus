@@ -8,7 +8,7 @@
            <field name="subscriberPhone" type="string">
               <bind-xml name="subscriberPhone" node="element"/>
            </field>
-           <field name="initialBalance" type="big-decimal">
+           <field name="initialBalance" type="double">
               <bind-xml name="initialBalance" node="element"/>
            </field>
         </class>
@@ -24,7 +24,7 @@
            <field name="subscriberPin" type="string">
               <bind-xml name="subscriberPin" node="element"/>
            </field>
-           <field name="subscriberId" type="string">
+           <field name="subscriberId" type="long">
               <bind-xml name="subscriberId" node="element"/>
            </field>
          </class>
@@ -106,7 +106,7 @@
           	<field name="postalCode" type="string">
          		<bind-xml name="postalCode" node="element"/>
          	</field>
-          	<field name="amount" type="big-decimal">
+          	<field name="amount" type="double">
          		<bind-xml name="amount" node="element"/>
          	</field>
          	<field name="expiryDate" type="string">
@@ -151,7 +151,7 @@
         	<field name="vendorTransactionId" type="string">
          		<bind-xml name="vendorTransactionId" node="element"/>
          	</field>
- 	      	<field name="settleAmount" type="big-decimal" >
+ 	      	<field name="settleAmount" type="double" >
          		<bind-xml name="settleAmount" node="element"/>
          	</field>
          </class>
@@ -181,7 +181,7 @@
          	<field name="voucherNumber" type="string">
          		<bind-xml name="voucherNumber" node="element"/>
          	</field>
-        	<field name="voucherValue" type="big-decimal">
+        	<field name="voucherValue" type="double">
          		<bind-xml name="voucherValue" node="element"/>
          	</field>
           </class>
