@@ -49,6 +49,7 @@ public class Dao {
 	public static int CREDIT_CARD_CHARGE_EVENT = 29 ;
 	
 	/* event type ids from available_event */
+	public static int OFFERING_SIGNUP_EVENT_TYPE_ID = 2 ;
 	public static int POS_RECHARGE_EVENT_TYPE_ID = 15 ;
 	
 	/* audit event types */
@@ -76,6 +77,8 @@ public class Dao {
 	public static final int CC_DECLINED = -8 ;
 	public static final int SP_BUSINESS_UNIT_NOTFOUND = -9 ;
 	
+	/* error codes for query / update */
+	public static final int UNSUPPORTED_ATTRIBUTE = -1 ;
 	
 	/* general error codes */
 	public static final int SUCCESS = 0;
@@ -188,7 +191,7 @@ public class Dao {
 
 	static public int activateSinglePinFromLot( Long lotId, String phone, Double initialBalance, 
 			StringBuffer msg, StringBuffer subscriberId, StringBuffer pin ) {
-		int rc = PactolusConstants.SUCCESS ;
+		int rc = DB_ERROR ;
 		
 		
 		Session session = null ;
@@ -212,7 +215,7 @@ public class Dao {
 			
 			/* verify the lot is in a proper state to vend us a pin for use */
 			Integer lotStatus = lot.getLotStatus().intValue() ;
-			if( PactolusConstants.LOT_PROCESSED != lotStatus ) {
+			if( PactolusConstants.LOT_PROCESSED != lotStatus && PactolusConstants.LOT_ACTIVATED != lotStatus) {
 				logger.error("lot status is not valid for pin activation: " + lotStatus ) ;
 				msg.append("Lot status value of " + lotStatus + " is not valid for pin activation"	) ;
 				return LOT_INVALID_STATE ;
@@ -369,6 +372,7 @@ public class Dao {
 			sub.setBucketRefillWarningFlag('F') ;
 			sub.setBucketExhaustWarningFlag('F') ;
 			sub.setFirstUseFeeState(BigDecimal.valueOf(0)) ;
+			sub.setPrimaryOfferingId(lot.getProductOffering().getOfferingId()); 
 						
 			session.save( sub ) ;
 			
@@ -387,7 +391,7 @@ public class Dao {
 			
 			/* write an account activity record for the payment */
 			Double d = initialBalance ;
-			AccountActivity aa = Dao.createAccountActivity(session, sub, d.floatValue(), Dao.POS_RECHARGE_EVENT_TYPE_ID) ;
+			AccountActivity aa = Dao.createAccountActivity(session, sub, d.floatValue(), Dao.OFFERING_SIGNUP_EVENT_TYPE_ID) ;
 			session.save( aa ) ;
 			
 			CurrencyRef cr = (CurrencyRef) session.load(CurrencyRef.class, sub.getCurrencyId() ) ;
@@ -400,8 +404,11 @@ public class Dao {
 				businessUnit = sps.getSpValue() ;
 			}
 
-			EvtPointOfSale epos = Dao.createEvtPointOfSale(session, sub, aa, cr, businessUnit, d.floatValue(), PactolusPOSConstants.TRANS_CODE_RECHARGE, "", "P") ;	
+			EvtPointOfSale epos = Dao.createEvtPointOfSale(session, sub, aa, cr, businessUnit, 0f, PactolusPOSConstants.TRANS_CODE_ACTIVATE, "", "") ;	
 			session.save( epos ) ;
+
+			EvtPointOfSale epos2 = Dao.createEvtPointOfSale(session, sub, aa, cr, businessUnit, d.floatValue(), PactolusPOSConstants.TRANS_CODE_RECHARGE, "", "") ;	
+			session.save( epos2 ) ;
 
 			transaction.commit() ;
 
@@ -423,10 +430,11 @@ public class Dao {
 			subscriberId.append( sub.getSubscriberId().toPlainString() ) ;
 			
 			msg.append("Account was successfully provisioned") ;
+			rc = SUCCESS ;
 			
 			
 		} catch( Exception e ) {
-			e.printStackTrace() ;
+			logger.error("exception in Dao.activateSinglePinFromLot",e ) ;
 			if( null != transaction ) transaction.rollback() ;
 			if( null != conn ) try { conn.rollback() ; } catch( SQLException e1 ) {}
 		}
@@ -1008,11 +1016,14 @@ public class Dao {
 			else if( "currPrepaidBalance".equalsIgnoreCase(attribute) ) {
 				if( null != sub.getCurrPrepaidBalance() ) value.append( fmt.format( sub.getCurrPrepaidBalance().doubleValue() ) ) ;
 			}
+			else {
+				rc = UNSUPPORTED_ATTRIBUTE ;
+				value.append("Unsupported attribute '" + attribute + "'") ;
+			}
 			
-			transaction.commit() ;
-			
-			return rc ;
-			
+			if( UNSUPPORTED_ATTRIBUTE != rc ) transaction.commit() ;
+			else transaction.rollback() ;
+						
 		} catch( HibernateException he ) {
 			logger.error("Hibernate exception: ", he) ;
 			if( null != transaction ) transaction.rollback() ;	
@@ -1030,6 +1041,9 @@ public class Dao {
 		} finally {
 			if( null != session ) session.close() ;
 		}
+		
+		return rc ;
+
 	}
 
 	public static int updateSubscriberAttribute( String spName, String phone, String attribute, String value ) {
@@ -1084,25 +1098,31 @@ public class Dao {
 			else if( "firstUseDate".equalsIgnoreCase(attribute) ) {
 				sub.setFirstUseDate( value.length() > 0 ? sdf.parse(value) : null ) ;
 			}
+			else {
+				rc = UNSUPPORTED_ATTRIBUTE ;
+			}
 			
-			PsAudit audit = new PsAudit() ;
-			Long lAuditId = Dao.getOID(session, "audit_event") ;
-			audit.setAuditId(BigDecimal.valueOf(lAuditId)) ;
-			audit.setAuditEventId(BigDecimal.valueOf(PactolusConstants.PRPD_SUBSCRIBER_MODIFY_AUDIT)) ;
-			audit.setSubscriberId(sub.getSubscriberId()) ;
-			audit.setServiceProviderId( sp.getServiceProviderId() ) ;
-			audit.setAcdUserFlag('F') ;
-			audit.setTimestamp( Utilities.getCurrentTimestamp() ) ;
-			audit.setDataCol1( attribute ) ;
-			audit.setDataCol2( value ) ;
-			audit.setUserId( BigDecimal.valueOf(PactolusConstants.PROVISIONING_API_USER_ID ) );
+			if( UNSUPPORTED_ATTRIBUTE != rc ) {
+				PsAudit audit = new PsAudit() ;
+				Long lAuditId = Dao.getOID(session, "audit_event") ;
+				audit.setAuditId(BigDecimal.valueOf(lAuditId)) ;
+				audit.setAuditEventId(BigDecimal.valueOf(PactolusConstants.PRPD_SUBSCRIBER_MODIFY_AUDIT)) ;
+				audit.setSubscriberId(sub.getSubscriberId()) ;
+				audit.setServiceProviderId( sp.getServiceProviderId() ) ;
+				audit.setAcdUserFlag('F') ;
+				audit.setTimestamp( Utilities.getCurrentTimestamp() ) ;
+				audit.setDataCol1( attribute ) ;
+				audit.setDataCol2( value ) ;
+				audit.setUserId( BigDecimal.valueOf(PactolusConstants.PROVISIONING_API_USER_ID ) );
+							
+				session.save( audit ) ;
+	
+				transaction.commit() ;
+			}
+			else {
+				transaction.rollback() ;
+			}
 						
-			session.save( audit ) ;
-
-			transaction.commit() ;
-			
-			return rc ;
-			
 		} catch( HibernateException he ) {
 			logger.error("Hibernate exception: ", he) ;
 			if( null != transaction ) transaction.rollback() ;	
@@ -1120,6 +1140,9 @@ public class Dao {
 		} finally {
 			if( null != session ) session.close() ;
 		}
+		
+		return rc ;
+
 	}
 	
 	public static Rate getSubscriberMaintenanceFeeRate( Session session, BigDecimal offeringId ) {
