@@ -24,7 +24,7 @@
                         </property>
                         <property name="connectionURL">
                       <value>jdbc:oracle:thin:@10.201.170.95:1521:psprd1</value>  
-                   <!--  -->         <value>jdbc:oracle:thin:@10.201.174.136:1521:psprd1</value>   -->
+                   <!--         <value>jdbc:oracle:thin:@10.201.174.136:1521:psprd1</value>   -->
                         </property>
                         <property name="username">
                                 <value>pcsprod</value>
