@@ -151,7 +151,7 @@ public class App {
 					
 				case PactolusPOSConstants.TRANS_CODE_RECHARGE:
 					if( "U".equalsIgnoreCase(custData2) ) paymentMethod = Constants.UKASH_PAYMENT ;
-					else if( "P".equalsIgnoreCase("P") ) paymentMethod = Constants.PAYMENTECH_PAYMENT ;
+					else if( "P".equalsIgnoreCase(custData2) ) paymentMethod = Constants.PAYMENTECH_PAYMENT ;
 					break ;
 
 				case PactolusPOSConstants.TRANS_CODE_STATUS_REQ:
