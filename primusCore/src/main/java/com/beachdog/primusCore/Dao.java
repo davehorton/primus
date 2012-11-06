@@ -404,6 +404,7 @@ public class Dao {
 				businessUnit = sps.getSpValue() ;
 			}
 
+			/* create two point of sale records: one for the activation, and one for the initial top-up */
 			EvtPointOfSale epos = Dao.createEvtPointOfSale(session, sub, aa, cr, businessUnit, 0f, PactolusPOSConstants.TRANS_CODE_ACTIVATE, "", "") ;	
 			session.save( epos ) ;
 
